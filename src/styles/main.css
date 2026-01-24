@@ -1,0 +1,61 @@
+/* Variables */
+:root {
+  --font-stack:
+    'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  --font-mono: 'JetBrains Mono', 'Fira Code', monospace;
+
+  --bg-color: #050505;
+  --bg-panel: #111111;
+  --text-primary: #ededed;
+  --text-secondary: #888888;
+  --accent-color: #3b82f6;
+
+  --color-success: #10b981;
+  --color-error: #ef4444;
+  --color-warn: #eab308;
+  --color-info: #3b82f6;
+
+  --background: var(--bg-color);
+  --foreground: var(--text-primary);
+}
+
+html,
+body {
+  max-width: 100vw;
+  overflow-x: hidden;
+  background-color: var(--bg-color);
+  color: var(--text-primary);
+  font-family: var(--font-stack);
+  margin: 0;
+  padding: 0;
+  -webkit-font-smoothing: antialiased;
+}
+
+code,
+pre {
+  font-family: var(--font-mono);
+}
+
+* {
+  box-sizing: border-box;
+}
+
+a {
+  color: inherit;
+  text-decoration: none;
+}
+
+/* Global Utilities */
+.layout-container {
+  display: flex;
+  flex-direction: column;
+  height: 100vh;
+  overflow: hidden;
+}
+
+.view-content {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
