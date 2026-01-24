@@ -1,0 +1,199 @@
+/* VirtualLogList.module.css */
+
+.log-container {
+  flex: 1;
+  background-color: var(--bg-panel);
+  color: var(--text-primary);
+  font-family: var(--font-mono);
+  overflow: hidden;
+  position: relative;
+  display: flex;
+  flex-direction: column;
+}
+
+.virtual-scroller {
+  flex: 1;
+  overflow-y: auto;
+  contain: strict;
+}
+
+.log-row-wrapper {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+}
+
+.log-row {
+  display: flex;
+  align-items: center;
+  padding: 2px 8px;
+  font-size: 13px;
+  line-height: 1.4;
+  white-space: pre;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+  cursor: pointer;
+  transition: background-color 0.1s;
+}
+
+.log-row:hover {
+  background-color: rgba(255, 255, 255, 0.05);
+}
+
+.expanded .log-row {
+  background-color: rgba(255, 255, 255, 0.1);
+  border-bottom: none;
+}
+
+.details-panel {
+  background-color: rgba(0, 0, 0, 0.3);
+  padding: 8px 12px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+  animation: slideDown 0.1s ease-out;
+}
+
+.details-header {
+  font-size: 10px;
+  font-weight: bold;
+  color: var(--text-secondary);
+  margin-bottom: 4px;
+  opacity: 0.7;
+}
+
+.col-service {
+  width: 160px;
+  color: var(--text-secondary);
+  opacity: 0.9;
+  padding-right: 8px;
+}
+
+.json-view {
+  margin: 0;
+  font-family: 'Fira Code', var(--font-mono);
+  font-size: 12px;
+  color: #a5d6ff;
+  white-space: pre-wrap;
+  word-break: break-word;
+}
+
+@keyframes slideDown {
+  from {
+    opacity: 0;
+    transform: translateY(-5px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.header-row {
+  display: flex;
+  align-items: center;
+  padding: 8px 8px; /* Slightly taller */
+  font-size: 11px;
+  font-weight: bold;
+  text-transform: uppercase;
+  color: var(--text-secondary);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+  background-color: rgba(0, 0, 0, 0.2);
+  flex-shrink: 0;
+  user-select: none;
+}
+
+.col-type {
+  width: 55px;
+  font-weight: bold;
+}
+
+.col-ts {
+  width: 120px;
+  color: var(--text-secondary);
+}
+
+.col-id {
+  width: 60px;
+  color: var(--accent-color);
+}
+
+.col-wrid {
+  width: 70px;
+  color: #8b949e;
+}
+
+.col-cid {
+  width: 80px;
+  color: #ff9b67;
+}
+
+.col-ip {
+  width: 130px;
+  color: #79c0ff;
+}
+
+.col-msg {
+  flex: 2;
+  min-width: 200px;
+  color: var(--text-primary);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.col-event {
+  width: 150px;
+  font-weight: bold;
+}
+
+.col-meta {
+  width: 80px;
+  color: var(--text-secondary);
+  opacity: 0.8;
+  text-align: right;
+  padding-right: 4px;
+}
+
+/* Severities */
+.sev-INFO {
+  color: var(--color-info);
+}
+.sev-WARN {
+  color: var(--color-warn);
+}
+.sev-ERROR {
+  color: var(--color-error);
+}
+.sev-CRIT {
+  color: #ff4d4d;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+/* Row Highlighting & Borders */
+.row-sev-INFO {
+  border-left: 3px solid var(--color-info);
+}
+
+.row-sev-WARN {
+  background-color: rgba(255, 171, 0, 0.08);
+  border-left: 3px solid var(--color-warn);
+}
+.row-sev-WARN:hover {
+  background-color: rgba(255, 171, 0, 0.15) !important;
+}
+
+.row-sev-ERROR {
+  background-color: rgba(255, 82, 82, 0.1);
+  border-left: 3px solid var(--color-error);
+}
+.row-sev-ERROR:hover {
+  background-color: rgba(255, 82, 82, 0.2) !important;
+}
+
+.row-sev-CRIT {
+  background-color: rgba(255, 0, 0, 0.15);
+  border-left: 3px solid #ff4d4d;
+}
+.row-sev-CRIT:hover {
+  background-color: rgba(255, 0, 0, 0.25) !important;
+}
