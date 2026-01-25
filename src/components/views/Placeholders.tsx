@@ -49,13 +49,6 @@ const PlaceholderView: React.FC<{ title: string; subtitle: string }> = ({
   </motion.div>
 );
 
-export const WideEventView: React.FC = () => (
-  <PlaceholderView
-    title='Wide Events'
-    subtitle='Flattened, high-cardinality event records for deep observability. Coming soon.'
-  />
-);
-
 export const StructuredLogsView: React.FC = () => (
   <PlaceholderView
     title='Structured Logs'

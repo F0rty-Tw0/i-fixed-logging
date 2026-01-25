@@ -7,8 +7,8 @@ import { useSimulation } from '../core/hooks/useSimulation';
 import { ViewMode } from '../core/types/domain';
 import { QueueSimulatorView } from '../components/views/QueueSimulatorView';
 import { TailSamplingView } from '../components/views/TailSamplingView';
+import { WideEventView } from '../components/views/WideEventView';
 import {
-  WideEventView,
   StructuredLogsView,
   DistributedTracingView,
 } from '../components/views/Placeholders';
