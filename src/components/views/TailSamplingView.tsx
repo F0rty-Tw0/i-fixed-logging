@@ -31,6 +31,15 @@ export const TailSamplingView = () => {
     sampleInfo: true,
   });
   const [samplingRate, setSamplingRate] = useState(100);
+  const [debouncedSamplingRate, setDebouncedSamplingRate] = useState(100);
+
+  // Debounce sampling rate updates
+  useEffect(() => {
+    const handler = setTimeout(() => {
+      setDebouncedSamplingRate(samplingRate);
+    }, 300);
+    return () => clearTimeout(handler);
+  }, [samplingRate]);
 
   // Subscribe to log store updates to get tail sampling data
   const { severities, logIndices } = useSyncExternalStore(
@@ -70,15 +79,15 @@ export const TailSamplingView = () => {
 
       // Apply Global Sampling on top of everything
       if (isVisible) {
-        const bucket = physicalIdx % 100;
-        if (bucket >= samplingRate) {
+        const bucket = logStore.samplingBuckets[physicalIdx];
+        if (bucket >= debouncedSamplingRate) {
           isVisible = false;
         }
       }
 
       return isVisible;
     },
-    [filters, samplingRate],
+    [filters, debouncedSamplingRate],
   );
 
   // Derive hovered log from current store state and hovered index
@@ -140,13 +149,15 @@ export const TailSamplingView = () => {
       opacity: isVisible ? 0.9 : 0.1, // Keep faint color trace
       filter: isVisible ? 'none' : 'none', // Remove grayscale to preserve color tint
     };
-  }; // Calculate filtered count
+  };
+
+  // Calculate filtered count
   const filteredTotalCount = useSyncExternalStore(
     (cb) => logStore.subscribe(cb),
     () =>
       logStore.getFilteredCount({
         ...filters,
-        samplingRate,
+        samplingRate: debouncedSamplingRate,
       }),
     () => 0,
   );
@@ -183,7 +194,9 @@ export const TailSamplingView = () => {
         <h2 className={styles.title}>
           Live Traffic Matrix:{' '}
           <span className={styles.stats}>
-            {filteredTotalCount.toLocaleString()} logs
+            {filteredTotalCount === -1
+              ? 'Searching...'
+              : `${filteredTotalCount.toLocaleString()} logs`}
           </span>
         </h2>
 
@@ -194,54 +207,56 @@ export const TailSamplingView = () => {
       </div>
 
       <div className={styles.controls}>
-        <label className={styles.checkboxLabel}>
-          <input
-            type='checkbox'
-            className={styles.checkbox}
-            checked={filters.errors}
-            onChange={() => toggleFilter('errors')}
-          />
-          <span
-            className={styles.legendSquare}
-            style={{ backgroundColor: 'var(--color-error)' }}
-          />
-          Errors
-        </label>
-        <label className={styles.checkboxLabel}>
-          <input
-            type='checkbox'
-            className={styles.checkbox}
-            checked={filters.warnings}
-            onChange={() => toggleFilter('warnings')}
-          />
-          <span
-            className={styles.legendSquare}
-            style={{ backgroundColor: 'var(--color-warn)' }}
-          />
-          Warnings
-        </label>
-        <label className={styles.checkboxLabel}>
-          <input
-            type='checkbox'
-            className={styles.checkbox}
-            checked={filters.slow}
-            onChange={() => toggleFilter('slow')}
-          />
-          Slow (&gt;1s)
-        </label>
-        <label className={styles.checkboxLabel}>
-          <input
-            type='checkbox'
-            className={styles.checkbox}
-            checked={filters.sampleInfo}
-            onChange={() => toggleFilter('sampleInfo')}
-          />
-          <span
-            className={styles.legendSquare}
-            style={{ backgroundColor: 'var(--color-info)' }}
-          />
-          Sample Info (5%)
-        </label>
+        <div className={styles.filterGroup}>
+          <label className={styles.checkboxLabel}>
+            <input
+              type='checkbox'
+              className={styles.checkbox}
+              checked={filters.errors}
+              onChange={() => toggleFilter('errors')}
+            />
+            <span
+              className={styles.legendSquare}
+              style={{ backgroundColor: 'var(--color-error)' }}
+            />
+            Errors
+          </label>
+          <label className={styles.checkboxLabel}>
+            <input
+              type='checkbox'
+              className={styles.checkbox}
+              checked={filters.warnings}
+              onChange={() => toggleFilter('warnings')}
+            />
+            <span
+              className={styles.legendSquare}
+              style={{ backgroundColor: 'var(--color-warn)' }}
+            />
+            Warnings
+          </label>
+          <label className={styles.checkboxLabel}>
+            <input
+              type='checkbox'
+              className={styles.checkbox}
+              checked={filters.slow}
+              onChange={() => toggleFilter('slow')}
+            />
+            Slow (&gt;1s)
+          </label>
+          <label className={styles.checkboxLabel}>
+            <input
+              type='checkbox'
+              className={styles.checkbox}
+              checked={filters.sampleInfo}
+              onChange={() => toggleFilter('sampleInfo')}
+            />
+            <span
+              className={styles.legendSquare}
+              style={{ backgroundColor: 'var(--color-info)' }}
+            />
+            Sample Info (5%)
+          </label>
+        </div>
         <div className={styles.sliderContainer}>
           <label className={styles.sliderLabel}>
             Sampling: {samplingRate}%
@@ -252,6 +267,8 @@ export const TailSamplingView = () => {
             max='100'
             value={samplingRate}
             onChange={(e) => setSamplingRate(Number(e.target.value))}
+            onMouseUp={() => setDebouncedSamplingRate(samplingRate)}
+            onTouchEnd={() => setDebouncedSamplingRate(samplingRate)}
             className={styles.slider}
           />
         </div>

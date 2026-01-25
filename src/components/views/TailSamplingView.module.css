@@ -34,6 +34,7 @@
   gap: 16px;
   margin-bottom: 16px;
   align-items: center;
+  justify-content: space-between;
   font-size: 0.9rem;
   color: #ccc;
 }
@@ -111,6 +112,16 @@
 
 .scrollContainer::-webkit-scrollbar-thumb:hover {
   background: rgba(255, 255, 255, 0.2);
+}
+
+.filterGroup {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+.sliderContainer {
+  display: flex;
 }
 
 .virtualTrack {
