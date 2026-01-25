@@ -51,6 +51,21 @@ class LogStore {
     disabled: false,
   };
 
+  // Tail Sampling state (dense sequential circular buffer)
+  private readonly MAX_TAIL_SAMPLES = 15000; // 1000 columns * 15 rows
+  private tailBuffer = new Uint8Array(15000);
+  private tailCount = 0;
+  private tailWriteIdx = 0;
+  private tailSnapshot: Uint8Array = new Uint8Array(0);
+
+  private _cachedTailSamplingData: {
+    severities: Uint8Array;
+    logIndices: Int32Array;
+  } = {
+    severities: new Uint8Array(0),
+    logIndices: new Int32Array(0),
+  };
+
   constructor() {
     this.timestamps = new Float64Array(MAX_LOGS);
     this.journeyIds = new Int32Array(MAX_LOGS);
@@ -94,6 +109,11 @@ class LogStore {
     this.length = Math.min(this.length + batchSize, MAX_LOGS);
     this.totalIngested += batchSize;
 
+    this.updateTailSampling(chunkSeverities, chunkJourneyIds, batchSize);
+
+    // Update cache
+    this.updateCache();
+
     this.notify();
 
     // If we have a filter active, incrementally append new matches
@@ -117,6 +137,7 @@ class LogStore {
     }
 
     this.filteredIndices = new Uint32Array(matches);
+    this.updateCache();
     this.notify();
   }
 
@@ -184,6 +205,7 @@ class LogStore {
       this.filteredIndices = null;
       this.isSearching = false;
       this.searchProgress = 0;
+      this.updateCache();
       this.notify();
       return;
     }
@@ -222,6 +244,7 @@ class LogStore {
     if (this.currentSearchId === searchId) {
       this.filteredIndices = new Uint32Array(matches);
       this.isSearching = false;
+      this.updateCache();
       this.notify();
     }
   }
@@ -235,6 +258,21 @@ class LogStore {
     }
 
     const physicalIdx = (physicalStart + index) % MAX_LOGS;
+
+    return {
+      timestamp: this.timestamps[physicalIdx],
+      journeyId: this.journeyIds[physicalIdx],
+      eventId: this.eventIds[physicalIdx] as JourneyEvent,
+      severity: this.severities[physicalIdx] as LogSeverityId,
+      metaIndex: this.metaIndices[physicalIdx],
+      customerId: this.customerIds[physicalIdx],
+      ip: this.ips[physicalIdx],
+      waitingRoomId: this.waitingRoomIds[physicalIdx],
+    };
+  }
+
+  public getSnapshotByPhysicalIndex(physicalIdx: number): LogSnapshot | null {
+    if (physicalIdx < 0 || physicalIdx >= MAX_LOGS) return null;
 
     return {
       timestamp: this.timestamps[physicalIdx],
@@ -293,6 +331,43 @@ class LogStore {
     for (const cb of this.listeners) cb();
   }
 
+  private updateTailSampling(
+    chunkSeverities: Uint8Array | number[],
+    chunkJourneyIds: Int32Array | number[],
+    batchSize: number,
+  ) {
+    if (batchSize === 0) return;
+
+    // Just push into the circular buffer sequentially
+    for (let i = 0; i < batchSize; i++) {
+      this.tailBuffer[this.tailWriteIdx] = chunkSeverities[i];
+      this.tailWriteIdx = (this.tailWriteIdx + 1) % this.MAX_TAIL_SAMPLES;
+      this.tailCount = Math.min(this.tailCount + 1, this.MAX_TAIL_SAMPLES);
+    }
+
+    // Create a logical snapshot: chronological from oldest to newest
+    const snapshot = new Uint8Array(this.tailCount);
+
+    if (this.tailCount < this.MAX_TAIL_SAMPLES) {
+      // Not wrapped yet: [0, tailWriteIdx-1]
+      snapshot.set(this.tailBuffer.subarray(0, this.tailWriteIdx));
+    } else {
+      // Wrapped: [tailWriteIdx, MAX-1] then [0, tailWriteIdx-1]
+      const length = this.MAX_TAIL_SAMPLES;
+      snapshot.set(this.tailBuffer.subarray(this.tailWriteIdx, length), 0);
+      snapshot.set(
+        this.tailBuffer.subarray(0, this.tailWriteIdx),
+        length - this.tailWriteIdx,
+      );
+    }
+
+    this.tailSnapshot = snapshot;
+  }
+
+  public getTailSamplingData() {
+    return this._cachedTailSamplingData;
+  }
+
   public clear() {
     this.head = 0;
     this.tail = 0;
@@ -305,6 +380,18 @@ class LogStore {
     this.isSearching = false;
     this.currentSearchId++;
 
+    // Clear tail sampling
+    this.tailWriteIdx = 0;
+    this.tailCount = 0;
+    this.tailSnapshot = new Uint8Array(0);
+    this.tailBuffer.fill(0);
+
+    // Reset cache
+    this._cachedTailSamplingData = {
+      severities: new Uint8Array(0),
+      logIndices: new Int32Array(0),
+    };
+
     this.journeyIds.fill(0);
     this.eventIds.fill(0);
     this.severities.fill(0);
@@ -314,6 +401,59 @@ class LogStore {
     this.ips.fill(0);
     this.waitingRoomIds.fill(0);
     this.notify();
+  }
+  private updateCache() {
+    if ((this.isSearching || this.searchQuery) && this.filteredIndices) {
+      // Filtered mode
+      const matchCount = this.filteredIndices.length;
+      const tailLen = Math.min(matchCount, this.MAX_TAIL_SAMPLES);
+
+      const indices = new Int32Array(tailLen);
+      const severities = new Uint8Array(tailLen);
+
+      // filteredIndices contains logical indices [0..length]
+      // We want the LAST tailLen entries.
+      const startOffset = matchCount - tailLen;
+
+      // We need to convert logical filter indices to physical indices
+      // Logical 0 corresponds to physical start.
+      let physicalStart = 0;
+      if (this.totalIngested > MAX_LOGS) {
+        physicalStart = this.head;
+      }
+
+      for (let i = 0; i < tailLen; i++) {
+        const logicalIdx = this.filteredIndices[startOffset + i];
+        const physicalIdx = (physicalStart + logicalIdx) % MAX_LOGS;
+        indices[i] = physicalIdx;
+        severities[i] = this.severities[physicalIdx];
+      }
+
+      this._cachedTailSamplingData = { severities, logIndices: indices };
+    } else {
+      // Raw mode
+      // Re-use tailSnapshot which is computed in updateTailSampling
+      // I need to generate indices.
+      const count = this.tailSnapshot.length;
+      let start = (this.head - count) % MAX_LOGS;
+      if (start < 0) start += MAX_LOGS;
+
+      const indices = new Int32Array(count);
+      if (start + count <= MAX_LOGS) {
+        // Continuous
+        for (let i = 0; i < count; i++) indices[i] = start + i;
+      } else {
+        // Wrapped
+        const firstChunk = MAX_LOGS - start;
+        for (let i = 0; i < firstChunk; i++) indices[i] = start + i;
+        for (let i = 0; i < count - firstChunk; i++) indices[i] = i;
+      }
+
+      this._cachedTailSamplingData = {
+        severities: this.tailSnapshot,
+        logIndices: indices,
+      };
+    }
   }
 }
 
