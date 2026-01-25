@@ -6,8 +6,8 @@ import { Navigation } from '../components/Navigation';
 import { useSimulation } from '../core/hooks/useSimulation';
 import { ViewMode } from '../core/types/domain';
 import { QueueSimulatorView } from '../components/views/QueueSimulatorView';
+import { TailSamplingView } from '../components/views/TailSamplingView';
 import {
-  TailSamplingView,
   WideEventView,
   StructuredLogsView,
   DistributedTracingView,
