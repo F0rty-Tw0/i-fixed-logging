@@ -49,13 +49,6 @@ const PlaceholderView: React.FC<{ title: string; subtitle: string }> = ({
   </motion.div>
 );
 
-export const TailSamplingView: React.FC = () => (
-  <PlaceholderView
-    title='Tail Sampling'
-    subtitle='Intelligent sampling of distributed traces based on outcomes. Coming soon.'
-  />
-);
-
 export const WideEventView: React.FC = () => (
   <PlaceholderView
     title='Wide Events'
