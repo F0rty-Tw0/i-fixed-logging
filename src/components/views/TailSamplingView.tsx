@@ -7,6 +7,7 @@ import {
   useSyncExternalStore,
   useMemo,
   useState,
+  useCallback,
 } from 'react';
 import { motion } from 'framer-motion';
 import { useVirtualizer } from '@tanstack/react-virtual';
@@ -27,14 +28,57 @@ export const TailSamplingView = () => {
     errors: true,
     warnings: true,
     slow: true,
-    sampleInfo: true, // Default to sampling enabled? User seemed to want it.
+    sampleInfo: true,
   });
+  const [samplingRate, setSamplingRate] = useState(100);
 
   // Subscribe to log store updates to get tail sampling data
   const { severities, logIndices } = useSyncExternalStore(
     (cb) => logStore.subscribe(cb),
     () => logStore.getTailSamplingData(),
     () => ({ severities: new Uint8Array(0), logIndices: new Int32Array(0) }),
+  );
+
+  // Helper to check visibility based on all filters
+  const isLogVisible = useCallback(
+    (sevId: number, physicalIdx: number) => {
+      const isError =
+        sevId === LogSeverityId.CRITICAL || sevId === LogSeverityId.ERROR;
+      const isWarn = sevId === LogSeverityId.WARN;
+      const isInfo = sevId === LogSeverityId.INFO;
+
+      let isVisible = false;
+
+      // Check Type Filters
+      if (isError && filters.errors) isVisible = true;
+      if (isWarn && filters.warnings) isVisible = true;
+
+      // Check Slow Filter
+      if (filters.slow) {
+        const latency = logStore.metaIndices[physicalIdx];
+        if (latency > 1000) isVisible = true;
+      }
+
+      // Check Info Filter
+      if (isInfo) {
+        if (!filters.sampleInfo) {
+          isVisible = true;
+        } else if (physicalIdx % 20 === 0) {
+          isVisible = true;
+        }
+      }
+
+      // Apply Global Sampling on top of everything
+      if (isVisible) {
+        const bucket = physicalIdx % 100;
+        if (bucket >= samplingRate) {
+          isVisible = false;
+        }
+      }
+
+      return isVisible;
+    },
+    [filters, samplingRate],
   );
 
   // Derive hovered log from current store state and hovered index
@@ -44,13 +88,16 @@ export const TailSamplingView = () => {
     // Bounds check
     if (hoveredIndex < 0 || hoveredIndex >= severities.length) return null;
 
-    // The view displays logs in chronological order (left to right, wrapping)
-    // The severities array is [oldest ... newest]
-    // And logIndices is [oldest_physical_idx ... newest_physical_idx]
-
     const physicalIdx = logIndices[hoveredIndex];
+    const sevId = severities[hoveredIndex];
+
+    // Ensure it's visible based on current filters
+    if (!isLogVisible(sevId, physicalIdx)) {
+      return null;
+    }
+
     return logStore.getSnapshotByPhysicalIndex(physicalIdx);
-  }, [hoveredIndex, severities.length, logIndices]);
+  }, [hoveredIndex, severities, logIndices, isLogVisible]);
 
   // Calculate column count
   const columnCount = useMemo(
@@ -75,40 +122,12 @@ export const TailSamplingView = () => {
 
   // Calculate color for a single log square
   const getSquareStyle = (sevId: number, physicalIdx: number) => {
+    const isVisible = isLogVisible(sevId, physicalIdx);
+
     const isError =
       sevId === LogSeverityId.CRITICAL || sevId === LogSeverityId.ERROR;
     const isWarn = sevId === LogSeverityId.WARN;
     const isInfo = sevId === LogSeverityId.INFO;
-
-    let isVisible = false;
-
-    // Check Error Filter
-    if (isError && filters.errors) {
-      isVisible = true;
-    }
-
-    // Check Warn Filter
-    if (isWarn && filters.warnings) {
-      isVisible = true;
-    }
-
-    // Check Slow Filter (> 1000ms)
-    // Access latency directly from store without allocating object
-    const latency = logStore.metaIndices[physicalIdx];
-    if (filters.slow && latency > 1000) {
-      isVisible = true;
-    }
-
-    // Check Info Filter
-    // If IS NO filter (sampleInfo false) -> Show All
-    // If IS filter (sampleInfo true) -> Show 5%
-    if (isInfo) {
-      if (!filters.sampleInfo) {
-        isVisible = true;
-      } else if (physicalIdx % 20 === 0) {
-        isVisible = true;
-      }
-    }
 
     let baseColor = '';
     if (isError) baseColor = 'var(--color-error)';
@@ -118,12 +137,29 @@ export const TailSamplingView = () => {
 
     return {
       backgroundColor: baseColor,
-      opacity: isVisible ? 0.9 : 0.05,
-      filter: isVisible ? 'none' : 'grayscale(100%)',
+      opacity: isVisible ? 0.9 : 0.1, // Keep faint color trace
+      filter: isVisible ? 'none' : 'none', // Remove grayscale to preserve color tint
     };
-  };
+  }; // Calculate filtered count
+  const filteredTotalCount = useSyncExternalStore(
+    (cb) => logStore.subscribe(cb),
+    () =>
+      logStore.getFilteredCount({
+        ...filters,
+        samplingRate,
+      }),
+    () => 0,
+  );
 
   const handleSquareEnter = (e: React.MouseEvent, index: number) => {
+    // Check if visible before showing tooltip
+    const sevId = severities[index];
+    const physicalIdx = logIndices[index];
+
+    if (!isLogVisible(sevId, physicalIdx)) {
+      return;
+    }
+
     const rect = (e.target as HTMLElement).getBoundingClientRect();
     setTooltipPos({ x: rect.right + 10, y: rect.top });
     setHoveredIndex(index);
@@ -144,7 +180,13 @@ export const TailSamplingView = () => {
       className={styles.container}
     >
       <div className={styles.header}>
-        <h2 className={styles.title}>Live Traffic Matrix</h2>
+        <h2 className={styles.title}>
+          Live Traffic Matrix:{' '}
+          <span className={styles.stats}>
+            {filteredTotalCount.toLocaleString()} logs
+          </span>
+        </h2>
+
         <p className={styles.subtitle}>
           Each square represents a single log. The grid fills 15x down, then
           moves to the next column. Hover for details.
@@ -200,6 +242,19 @@ export const TailSamplingView = () => {
           />
           Sample Info (5%)
         </label>
+        <div className={styles.sliderContainer}>
+          <label className={styles.sliderLabel}>
+            Sampling: {samplingRate}%
+          </label>
+          <input
+            type='range'
+            min='1'
+            max='100'
+            value={samplingRate}
+            onChange={(e) => setSamplingRate(Number(e.target.value))}
+            className={styles.slider}
+          />
+        </div>
       </div>
 
       <div className={styles.scrollContainer} ref={scrollContainerRef}>
