@@ -27,6 +27,7 @@ class LogStore {
   public customerIds: Int32Array;
   public ips: Uint32Array;
   public waitingRoomIds: Int32Array;
+  public samplingBuckets: Uint8Array;
 
   private head: number = 0; // Next write position
   private tail: number = 0; // Oldest unread position (if we implement full ring buffer logic)
@@ -75,6 +76,7 @@ class LogStore {
     this.customerIds = new Int32Array(MAX_LOGS);
     this.ips = new Uint32Array(MAX_LOGS);
     this.waitingRoomIds = new Int32Array(MAX_LOGS);
+    this.samplingBuckets = new Uint8Array(MAX_LOGS);
   }
 
   /**
@@ -96,21 +98,8 @@ class LogStore {
       const idx = (this.head + i) % MAX_LOGS;
 
       // Maintain stats: decrement old value if overwriting
-      if (this.length === MAX_LOGS || this.totalIngested + i >= MAX_LOGS) {
-        // Note: If totalIngested < MAX_LOGS, we are filling initializing.
-        // If length == MAX_LOGS, we are overwriting.
-        // Actually, wait: If totalIngested < MAX_LOGS, we are writing to virgin memory (0).
-        // If totalIngested > MAX_LOGS, we are overwriting.
-        // But `this.length` caps at MAX_LOGS.
-        // So if `this.length === MAX_LOGS`, we are overwriting.
-        // EXCEPT: Is it possible `this.length` is MAX_LOGS but we haven't wrapped yet?
-        // No, length only hits MAX_LOGS when full.
-        // Safe check: `if (this.totalIngested >= MAX_LOGS)` or check if severities[idx] has meaningful data?
-        // Actually `this.severities` is initialized to 0. Type 0 is likely existing.
-        // Safer: `if (this.length === MAX_LOGS)`
-        if (this.length === MAX_LOGS) {
-          this.decrementStats(idx);
-        }
+      if (this.totalIngested + i >= MAX_LOGS) {
+        this.decrementStats(idx);
       }
 
       this.timestamps[idx] = chunkTimestamps[i];
@@ -121,6 +110,10 @@ class LogStore {
       this.customerIds[idx] = chunkCustomerIds[i];
       this.ips[idx] = chunkIps[i];
       this.waitingRoomIds[idx] = chunkWaitingRoomIds[i];
+
+      // Assign a random sampling bucket for visual distribution
+      const bucket = (Math.random() * 100) | 0;
+      this.samplingBuckets[idx] = bucket;
 
       this.incrementStats(idx, chunkSeverities[i], chunkMetaIndices[i]);
     }
@@ -406,6 +399,14 @@ class LogStore {
     this.tailSnapshot = new Uint8Array(0);
     this.tailBuffer.fill(0);
 
+    // Clear stats
+    this.statsColumns.error.fill(0);
+    this.statsColumns.warn.fill(0);
+    this.statsColumns.info.fill(0);
+    this.statsColumns.slowError.fill(0);
+    this.statsColumns.slowWarn.fill(0);
+    this.statsColumns.slowInfo.fill(0);
+
     // Reset cache
     this._cachedTailSamplingData = {
       severities: new Uint8Array(0),
@@ -420,6 +421,7 @@ class LogStore {
     this.customerIds.fill(0);
     this.ips.fill(0);
     this.waitingRoomIds.fill(0);
+    this.samplingBuckets.fill(0);
     this.notify();
   }
   private updateCache() {
@@ -487,7 +489,7 @@ class LogStore {
   };
 
   private decrementStats(physicalIdx: number) {
-    const bucket = physicalIdx % 100;
+    const bucket = this.samplingBuckets[physicalIdx];
     const sev = this.severities[physicalIdx];
     const latency = this.metaIndices[physicalIdx];
     const isSlow = latency > 1000;
@@ -510,7 +512,7 @@ class LogStore {
   }
 
   private incrementStats(physicalIdx: number, sev: number, latency: number) {
-    const bucket = physicalIdx % 100;
+    const bucket = this.samplingBuckets[physicalIdx];
     const isSlow = latency > 1000;
 
     const isError =
@@ -537,8 +539,19 @@ class LogStore {
     sampleInfo: boolean;
     samplingRate: number;
   }): number {
+    // If searching and we don't have results yet, or we're in the middle of a search,
+    // it's better to return -1 or a special value to indicate "counting..."
+    if (this.isSearching) {
+      return -1;
+    }
+
+    // If we have a query but no filter indices (shouldn't happen if not searching, but safety)
+    if (this.searchQuery && !this.filteredIndices) {
+      return 0;
+    }
+
     // If searching, we must fallback to scanning the filteredIndices because stats are global
-    if ((this.isSearching || this.searchQuery) && this.filteredIndices) {
+    if (this.filteredIndices) {
       let count = 0;
       const len = this.filteredIndices.length;
 
@@ -555,7 +568,7 @@ class LogStore {
         const latency = this.metaIndices[physicalIdx];
 
         // Check sampling first (mimic view logic: bucket check)
-        const bucket = physicalIdx % 100;
+        const bucket = this.samplingBuckets[physicalIdx];
         if (bucket >= filters.samplingRate) continue;
 
         const isError =
