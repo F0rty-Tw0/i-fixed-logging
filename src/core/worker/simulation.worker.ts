@@ -18,9 +18,11 @@ const journeyLastUpdateTimes = new Float64Array(MAX_USERS); // Last event timest
 const journeyAdvanceProbs = new Float32Array(MAX_USERS); // Probability to advance per tick for current step
 const journeyCustomerIds = new Int32Array(MAX_USERS);
 const journeyIps = new Uint32Array(MAX_USERS);
-const MAX_SPAWNS_PER_TICK = 5; // Limit bursts when increasing users
+const MAX_SPAWNS_PER_TICK = 50; // Allow fast ramp up to 50K
 const journeyWaitingRoomIds = new Uint8Array(MAX_USERS);
 let globalJourneyIdCounter = 1;
+let totalOccupiedCount = 0; // Track occupied slots (Running or Completed)
+let totalRunningCount = 0; // Track currently running slots
 
 // Fixed Sequence
 const JOURNEY_SEQUENCE = [
@@ -43,7 +45,7 @@ const JOURNEY_SEQUENCE = [
 
 // Output Buffers (Double buffering or just create new ones per chunk)
 // To avoid allocations, we can use a fixed Transferable buffer, but creating new small arrays is safer for now.
-const CHUNK_SIZE = 5000;
+const CHUNK_SIZE = 10000;
 let chunkPtr = 0;
 
 let chunkTimestamps = new Float64Array(CHUNK_SIZE);
@@ -71,6 +73,8 @@ self.onmessage = (e: MessageEvent) => {
   } else if (type === 'RESET') {
     isRunning = false;
     activeCount = 0;
+    totalOccupiedCount = 0;
+    totalRunningCount = 0;
     chunkPtr = 0;
     journeyStates.fill(STATE_INACTIVE);
     journeySessionIds.fill(0);
@@ -116,55 +120,39 @@ function tick() {
   // We track `activeOccupied` to ensure we don't spawn if the slot is either RUNNING or COMPLETED.
   // This ensures "Single Run" behavior: once a slot finishes, it stays "Occupied" (as Completed) and doesn't respawn.
 
-  let activeOccupied = 0;
-  let activeRunning = 0; // For HUD
   let spawnsThisTick = 0;
-
-  // Scan to count first (robustness)
-  for (let i = 0; i < MAX_USERS; i++) {
-    if (journeyStates[i] !== STATE_INACTIVE) activeOccupied++;
-  }
 
   for (let i = 0; i < MAX_USERS; i++) {
     const state = journeyStates[i];
 
     if (state === STATE_INACTIVE) {
-      // Inactive: Candidate for spawning
       if (
-        activeOccupied < targetUsers &&
+        totalOccupiedCount < targetUsers &&
         spawnsThisTick < MAX_SPAWNS_PER_TICK
       ) {
-        // Spawn chance
-        if (Math.random() < 0.01) {
-          // Add micro-jitter (0-400ms) to the start time so events aren't perfectly aligned to the 400ms pulse
+        // Higher spawn chance for faster ramp up
+        if (Math.random() < 0.1) {
           const jitter = Math.random() * 400;
           startJourney(i, now + jitter);
 
           spawnsThisTick++;
-          activeOccupied++;
-          activeRunning++;
         }
       }
     } else if (state === STATE_COMPLETED) {
-      // Do nothing (Wait for Reset or Stop)
+      // Do nothing
     } else {
       // Running
-      activeRunning++;
-
-      // Advance Journey
-      // Random chance to advance to simulate "Time"
-      // 0.05 ~ 1 second average interval at 20fps
-      // Advance Journey
-      // Use pre-calculated probability for this specific step
       if (Math.random() < journeyAdvanceProbs[i]) {
-        // Add jitter to advanced events as well to avoid clusters sharing the same tick timestamp
         const jitter = Math.random() * 50;
         advanceJourney(i, state, now + jitter);
       }
     }
+
+    // Performance break: if we reached target and aren't scanning for status?
+    // Actually, we must finish the loop to advance all journeys.
   }
 
-  activeCount = activeRunning;
+  activeCount = totalRunningCount;
 
   // Flush if needed or periodically
   if (chunkPtr > 0) {
@@ -182,6 +170,8 @@ function startJourney(id: number, time: number) {
   journeyStates[id] = startEvent;
   journeySessionIds[id] = globalJourneyIdCounter++;
   journeyLastUpdateTimes[id] = time;
+  totalOccupiedCount++;
+  totalRunningCount++;
 
   // Determine next step latency (bi-modal)
   // Normal: ~200ms. Tick is 50ms. So 4 ticks. Prob = 1/4 = 0.25
@@ -287,10 +277,12 @@ function advanceJourney(id: number, currentState: number, time: number) {
 
     if (shouldTerminate) {
       journeyStates[id] = STATE_COMPLETED;
+      totalRunningCount--;
     }
   } else {
     // End of journey normally
     journeyStates[id] = STATE_COMPLETED;
+    totalRunningCount--;
   }
 }
 
