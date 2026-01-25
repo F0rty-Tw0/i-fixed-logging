@@ -95,6 +95,24 @@ class LogStore {
     for (let i = 0; i < batchSize; i++) {
       const idx = (this.head + i) % MAX_LOGS;
 
+      // Maintain stats: decrement old value if overwriting
+      if (this.length === MAX_LOGS || this.totalIngested + i >= MAX_LOGS) {
+        // Note: If totalIngested < MAX_LOGS, we are filling initializing.
+        // If length == MAX_LOGS, we are overwriting.
+        // Actually, wait: If totalIngested < MAX_LOGS, we are writing to virgin memory (0).
+        // If totalIngested > MAX_LOGS, we are overwriting.
+        // But `this.length` caps at MAX_LOGS.
+        // So if `this.length === MAX_LOGS`, we are overwriting.
+        // EXCEPT: Is it possible `this.length` is MAX_LOGS but we haven't wrapped yet?
+        // No, length only hits MAX_LOGS when full.
+        // Safe check: `if (this.totalIngested >= MAX_LOGS)` or check if severities[idx] has meaningful data?
+        // Actually `this.severities` is initialized to 0. Type 0 is likely existing.
+        // Safer: `if (this.length === MAX_LOGS)`
+        if (this.length === MAX_LOGS) {
+          this.decrementStats(idx);
+        }
+      }
+
       this.timestamps[idx] = chunkTimestamps[i];
       this.journeyIds[idx] = chunkJourneyIds[i];
       this.eventIds[idx] = chunkEventIds[i];
@@ -103,6 +121,8 @@ class LogStore {
       this.customerIds[idx] = chunkCustomerIds[i];
       this.ips[idx] = chunkIps[i];
       this.waitingRoomIds[idx] = chunkWaitingRoomIds[i];
+
+      this.incrementStats(idx, chunkSeverities[i], chunkMetaIndices[i]);
     }
 
     this.head = (this.head + batchSize) % MAX_LOGS;
@@ -454,6 +474,175 @@ class LogStore {
         logIndices: indices,
       };
     }
+  }
+
+  // Statistics for O(1) filtered counts
+  private statsColumns = {
+    error: new Int32Array(100),
+    warn: new Int32Array(100),
+    info: new Int32Array(100),
+    slowError: new Int32Array(100),
+    slowWarn: new Int32Array(100),
+    slowInfo: new Int32Array(100),
+  };
+
+  private decrementStats(physicalIdx: number) {
+    const bucket = physicalIdx % 100;
+    const sev = this.severities[physicalIdx];
+    const latency = this.metaIndices[physicalIdx];
+    const isSlow = latency > 1000;
+
+    const isError =
+      sev === LogSeverityId.CRITICAL || sev === LogSeverityId.ERROR;
+    const isWarn = sev === LogSeverityId.WARN;
+    const isInfo = sev === LogSeverityId.INFO;
+
+    if (isError) {
+      this.statsColumns.error[bucket]--;
+      if (isSlow) this.statsColumns.slowError[bucket]--;
+    } else if (isWarn) {
+      this.statsColumns.warn[bucket]--;
+      if (isSlow) this.statsColumns.slowWarn[bucket]--;
+    } else if (isInfo) {
+      this.statsColumns.info[bucket]--;
+      if (isSlow) this.statsColumns.slowInfo[bucket]--;
+    }
+  }
+
+  private incrementStats(physicalIdx: number, sev: number, latency: number) {
+    const bucket = physicalIdx % 100;
+    const isSlow = latency > 1000;
+
+    const isError =
+      sev === LogSeverityId.CRITICAL || sev === LogSeverityId.ERROR;
+    const isWarn = sev === LogSeverityId.WARN;
+    const isInfo = sev === LogSeverityId.INFO;
+
+    if (isError) {
+      this.statsColumns.error[bucket]++;
+      if (isSlow) this.statsColumns.slowError[bucket]++;
+    } else if (isWarn) {
+      this.statsColumns.warn[bucket]++;
+      if (isSlow) this.statsColumns.slowWarn[bucket]++;
+    } else if (isInfo) {
+      this.statsColumns.info[bucket]++;
+      if (isSlow) this.statsColumns.slowInfo[bucket]++;
+    }
+  }
+
+  public getFilteredCount(filters: {
+    errors: boolean;
+    warnings: boolean;
+    slow: boolean;
+    sampleInfo: boolean;
+    samplingRate: number;
+  }): number {
+    // If searching, we must fallback to scanning the filteredIndices because stats are global
+    if ((this.isSearching || this.searchQuery) && this.filteredIndices) {
+      let count = 0;
+      const len = this.filteredIndices.length;
+
+      let physicalStart = 0;
+      if (this.totalIngested > MAX_LOGS) {
+        physicalStart = this.head;
+      }
+
+      for (let i = 0; i < len; i++) {
+        const logicalIdx = this.filteredIndices[i];
+        const physicalIdx = (physicalStart + logicalIdx) % MAX_LOGS;
+
+        const sev = this.severities[physicalIdx];
+        const latency = this.metaIndices[physicalIdx];
+
+        // Check sampling first (mimic view logic: bucket check)
+        const bucket = physicalIdx % 100;
+        if (bucket >= filters.samplingRate) continue;
+
+        const isError =
+          sev === LogSeverityId.CRITICAL || sev === LogSeverityId.ERROR;
+        const isWarn = sev === LogSeverityId.WARN;
+        const isInfo = sev === LogSeverityId.INFO;
+
+        let isVisible = false;
+        if (isError && filters.errors) isVisible = true;
+        if (isWarn && filters.warnings) isVisible = true;
+        if (filters.slow && latency > 1000) isVisible = true;
+
+        if (isInfo) {
+          // View Logic for Info:
+          // if (!filters.sampleInfo) -> Show All (isVisible = true)
+          // else if (physicalIdx % 20 === 0) -> Show Sampled
+          // Note: Slow filter overrides this in current View Logic?
+          // View: if (slow) { isVisible = true } ... if (isInfo) { check sample }
+          // If slow made it visible, it stays visible.
+          // If not slow, we check info logic.
+
+          if (!isVisible) {
+            if (!filters.sampleInfo) isVisible = true;
+            else if (physicalIdx % 20 === 0) isVisible = true;
+          }
+        }
+
+        if (isVisible) count++;
+      }
+      return count;
+    }
+
+    // Fast Path: Use O(1) Precomputed Stats
+    let total = 0;
+
+    // Sum up buckets from 0 to samplingRate - 1
+    // (Buckets >= samplingRate are excluded by strict sampling logic)
+    const limit = Math.min(100, Math.max(0, filters.samplingRate));
+
+    for (let b = 0; b < limit; b++) {
+      const cntError = this.statsColumns.error[b];
+      const cntWarn = this.statsColumns.warn[b];
+      const cntInfo = this.statsColumns.info[b];
+      const cntSlowError = this.statsColumns.slowError[b];
+      const cntSlowWarn = this.statsColumns.slowWarn[b];
+      const cntSlowInfo = this.statsColumns.slowInfo[b];
+
+      const nInfoFast = cntInfo - cntSlowInfo;
+
+      // Logic:
+      // Error is visible if (filters.errors OR (filters.slow AND isSlow))
+      // Warn is visible if (filters.warnings OR (filters.slow AND isSlow))
+      // Info:
+      //  If Slow Info: visible if (filters.slow OR InfoLogic)
+      //  If Fast Info: visible if (InfoLogic)
+
+      // InfoLogic: (!filters.sampleInfo) OR (bucket % 20 === 0)
+      // Note: b is bucket.
+      const infoPos = !filters.sampleInfo || b % 20 === 0;
+
+      // Errors
+      if (filters.errors) {
+        total += cntError; // Both fast and slow shown
+      } else if (filters.slow) {
+        total += cntSlowError; // Only slow errors shown
+      }
+
+      // Warnings
+      if (filters.warnings) {
+        total += cntWarn;
+      } else if (filters.slow) {
+        total += cntSlowWarn;
+      }
+
+      // Info
+      // Fast Info
+      if (infoPos) {
+        total += nInfoFast;
+      }
+
+      // Slow Info
+      if (filters.slow || infoPos) {
+        total += cntSlowInfo;
+      }
+    }
+
+    return total;
   }
 }
 
