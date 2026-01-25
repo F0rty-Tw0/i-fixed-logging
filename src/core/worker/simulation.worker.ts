@@ -186,8 +186,8 @@ function startJourney(id: number, time: number) {
   // Determine next step latency (bi-modal)
   // Normal: ~200ms. Tick is 50ms. So 4 ticks. Prob = 1/4 = 0.25
   // Slow: ~2000ms. 40 ticks. Prob = 1/40 = 0.025
-  // 5% chance of slow
-  const isSlow = Math.random() < 0.05;
+  // 2% chance of slow
+  const isSlow = Math.random() < 0.01;
   journeyAdvanceProbs[id] = isSlow ? 0.025 : 0.25;
 
   // Latency is 0 for start (or small random connect time, but 0 is cleaner for start)
@@ -234,7 +234,7 @@ function advanceJourney(id: number, currentState: number, time: number) {
   journeyLastUpdateTimes[id] = time;
 
   // Determine next step latency (for the event AFTER this one)
-  const isSlow = Math.random() < 0.05;
+  const isSlow = Math.random() < 0.01;
   journeyAdvanceProbs[id] = isSlow ? 0.025 : 0.25;
 
   if (nextIndex < JOURNEY_SEQUENCE.length) {
@@ -248,11 +248,11 @@ function advanceJourney(id: number, currentState: number, time: number) {
 
     if (latency > 1500) {
       // High latency path
-      if (rand < 0.15) {
-        severity = LogSeverityId.ERROR; // 15% chance of timeout/error in slow path
+      if (rand < 0.05) {
+        severity = LogSeverityId.ERROR; // 5% chance of timeout/error in slow path
         shouldTerminate = true;
-      } else if (rand < 0.7) {
-        severity = LogSeverityId.WARN; // 55% chance of warning
+      } else if (rand < 0.1) {
+        severity = LogSeverityId.WARN; // 15% chance of warning
       }
     } else {
       // Normal path
@@ -262,15 +262,15 @@ function advanceJourney(id: number, currentState: number, time: number) {
         nextState === JourneyEvent.GEO_CHECK ||
         nextState === JourneyEvent.BOT_CHECK_START;
 
-      if (isSecurityEvent && rand < 0.005) {
-        // 0.5% chance to be blocked
+      if (isSecurityEvent && rand < 0.001) {
+        // 0.1% chance to be blocked
         severity = LogSeverityId.CRITICAL;
         shouldTerminate = true;
-      } else if (rand < 0.002) {
-        severity = LogSeverityId.ERROR; // 0.2% chance of random failure
+      } else if (rand < 0.0005) {
+        severity = LogSeverityId.ERROR; // 0.05% chance of random failure
         shouldTerminate = true;
-      } else if (rand < 0.008) {
-        severity = LogSeverityId.WARN; // 0.6% chance of random warning
+      } else if (rand < 0.003) {
+        severity = LogSeverityId.WARN; // ~0.25% chance of random warning
       }
     }
 
