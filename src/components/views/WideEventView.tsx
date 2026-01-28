@@ -1,7 +1,7 @@
 /* eslint-disable react/no-unescaped-entities */
 'use client';
 
-import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { JourneyEvent, EVENT_NAMES } from '../../core/types/domain';
 import styles from './WideEventView.module.css';
@@ -301,6 +301,15 @@ export const WideEventView: React.FC = () => {
   const [activeHighlightCategory, setActiveHighlightCategory] = useState<
     string | null
   >(null);
+  const [showProblemTooltip, setShowProblemTooltip] = useState(false);
+
+  // Auto-dismiss tooltip after 5s
+  useEffect(() => {
+    if (showProblemTooltip) {
+      const timer = setTimeout(() => setShowProblemTooltip(false), 5000);
+      return () => clearTimeout(timer);
+    }
+  }, [showProblemTooltip]);
 
   // Toggle a field selection
   const toggleField = (stepId: JourneyEvent, fieldName: string) => {
@@ -610,6 +619,57 @@ export const WideEventView: React.FC = () => {
         <div className={styles.previewPanel}>
           <div className={styles.panelHeader}>
             <h2 className={styles.panelTitle}>Enriched Wide Event</h2>
+            <div className={styles.reportedProblemWrapper}>
+              <button
+                className={styles.reportedProblemIcon}
+                onClick={() => setShowProblemTooltip(!showProblemTooltip)}
+                title='View Reported Problem'
+              >
+                ❓
+              </button>
+
+              <AnimatePresence>
+                {showProblemTooltip && (
+                  <>
+                    <motion.div
+                      className={styles.problemTooltip}
+                      initial={{ opacity: 0, scale: 0.9, y: 10 }}
+                      animate={{ opacity: 1, scale: 1, y: 0 }}
+                      exit={{ opacity: 0, scale: 0.9, y: 10 }}
+                    >
+                      <div className={styles.tooltipArrow} />
+                      <div className={styles.tooltipContent}>
+                        <div style={{ marginBottom: '12px' }}>
+                          <strong
+                            style={{
+                              color: '#ffd700',
+                              display: 'block',
+                              fontSize: '0.7rem',
+                              textTransform: 'uppercase',
+                              letterSpacing: '0.05em',
+                              marginBottom: '4px',
+                            }}
+                          >
+                            User Reported Issue
+                          </strong>
+                          <div
+                            style={{ fontStyle: 'italic', fontSize: '0.85rem' }}
+                          >
+                            "I entered the queue, but the page crashed with a
+                            'Secure Connection' error after the queue."
+                          </div>
+                        </div>
+                      </div>
+                    </motion.div>
+                    {/* Overlay to catch clicks outside */}
+                    <div
+                      className={styles.tooltipOverlay}
+                      onClick={() => setShowProblemTooltip(false)}
+                    />
+                  </>
+                )}
+              </AnimatePresence>
+            </div>
           </div>
           <div className={styles.jsonContainer}>
             <pre className={styles.jsonPre}>
