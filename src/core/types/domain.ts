@@ -63,3 +63,15 @@ export enum ViewMode {
   STRUCTURED_LOGS = 'structured-logs',
   DISTRIBUTED_TRACING = 'distributed-tracing',
 }
+
+export interface BatchPayload {
+  timestamps: Float64Array;
+  journeyIds: Int32Array;
+  eventIds: Uint8Array;
+  severities: Uint8Array;
+  metaIndices: Int32Array;
+  customerIds: Int32Array;
+  ips: Uint32Array;
+  waitingRoomIds: Int32Array;
+  activeCount: number;
+}
