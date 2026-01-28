@@ -8,10 +8,8 @@ import { ViewMode } from '../core/types/domain';
 import { QueueSimulatorView } from '../components/views/QueueSimulatorView';
 import { TailSamplingView } from '../components/views/TailSamplingView';
 import { WideEventView } from '../components/views/WideEventView';
-import {
-  StructuredLogsView,
-  DistributedTracingView,
-} from '../components/views/Placeholders';
+import { StructuredLogsView } from '../components/views/StructuredLogsView/StructuredLogsView';
+import { DistributedTracingView } from '../components/views/Placeholders';
 
 export default function Home() {
   const { start, stop, reset, setUsers, isRunning, stats } = useSimulation();
