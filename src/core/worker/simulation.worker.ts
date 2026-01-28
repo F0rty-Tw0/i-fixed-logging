@@ -8,6 +8,10 @@ import {
   CUSTOMER_ID_STANDARD,
   WAITING_ROOM_COUNT,
 } from '../types/domain';
+import { WorkerLogStore } from './worker-store';
+import { Lexer } from '../query/lexer';
+import { Parser } from '../query/parser';
+import { Evaluator, RowData } from '../query/evaluator';
 
 // Simulation State
 const STATE_INACTIVE = 255;
@@ -23,6 +27,8 @@ const journeyWaitingRoomIds = new Uint8Array(MAX_USERS);
 let globalJourneyIdCounter = 1;
 let totalOccupiedCount = 0; // Track occupied slots (Running or Completed)
 let totalRunningCount = 0; // Track currently running slots
+
+const workerStore = new WorkerLogStore();
 
 // Fixed Sequence
 const JOURNEY_SEQUENCE = [
@@ -44,7 +50,6 @@ const JOURNEY_SEQUENCE = [
 ];
 
 // Output Buffers (Double buffering or just create new ones per chunk)
-// To avoid allocations, we can use a fixed Transferable buffer, but creating new small arrays is safer for now.
 const CHUNK_SIZE = 10000;
 let chunkPtr = 0;
 
@@ -90,9 +95,8 @@ self.onmessage = (e: MessageEvent) => {
     chunkCustomerIds = new Int32Array(CHUNK_SIZE);
     chunkIps = new Uint32Array(CHUNK_SIZE);
     chunkWaitingRoomIds = new Int32Array(CHUNK_SIZE);
+    workerStore.reset();
 
-    // Send empty batch to clear frontend stats immediately?
-    // Actually, store clear handles frontend data, but we might want to sync activeCount
     self.postMessage({
       type: 'BATCH',
       payload: {
@@ -107,6 +111,10 @@ self.onmessage = (e: MessageEvent) => {
         activeCount: 0,
       },
     });
+  } else if (type === 'QUERY') {
+    handleQuery(payload.queryId, payload.sql).catch((err) => {
+      console.error('Query error handled in handler', err);
+    });
   }
 };
 
@@ -114,11 +122,6 @@ function tick() {
   if (!isRunning) return;
 
   const now = Date.now();
-
-  // Logic:
-  // We need to respect targetUsers GLOBALLY.
-  // We track `activeOccupied` to ensure we don't spawn if the slot is either RUNNING or COMPLETED.
-  // This ensures "Single Run" behavior: once a slot finishes, it stays "Occupied" (as Completed) and doesn't respawn.
 
   let spawnsThisTick = 0;
 
@@ -130,39 +133,29 @@ function tick() {
         totalOccupiedCount < targetUsers &&
         spawnsThisTick < MAX_SPAWNS_PER_TICK
       ) {
-        // Higher spawn chance for faster ramp up
         if (Math.random() < 0.1) {
           const jitter = Math.random() * 400;
           startJourney(i, now + jitter);
-
           spawnsThisTick++;
         }
       }
     } else if (state === STATE_COMPLETED) {
       // Do nothing
     } else {
-      // Running
       if (Math.random() < journeyAdvanceProbs[i]) {
         const jitter = Math.random() * 50;
         advanceJourney(i, state, now + jitter);
       }
     }
-
-    // Performance break: if we reached target and aren't scanning for status?
-    // Actually, we must finish the loop to advance all journeys.
   }
 
   activeCount = totalRunningCount;
 
-  // Flush if needed or periodically
   if (chunkPtr > 0) {
     flush();
   }
 
-  // Report stats every second? Or attach to flush?
-  // We'll attach stats to the batch message.
-
-  setTimeout(tick, 50); // 20 ticks per second
+  setTimeout(tick, 50);
 }
 
 function startJourney(id: number, time: number) {
@@ -173,21 +166,13 @@ function startJourney(id: number, time: number) {
   totalOccupiedCount++;
   totalRunningCount++;
 
-  // Determine next step latency (bi-modal)
-  // Normal: ~200ms. Tick is 50ms. So 4 ticks. Prob = 1/4 = 0.25
-  // Slow: ~2000ms. 40 ticks. Prob = 1/40 = 0.025
-  // 2% chance of slow
   const isSlow = Math.random() < 0.01;
   journeyAdvanceProbs[id] = isSlow ? 0.025 : 0.25;
 
-  // Latency is 0 for start (or small random connect time, but 0 is cleaner for start)
-  // Determine customer and waiting room
-  const isVip = Math.random() < 0.8; // 20% chance of being the VIP customer
+  const isVip = Math.random() < 0.8;
   const customerId = isVip ? CUSTOMER_ID_VIP : CUSTOMER_ID_STANDARD;
   const ip = (Math.random() * 0xffffffff) >>> 0;
 
-  // Distribute 10 waiting rooms across two customers.
-  // VIP: 1-5, Standard: 6-10
   const waitingRoomId = isVip
     ? Math.floor(Math.random() * (WAITING_ROOM_COUNT / 2)) + 1
     : Math.floor(Math.random() * (WAITING_ROOM_COUNT / 2)) +
@@ -210,20 +195,13 @@ function startJourney(id: number, time: number) {
 }
 
 function advanceJourney(id: number, currentState: number, time: number) {
-  // Find current index
-  // Optimization: We could store index in journeyStates instead, strictly 0..14.
-  // Since we map specific Enum values to SEQUENCE, let's just find index.
-  // The enum values are ACTUALLY 0..14, so currentState IS the index.
   const currentIndex = currentState;
-
   const nextIndex = currentIndex + 1;
 
-  // Calculate latency
   const lastTime = journeyLastUpdateTimes[id];
   const latency = time - lastTime;
   journeyLastUpdateTimes[id] = time;
 
-  // Determine next step latency (for the event AFTER this one)
   const isSlow = Math.random() < 0.01;
   journeyAdvanceProbs[id] = isSlow ? 0.025 : 0.25;
 
@@ -231,36 +209,31 @@ function advanceJourney(id: number, currentState: number, time: number) {
     const nextState = JOURNEY_SEQUENCE[nextIndex];
     journeyStates[id] = nextState;
 
-    // Meaningful Severity & Termination Logic
     let severity = LogSeverityId.INFO;
     let shouldTerminate = false;
     const rand = Math.random();
 
     if (latency > 1500) {
-      // High latency path
       if (rand < 0.05) {
-        severity = LogSeverityId.ERROR; // 5% chance of timeout/error in slow path
+        severity = LogSeverityId.ERROR;
         shouldTerminate = true;
       } else if (rand < 0.1) {
-        severity = LogSeverityId.WARN; // 15% chance of warning
+        severity = LogSeverityId.WARN;
       }
     } else {
-      // Normal path
-      // Security-specific probability for BLOCK
       const isSecurityEvent =
         nextState === JourneyEvent.WAF_CHECK ||
         nextState === JourneyEvent.GEO_CHECK ||
         nextState === JourneyEvent.BOT_CHECK_START;
 
       if (isSecurityEvent && rand < 0.001) {
-        // 0.1% chance to be blocked
         severity = LogSeverityId.CRITICAL;
         shouldTerminate = true;
       } else if (rand < 0.0005) {
-        severity = LogSeverityId.ERROR; // 0.05% chance of random failure
+        severity = LogSeverityId.ERROR;
         shouldTerminate = true;
       } else if (rand < 0.003) {
-        severity = LogSeverityId.WARN; // ~0.25% chance of random warning
+        severity = LogSeverityId.WARN;
       }
     }
 
@@ -280,7 +253,6 @@ function advanceJourney(id: number, currentState: number, time: number) {
       totalRunningCount--;
     }
   } else {
-    // End of journey normally
     journeyStates[id] = STATE_COMPLETED;
     totalRunningCount--;
   }
@@ -309,16 +281,21 @@ function pushLog(
   chunkIps[chunkPtr] = ip;
   chunkWaitingRoomIds[chunkPtr] = waitingRoomId;
   chunkPtr++;
+
+  workerStore.push(
+    time,
+    id,
+    event,
+    severity,
+    meta,
+    customerId,
+    ip,
+    waitingRoomId,
+  );
 }
 
 function flush() {
   if (chunkPtr === 0) return;
-
-  // slice buffer to valid size (copy)
-  // To minimize GC, we should transfer. But we have one reused buffer.
-  // If we transfer, we lose reference.
-  // Strategy: Copy to a new buffer to send, or have a pool of buffers.
-  // Simple Copy for now:
 
   const ts = chunkTimestamps.slice(0, chunkPtr);
   const jid = chunkJourneyIds.slice(0, chunkPtr);
@@ -354,12 +331,9 @@ function flush() {
       ips.buffer,
       wids.buffer,
     ],
-  ); // Transfer ownership!
+  );
 
   chunkPtr = 0;
-  // Ptr reset. But wait, we transferred the buffers! They are now detached (length 0).
-  // We MUST allocate new ones.
-
   chunkTimestamps = new Float64Array(CHUNK_SIZE);
   chunkJourneyIds = new Int32Array(CHUNK_SIZE);
   chunkEventIds = new Uint8Array(CHUNK_SIZE);
@@ -368,4 +342,175 @@ function flush() {
   chunkCustomerIds = new Int32Array(CHUNK_SIZE);
   chunkIps = new Uint32Array(CHUNK_SIZE);
   chunkWaitingRoomIds = new Int32Array(CHUNK_SIZE);
+}
+
+async function handleQuery(queryId: string, sql: string) {
+  try {
+    const lexer = new Lexer(sql);
+    const tokens = lexer.tokenize();
+    const parser = new Parser(tokens);
+    const ast = parser.parse();
+
+    if (ast.type !== 'Query') {
+      throw new Error('Invalid query AST');
+    }
+
+    const results: Record<string, unknown>[] = [];
+    const total = workerStore.getLength();
+    const hasAggregates = ast.select.columns.some(
+      (c) => c.type === 'Aggregate',
+    );
+
+    interface AggregateStats {
+      sum: number;
+      count: number;
+    }
+
+    const groupMap = new Map<
+      string,
+      { stats: Record<string, AggregateStats>; values: Record<string, unknown> }
+    >();
+
+    // Use zero-allocation functional accessor
+    let currentRowIdx = 0;
+    const rowAccessor: RowData = (field: string) =>
+      workerStore.getValue(currentRowIdx, field);
+
+    for (let i = 0; i < total; i++) {
+      currentRowIdx = i;
+
+      // Yield every 50k logs to allow simulation ticks to execute
+      if (i > 0 && i % 50000 === 0) {
+        await new Promise((resolve) => setTimeout(resolve, 0));
+      }
+
+      let matches = false;
+      if (!ast.where) {
+        matches = true;
+      } else {
+        matches = Evaluator.evaluateExpression(
+          ast.where,
+          rowAccessor,
+        ) as boolean;
+      }
+
+      if (matches) {
+        if (hasAggregates) {
+          const groupValues: Record<string, unknown> = {};
+          let groupKey = 'global';
+          if (ast.groupBy && ast.groupBy.length > 0) {
+            groupKey = ast.groupBy
+              .map((col) => {
+                const val = workerStore.getValue(i, col);
+                groupValues[col] = val;
+                return `${col}:${val}`;
+              })
+              .join('|');
+          } else {
+            for (const col of ast.select.columns) {
+              if (col.type === 'Column') {
+                groupValues[col.name] = workerStore.getValue(i, col.name);
+              }
+            }
+          }
+
+          if (!groupMap.has(groupKey)) {
+            groupMap.set(groupKey, { stats: {}, values: groupValues });
+          }
+          const group = groupMap.get(groupKey)!;
+
+          for (const col of ast.select.columns) {
+            if (col.type === 'Aggregate') {
+              const key = `${col.function}(${col.column})`;
+              if (!group.stats[key]) {
+                group.stats[key] = { sum: 0, count: 0 };
+              }
+              const rawVal =
+                col.column === '*' ? 1 : workerStore.getValue(i, col.column);
+              if (rawVal !== null && rawVal !== undefined) {
+                const val = typeof rawVal === 'number' ? rawVal : 1;
+                group.stats[key].sum += val;
+                group.stats[key].count++;
+              }
+            }
+          }
+        } else {
+          results.push(Evaluator.projectRow(ast.select, rowAccessor));
+        }
+      }
+    }
+
+    let finalResults: Record<string, unknown>[] = results;
+    if (hasAggregates) {
+      finalResults = [];
+      for (const group of groupMap.values()) {
+        const resRow: Record<string, unknown> = { ...group.values };
+        for (const col of ast.select.columns) {
+          if (col.type === 'Aggregate') {
+            const key = `${col.function}(${col.column})`;
+            const stats = group.stats[key];
+            if (!stats) {
+              resRow[key] = col.function === 'COUNT' ? 0 : null;
+            } else {
+              if (col.function === 'COUNT') resRow[key] = stats.count;
+              else if (col.function === 'SUM') resRow[key] = stats.sum;
+              else if (col.function === 'AVG')
+                resRow[key] = stats.count > 0 ? stats.sum / stats.count : null;
+            }
+          }
+        }
+        finalResults.push(resRow);
+      }
+    }
+
+    if (ast.orderBy) {
+      const { column, direction } = ast.orderBy;
+      finalResults.sort((a, b) => {
+        const valA = a[column];
+        const valB = b[column];
+        if (typeof valA === 'number' && typeof valB === 'number') {
+          return direction === 'ASC' ? valA - valB : valB - valA;
+        }
+        const strA = String(valA);
+        const strB = String(valB);
+        if (strA < strB) return direction === 'ASC' ? -1 : 1;
+        if (strA > strB) return direction === 'ASC' ? 1 : -1;
+        return 0;
+      });
+    }
+
+    if (ast.limit !== undefined) {
+      finalResults = finalResults.slice(0, ast.limit);
+    }
+
+    self.postMessage({
+      type: 'QUERY_RESULTS',
+      payload: {
+        queryId,
+        results: finalResults,
+        columns: ast.select.isStar
+          ? [
+              'timestamp',
+              'journey_id',
+              'event',
+              'severity',
+              'latency',
+              'customer_id',
+              'ip',
+              'waiting_room_id',
+            ]
+          : ast.select.columns.map((c) =>
+              c.type === 'Column' ? c.name : `${c.function}(${c.column})`,
+            ),
+      },
+    });
+  } catch (error: unknown) {
+    self.postMessage({
+      type: 'QUERY_ERROR',
+      payload: {
+        queryId,
+        error: error instanceof Error ? error.message : String(error),
+      },
+    });
+  }
 }
