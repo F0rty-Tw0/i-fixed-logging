@@ -31,6 +31,10 @@ const PREDEFINED_FILTERS = [
     label: 'Recent Criticals',
     sql: "SELECT * FROM logs WHERE severity = 'BLOCK' ORDER BY timestamp DESC LIMIT 50",
   },
+  {
+    label: 'Region Heatmap',
+    sql: 'SELECT region, COUNT(*) FROM logs GROUP BY region ORDER BY COUNT(*) DESC',
+  },
 ];
 
 export const StructuredLogsView: React.FC = () => {
@@ -288,12 +292,12 @@ export const StructuredLogsView: React.FC = () => {
             <div
               className={styles.headerRow}
               style={{
-                gridTemplateColumns: `repeat(${columns.length || 1}, minmax(150px, 1fr))`,
+                gridTemplateColumns: `repeat(${columns.length || 1}, minmax(180px, 1fr))`,
               }}
             >
               {columns.map((col) => (
-                <div key={col} className={styles.headerCell}>
-                  {col}
+                <div key={col} className={styles.headerCell} title={col}>
+                  {col.replace(/_/g, ' ').toUpperCase()}
                 </div>
               ))}
             </div>
@@ -317,11 +321,15 @@ export const StructuredLogsView: React.FC = () => {
                       left: 0,
                       height: `${vRow.size}px`,
                       transform: `translateY(${vRow.start}px)`,
-                      gridTemplateColumns: `repeat(${columns.length || 1}, minmax(150px, 1fr))`,
+                      gridTemplateColumns: `repeat(${columns.length || 1}, minmax(180px, 1fr))`,
                     }}
                   >
                     {columns.map((col) => (
-                      <div key={col} className={styles.cell}>
+                      <div
+                        key={col}
+                        className={styles.cell}
+                        title={String(row[col] || '')}
+                      >
                         {renderCell(row, col)}
                       </div>
                     ))}
