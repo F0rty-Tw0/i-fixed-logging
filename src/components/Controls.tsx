@@ -1,10 +1,11 @@
 'use client';
 
 import React, { useState, useEffect, useSyncExternalStore } from 'react';
+import { usePathname } from 'next/navigation';
 import { logStore } from '../core/store/log-store';
 import styles from './Controls.module.css';
 import clsx from 'clsx';
-import { MAX_USERS } from '../core/types/domain';
+import { MAX_USERS, ViewMode } from '../core/types/domain';
 
 interface ControlsProps {
   isRunning: boolean;
@@ -25,6 +26,14 @@ const INITIAL_SEARCH_STATUS = {
   disabled: false,
 };
 
+const PAGE_TITLES: Record<string, string> = {
+  '/': 'QUEUE SIMULATOR',
+  [`/${ViewMode.TAIL_SAMPLING}`]: 'TAIL SAMPLING',
+  [`/${ViewMode.WIDE_EVENT}`]: 'WIDE EVENTS',
+  [`/${ViewMode.STRUCTURED_LOGS}`]: 'STRUCTURED LOGS',
+  [`/${ViewMode.DISTRIBUTED_TRACING}`]: 'DISTRIBUTED TRACING',
+};
+
 export const Controls: React.FC<ControlsProps> = ({
   isRunning,
   activeCount,
@@ -35,6 +44,7 @@ export const Controls: React.FC<ControlsProps> = ({
   navigation,
 }) => {
   const [targetVal, setTargetVal] = useState(1);
+  const pathname = usePathname();
 
   const totalLogs = useSyncExternalStore(
     (cb) => logStore.subscribe(cb),
@@ -76,11 +86,13 @@ export const Controls: React.FC<ControlsProps> = ({
     onUsersChange(clamped);
   };
 
+  const currentTitle = PAGE_TITLES[pathname] || 'QUEUE SIMULATOR';
+
   return (
     <div className={styles['controls-container']}>
       <div className={styles['left-panel']}>
         {navigation}
-        <span className={styles['title']}>QUEUE SIMULATOR</span>
+        <span className={styles['title']}>{currentTitle}</span>
 
         <button
           className={clsx(

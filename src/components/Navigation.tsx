@@ -2,14 +2,11 @@
 
 import React, { useState, useRef, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
+import Link from 'next/link';
+import { usePathname } from 'next/navigation';
 import clsx from 'clsx';
 import { ViewMode } from '../core/types/domain';
 import styles from './Navigation.module.css';
-
-interface NavigationProps {
-  activeTab: ViewMode;
-  onTabChange: (tab: ViewMode) => void;
-}
 
 const TABS = [
   { id: ViewMode.QUEUE_SIMULATOR, label: 'Queue Simulator', icon: '🚦' },
@@ -23,12 +20,10 @@ const TABS = [
   },
 ];
 
-export const Navigation: React.FC<NavigationProps> = ({
-  activeTab,
-  onTabChange,
-}) => {
+export const Navigation: React.FC = () => {
   const [isOpen, setIsOpen] = useState(false);
   const menuRef = useRef<HTMLDivElement>(null);
+  const pathname = usePathname();
 
   // Close menu when clicking outside
   useEffect(() => {
@@ -43,9 +38,9 @@ export const Navigation: React.FC<NavigationProps> = ({
 
   const handleToggle = () => setIsOpen(!isOpen);
 
-  const handleTabClick = (tabId: ViewMode) => {
-    onTabChange(tabId);
-    setIsOpen(false);
+  const isActive = (tabId: string) => {
+    if (tabId === ViewMode.QUEUE_SIMULATOR && pathname === '/') return true;
+    return pathname === `/${tabId}`;
   };
 
   return (
@@ -80,27 +75,34 @@ export const Navigation: React.FC<NavigationProps> = ({
             exit={{ opacity: 0, scale: 0.9, y: -10 }}
             transition={{ type: 'spring', damping: 20, stiffness: 300 }}
           >
-            {TABS.map((tab) => (
-              <button
-                key={tab.id}
-                className={clsx(
-                  styles.menuItem,
-                  activeTab === tab.id && styles.menuItemActive,
-                )}
-                onClick={() => handleTabClick(tab.id as ViewMode)}
-              >
-                <div className={styles.menuLabel}>
-                  <span>{tab.icon}</span>
-                  {tab.label}
-                </div>
-                {activeTab === tab.id && (
-                  <motion.div
-                    className={styles.activeIndicator}
-                    layoutId='active-nav-pill'
-                  />
-                )}
-              </button>
-            ))}
+            {TABS.map((tab) => {
+              const active = isActive(tab.id);
+              const href =
+                tab.id === ViewMode.QUEUE_SIMULATOR ? '/' : `/${tab.id}`;
+
+              return (
+                <Link
+                  key={tab.id}
+                  href={href}
+                  className={clsx(
+                    styles.menuItem,
+                    active && styles.menuItemActive,
+                  )}
+                  onClick={() => setIsOpen(false)}
+                >
+                  <div className={styles.menuLabel}>
+                    <span>{tab.icon}</span>
+                    {tab.label}
+                  </div>
+                  {active && (
+                    <motion.div
+                      className={styles.activeIndicator}
+                      layoutId='active-nav-pill'
+                    />
+                  )}
+                </Link>
+              );
+            })}
           </motion.div>
         )}
       </AnimatePresence>
