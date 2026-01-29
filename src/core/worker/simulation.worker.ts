@@ -7,11 +7,13 @@ import {
   CUSTOMER_ID_VIP,
   CUSTOMER_ID_STANDARD,
   WAITING_ROOM_COUNT,
+  LOG_COLUMNS,
 } from '../types/domain';
 import { WorkerLogStore } from './worker-store';
 import { Lexer } from '../query/lexer';
 import { Parser } from '../query/parser';
 import { Evaluator, RowData } from '../query/evaluator';
+import { REGIONS, USER_AGENTS } from '../types/domain';
 
 // Simulation State
 const STATE_INACTIVE = 255;
@@ -22,8 +24,10 @@ const journeyLastUpdateTimes = new Float64Array(MAX_USERS); // Last event timest
 const journeyAdvanceProbs = new Float32Array(MAX_USERS); // Probability to advance per tick for current step
 const journeyCustomerIds = new Int32Array(MAX_USERS);
 const journeyIps = new Uint32Array(MAX_USERS);
-const MAX_SPAWNS_PER_TICK = 50; // Allow fast ramp up to 50K
+const MAX_SPAWNS_PER_TICK = 50;
 const journeyWaitingRoomIds = new Uint8Array(MAX_USERS);
+const journeyRegions = new Uint8Array(MAX_USERS);
+const journeyUserAgents = new Uint8Array(MAX_USERS);
 let globalJourneyIdCounter = 1;
 let totalOccupiedCount = 0; // Track occupied slots (Running or Completed)
 let totalRunningCount = 0; // Track currently running slots
@@ -62,6 +66,8 @@ let chunkCustomerIds = new Int32Array(CHUNK_SIZE);
 let chunkCustomerSegments = new Uint8Array(CHUNK_SIZE);
 let chunkIps = new Uint32Array(CHUNK_SIZE);
 let chunkWaitingRoomIds = new Int32Array(CHUNK_SIZE);
+let chunkRegions = new Uint8Array(CHUNK_SIZE);
+let chunkUserAgents = new Uint8Array(CHUNK_SIZE);
 
 let isRunning = false;
 let activeCount = 0;
@@ -97,6 +103,8 @@ self.onmessage = (e: MessageEvent) => {
     chunkCustomerSegments = new Uint8Array(CHUNK_SIZE);
     chunkIps = new Uint32Array(CHUNK_SIZE);
     chunkWaitingRoomIds = new Int32Array(CHUNK_SIZE);
+    chunkRegions = new Uint8Array(CHUNK_SIZE);
+    chunkUserAgents = new Uint8Array(CHUNK_SIZE);
     workerStore.reset();
 
     self.postMessage({
@@ -111,6 +119,8 @@ self.onmessage = (e: MessageEvent) => {
         customerSegments: new Uint8Array(0),
         ips: new Uint32Array(0),
         waitingRoomIds: new Int32Array(0),
+        regions: new Uint8Array(0),
+        userAgents: new Uint8Array(0),
         activeCount: 0,
       },
     });
@@ -184,6 +194,8 @@ function startJourney(id: number, time: number) {
   journeyCustomerIds[id] = customerId;
   journeyIps[id] = ip;
   journeyWaitingRoomIds[id] = waitingRoomId;
+  journeyRegions[id] = Math.floor(Math.random() * REGIONS.length);
+  journeyUserAgents[id] = Math.floor(Math.random() * USER_AGENTS.length);
 
   pushLog(
     time,
@@ -195,6 +207,8 @@ function startJourney(id: number, time: number) {
     isVip ? 1 : 0,
     ip,
     journeyWaitingRoomIds[id],
+    journeyRegions[id],
+    journeyUserAgents[id],
   );
 }
 
@@ -251,6 +265,8 @@ function advanceJourney(id: number, currentState: number, time: number) {
       journeyCustomerIds[id] === CUSTOMER_ID_VIP ? 1 : 0,
       journeyIps[id],
       journeyWaitingRoomIds[id],
+      journeyRegions[id],
+      journeyUserAgents[id],
     );
 
     if (shouldTerminate) {
@@ -273,6 +289,8 @@ function pushLog(
   customerSegment: number,
   ip: number,
   waitingRoomId: number,
+  region: number,
+  userAgent: number,
 ) {
   if (chunkPtr >= CHUNK_SIZE) {
     flush();
@@ -287,6 +305,8 @@ function pushLog(
   chunkCustomerSegments[chunkPtr] = customerSegment;
   chunkIps[chunkPtr] = ip;
   chunkWaitingRoomIds[chunkPtr] = waitingRoomId;
+  chunkRegions[chunkPtr] = region;
+  chunkUserAgents[chunkPtr] = userAgent;
   chunkPtr++;
 
   workerStore.push(
@@ -299,6 +319,8 @@ function pushLog(
     customerSegment,
     ip,
     waitingRoomId,
+    region,
+    userAgent,
   );
 }
 
@@ -314,6 +336,8 @@ function flush() {
   const csegs = chunkCustomerSegments.slice(0, chunkPtr);
   const ips = chunkIps.slice(0, chunkPtr);
   const wids = chunkWaitingRoomIds.slice(0, chunkPtr);
+  const regs = chunkRegions.slice(0, chunkPtr);
+  const uas = chunkUserAgents.slice(0, chunkPtr);
 
   self.postMessage(
     {
@@ -328,6 +352,8 @@ function flush() {
         customerSegments: csegs,
         ips: ips,
         waitingRoomIds: wids,
+        regions: regs,
+        userAgents: uas,
         activeCount: activeCount,
       },
     },
@@ -341,6 +367,8 @@ function flush() {
       csegs.buffer,
       ips.buffer,
       wids.buffer,
+      regs.buffer,
+      uas.buffer,
     ],
   );
 
@@ -354,6 +382,8 @@ function flush() {
   chunkCustomerSegments = new Uint8Array(CHUNK_SIZE);
   chunkIps = new Uint32Array(CHUNK_SIZE);
   chunkWaitingRoomIds = new Int32Array(CHUNK_SIZE);
+  chunkRegions = new Uint8Array(CHUNK_SIZE);
+  chunkUserAgents = new Uint8Array(CHUNK_SIZE);
 }
 
 async function handleQuery(queryId: string, sql: string) {
@@ -501,17 +531,7 @@ async function handleQuery(queryId: string, sql: string) {
         queryId,
         results: finalResults,
         columns: ast.select.isStar
-          ? [
-              'timestamp',
-              'journey_id',
-              'event',
-              'severity',
-              'latency',
-              'customer_id',
-              'customer_segment',
-              'ip',
-              'waiting_room_id',
-            ]
+          ? [...LOG_COLUMNS]
           : ast.select.columns.map((c) =>
               c.type === 'Column' ? c.name : `${c.function}(${c.column})`,
             ),

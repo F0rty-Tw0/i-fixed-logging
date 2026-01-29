@@ -1,4 +1,10 @@
-import { MAX_LOGS, EVENT_NAMES, JourneyEvent } from '../types/domain';
+import {
+  MAX_LOGS,
+  EVENT_NAMES,
+  JourneyEvent,
+  REGIONS,
+  USER_AGENTS,
+} from '../types/domain';
 
 export class WorkerLogStore {
   public timestamps: Float64Array;
@@ -10,6 +16,8 @@ export class WorkerLogStore {
   public customerSegments: Uint8Array;
   public ips: Uint32Array;
   public waitingRoomIds: Int32Array;
+  public regions: Uint8Array;
+  public userAgents: Uint8Array;
 
   private head: number = 0;
   private length: number = 0;
@@ -25,6 +33,8 @@ export class WorkerLogStore {
     this.customerSegments = new Uint8Array(MAX_LOGS);
     this.ips = new Uint32Array(MAX_LOGS);
     this.waitingRoomIds = new Int32Array(MAX_LOGS);
+    this.regions = new Uint8Array(MAX_LOGS);
+    this.userAgents = new Uint8Array(MAX_LOGS);
   }
 
   public push(
@@ -37,6 +47,8 @@ export class WorkerLogStore {
     customerSegment: number,
     ip: number,
     waitingRoomId: number,
+    region: number,
+    userAgent: number,
   ) {
     const idx = this.head;
     this.timestamps[idx] = timestamp;
@@ -48,6 +60,8 @@ export class WorkerLogStore {
     this.customerSegments[idx] = customerSegment;
     this.ips[idx] = ip;
     this.waitingRoomIds[idx] = waitingRoomId;
+    this.regions[idx] = region;
+    this.userAgents[idx] = userAgent;
 
     this.head = (this.head + 1) % MAX_LOGS;
     this.length = Math.min(this.length + 1, MAX_LOGS);
@@ -99,6 +113,10 @@ export class WorkerLogStore {
       }
       case 'waiting_room_id':
         return this.waitingRoomIds[pIdx];
+      case 'region':
+        return REGIONS[this.regions[pIdx]] || 'unknown';
+      case 'user_agent':
+        return USER_AGENTS[this.userAgents[pIdx]] || 'unknown';
       default:
         return null;
     }
@@ -125,6 +143,8 @@ export class WorkerLogStore {
         ip & 0xff,
       ].join('.'),
       waiting_room_id: this.waitingRoomIds[pIdx],
+      region: REGIONS[this.regions[pIdx]] || 'unknown',
+      user_agent: USER_AGENTS[this.userAgents[pIdx]] || 'unknown',
     };
   }
 
