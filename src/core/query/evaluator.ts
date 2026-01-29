@@ -1,4 +1,5 @@
 import { ExpressionNode, SelectNode } from './types';
+import { LOG_COLUMNS } from '../types/domain';
 
 export type RowData = Record<string, unknown> | ((field: string) => unknown);
 
@@ -77,19 +78,11 @@ export class Evaluator {
   ): Record<string, unknown> {
     if (select.isStar) {
       if (typeof row === 'function') {
-        // We can't easily return * from a function without a list of columns
-        // In our case we know the columns
-        return {
-          timestamp: row('timestamp'),
-          journey_id: row('journey_id'),
-          event: row('event'),
-          severity: row('severity'),
-          latency: row('latency'),
-          customer_id: row('customer_id'),
-          customer_segment: row('customer_segment'),
-          ip: row('ip'),
-          waiting_room_id: row('waiting_room_id'),
-        };
+        const result: Record<string, unknown> = {};
+        for (const col of LOG_COLUMNS) {
+          result[col] = row(col);
+        }
+        return result;
       }
       return row;
     }

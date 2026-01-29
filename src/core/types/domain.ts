@@ -74,5 +74,32 @@ export interface BatchPayload {
   customerSegments: Uint8Array;
   ips: Uint32Array;
   waitingRoomIds: Int32Array;
+  regions: Uint8Array;
+  userAgents: Uint8Array;
   activeCount: number;
 }
+
+export const LOG_COLUMNS = [
+  'timestamp',
+  'journey_id',
+  'event',
+  'severity',
+  'latency',
+  'customer_id',
+  'customer_segment',
+  'ip',
+  'waiting_room_id',
+  'region',
+  'user_agent',
+] as const;
+
+export const REGIONS = ['US-EAST', 'US-WEST', 'EU-WEST', 'AP-SOUTH', 'SA-EAST'];
+export const USER_AGENTS = [
+  'Mozilla/5.0 (Windows NT 10.0; Win64; x64) Chrome/120.0.0.0',
+  'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) Safari/605.1.15',
+  'Mozilla/5.0 (X11; Linux x86_64) Firefox/121.0',
+  'Mozilla/5.0 (iPhone; CPU iPhone OS 17_2 like Mac OS X) Mobile/15E148',
+  'Mozilla/5.0 (iPad; CPU OS 17_2 like Mac OS X) AppleWebKit/605.1.15',
+];
+
+export type LogColumn = (typeof LOG_COLUMNS)[number];
