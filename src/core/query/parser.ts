@@ -49,10 +49,26 @@ export class Parser {
     let orderBy: OrderByNode | undefined;
     if (this.match(TokenType.ORDER)) {
       this.consume(TokenType.BY, 'Expect BY after ORDER.');
-      const column = this.consume(
-        TokenType.IDENTIFIER,
-        'Expect identifier for ORDER BY.',
-      ).value;
+
+      let column: string;
+      if (this.check(TokenType.AGGREGATE)) {
+        const func = this.advance().value;
+        this.consume(TokenType.LPAREN, 'Expect ( after aggregate.');
+        const col = this.match(TokenType.STAR)
+          ? '*'
+          : this.consume(
+              TokenType.IDENTIFIER,
+              'Expect identifier in aggregate.',
+            ).value;
+        this.consume(TokenType.RPAREN, 'Expect ) after aggregate argument.');
+        column = `${func}(${col})`;
+      } else {
+        column = this.consume(
+          TokenType.IDENTIFIER,
+          'Expect identifier for ORDER BY.',
+        ).value;
+      }
+
       let direction: 'ASC' | 'DESC' = 'ASC';
       if (this.match(TokenType.ASC)) direction = 'ASC';
       if (this.match(TokenType.DESC)) direction = 'DESC';

@@ -59,6 +59,7 @@ let chunkEventIds = new Uint8Array(CHUNK_SIZE);
 let chunkSeverities = new Uint8Array(CHUNK_SIZE);
 let chunkMetaIndices = new Int32Array(CHUNK_SIZE);
 let chunkCustomerIds = new Int32Array(CHUNK_SIZE);
+let chunkCustomerSegments = new Uint8Array(CHUNK_SIZE);
 let chunkIps = new Uint32Array(CHUNK_SIZE);
 let chunkWaitingRoomIds = new Int32Array(CHUNK_SIZE);
 
@@ -93,6 +94,7 @@ self.onmessage = (e: MessageEvent) => {
     chunkSeverities = new Uint8Array(CHUNK_SIZE);
     chunkMetaIndices = new Int32Array(CHUNK_SIZE);
     chunkCustomerIds = new Int32Array(CHUNK_SIZE);
+    chunkCustomerSegments = new Uint8Array(CHUNK_SIZE);
     chunkIps = new Uint32Array(CHUNK_SIZE);
     chunkWaitingRoomIds = new Int32Array(CHUNK_SIZE);
     workerStore.reset();
@@ -106,6 +108,7 @@ self.onmessage = (e: MessageEvent) => {
         severities: new Uint8Array(0),
         metaIndices: new Int32Array(0),
         customerIds: new Int32Array(0),
+        customerSegments: new Uint8Array(0),
         ips: new Uint32Array(0),
         waitingRoomIds: new Int32Array(0),
         activeCount: 0,
@@ -189,6 +192,7 @@ function startJourney(id: number, time: number) {
     LogSeverityId.INFO,
     0,
     customerId,
+    isVip ? 1 : 0,
     ip,
     journeyWaitingRoomIds[id],
   );
@@ -244,6 +248,7 @@ function advanceJourney(id: number, currentState: number, time: number) {
       severity,
       latency,
       journeyCustomerIds[id],
+      journeyCustomerIds[id] === CUSTOMER_ID_VIP ? 1 : 0,
       journeyIps[id],
       journeyWaitingRoomIds[id],
     );
@@ -265,6 +270,7 @@ function pushLog(
   severity: number,
   meta: number,
   customerId: number,
+  customerSegment: number,
   ip: number,
   waitingRoomId: number,
 ) {
@@ -278,6 +284,7 @@ function pushLog(
   chunkSeverities[chunkPtr] = severity;
   chunkMetaIndices[chunkPtr] = meta;
   chunkCustomerIds[chunkPtr] = customerId;
+  chunkCustomerSegments[chunkPtr] = customerSegment;
   chunkIps[chunkPtr] = ip;
   chunkWaitingRoomIds[chunkPtr] = waitingRoomId;
   chunkPtr++;
@@ -289,6 +296,7 @@ function pushLog(
     severity,
     meta,
     customerId,
+    customerSegment,
     ip,
     waitingRoomId,
   );
@@ -303,6 +311,7 @@ function flush() {
   const sev = chunkSeverities.slice(0, chunkPtr);
   const meta = chunkMetaIndices.slice(0, chunkPtr);
   const cids = chunkCustomerIds.slice(0, chunkPtr);
+  const csegs = chunkCustomerSegments.slice(0, chunkPtr);
   const ips = chunkIps.slice(0, chunkPtr);
   const wids = chunkWaitingRoomIds.slice(0, chunkPtr);
 
@@ -316,6 +325,7 @@ function flush() {
         severities: sev,
         metaIndices: meta,
         customerIds: cids,
+        customerSegments: csegs,
         ips: ips,
         waitingRoomIds: wids,
         activeCount: activeCount,
@@ -328,6 +338,7 @@ function flush() {
       sev.buffer,
       meta.buffer,
       cids.buffer,
+      csegs.buffer,
       ips.buffer,
       wids.buffer,
     ],
@@ -340,6 +351,7 @@ function flush() {
   chunkSeverities = new Uint8Array(CHUNK_SIZE);
   chunkMetaIndices = new Int32Array(CHUNK_SIZE);
   chunkCustomerIds = new Int32Array(CHUNK_SIZE);
+  chunkCustomerSegments = new Uint8Array(CHUNK_SIZE);
   chunkIps = new Uint32Array(CHUNK_SIZE);
   chunkWaitingRoomIds = new Int32Array(CHUNK_SIZE);
 }
@@ -496,6 +508,7 @@ async function handleQuery(queryId: string, sql: string) {
               'severity',
               'latency',
               'customer_id',
+              'customer_segment',
               'ip',
               'waiting_room_id',
             ]

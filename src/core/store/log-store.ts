@@ -13,6 +13,7 @@ export type LogSnapshot = {
   severity: LogSeverityId;
   metaIndex: number;
   customerId: number;
+  customerSegment: number;
   ip: number;
   waitingRoomId: number;
 };
@@ -25,6 +26,7 @@ class LogStore {
   public severities: Uint8Array;
   public metaIndices: Int32Array;
   public customerIds: Int32Array;
+  public customerSegments: Uint8Array;
   public ips: Uint32Array;
   public waitingRoomIds: Int32Array;
   public samplingBuckets: Uint8Array;
@@ -74,6 +76,7 @@ class LogStore {
     this.severities = new Uint8Array(MAX_LOGS);
     this.metaIndices = new Int32Array(MAX_LOGS);
     this.customerIds = new Int32Array(MAX_LOGS);
+    this.customerSegments = new Uint8Array(MAX_LOGS);
     this.ips = new Uint32Array(MAX_LOGS);
     this.waitingRoomIds = new Int32Array(MAX_LOGS);
     this.samplingBuckets = new Uint8Array(MAX_LOGS);
@@ -89,6 +92,7 @@ class LogStore {
     chunkSeverities: Uint8Array | number[],
     chunkMetaIndices: Int32Array | number[],
     chunkCustomerIds: Int32Array | number[],
+    chunkCustomerSegments: Uint8Array | number[],
     chunkIps: Uint32Array | number[],
     chunkWaitingRoomIds: Int32Array | number[],
   ) {
@@ -108,6 +112,7 @@ class LogStore {
       this.severities[idx] = chunkSeverities[i];
       this.metaIndices[idx] = chunkMetaIndices[i];
       this.customerIds[idx] = chunkCustomerIds[i];
+      this.customerSegments[idx] = chunkCustomerSegments[i];
       this.ips[idx] = chunkIps[i];
       this.waitingRoomIds[idx] = chunkWaitingRoomIds[i];
 
@@ -279,6 +284,7 @@ class LogStore {
       severity: this.severities[physicalIdx] as LogSeverityId,
       metaIndex: this.metaIndices[physicalIdx],
       customerId: this.customerIds[physicalIdx],
+      customerSegment: this.customerSegments[physicalIdx],
       ip: this.ips[physicalIdx],
       waitingRoomId: this.waitingRoomIds[physicalIdx],
     };
@@ -294,6 +300,7 @@ class LogStore {
       severity: this.severities[physicalIdx] as LogSeverityId,
       metaIndex: this.metaIndices[physicalIdx],
       customerId: this.customerIds[physicalIdx],
+      customerSegment: this.customerSegments[physicalIdx],
       ip: this.ips[physicalIdx],
       waitingRoomId: this.waitingRoomIds[physicalIdx],
     };
@@ -419,6 +426,7 @@ class LogStore {
     this.metaIndices.fill(0);
     this.timestamps.fill(0);
     this.customerIds.fill(0);
+    this.customerSegments.fill(0);
     this.ips.fill(0);
     this.waitingRoomIds.fill(0);
     this.samplingBuckets.fill(0);

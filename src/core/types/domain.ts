@@ -71,6 +71,7 @@ export interface BatchPayload {
   severities: Uint8Array;
   metaIndices: Int32Array;
   customerIds: Int32Array;
+  customerSegments: Uint8Array;
   ips: Uint32Array;
   waitingRoomIds: Int32Array;
   activeCount: number;

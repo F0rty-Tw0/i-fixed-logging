@@ -32,6 +32,7 @@ export const useSimulation = (): SimulationControls => {
           severities,
           metaIndices,
           customerIds,
+          customerSegments,
           ips,
           waitingRoomIds,
           activeCount,
@@ -45,6 +46,7 @@ export const useSimulation = (): SimulationControls => {
           severities,
           metaIndices,
           customerIds,
+          customerSegments,
           ips,
           waitingRoomIds,
         );

@@ -12,20 +12,24 @@ import { clsx } from 'clsx';
 const PREDEFINED_FILTERS = [
   { label: 'All Logs', sql: 'SELECT * FROM logs LIMIT 100' },
   {
-    label: 'Recent Errors',
-    sql: "SELECT * FROM logs WHERE severity = 'ERROR' ORDER BY timestamp DESC LIMIT 50",
+    label: 'Avg Latency',
+    sql: 'SELECT event, AVG(latency), COUNT(*) FROM logs GROUP BY event ORDER BY AVG(latency) DESC',
   },
   {
-    label: 'Slow Bot Checks',
-    sql: "SELECT * FROM logs WHERE event = 'bot_check_start' AND latency > 500 ORDER BY latency DESC",
+    label: 'VIP Errors',
+    sql: "SELECT * FROM logs WHERE customer_segment = 'VIP' AND severity = 'ERROR' ORDER BY timestamp DESC LIMIT 100",
   },
   {
-    label: 'VIP Activity',
-    sql: 'SELECT * FROM logs WHERE customer_id = 9999 LIMIT 100',
+    label: 'Security Blockade',
+    sql: "SELECT ip, COUNT(*) FROM logs WHERE severity = 'BLOCK' GROUP BY ip ORDER BY COUNT(*) DESC LIMIT 10",
   },
   {
-    label: 'Avg Latency by Event',
-    sql: 'SELECT event, AVG(latency), COUNT(*) FROM logs GROUP BY event',
+    label: 'Error Hotspots',
+    sql: "SELECT event, COUNT(*) FROM logs WHERE severity = 'ERROR' GROUP BY event ORDER BY COUNT(*) DESC",
+  },
+  {
+    label: 'Recent Criticals',
+    sql: "SELECT * FROM logs WHERE severity = 'BLOCK' ORDER BY timestamp DESC LIMIT 50",
   },
 ];
 

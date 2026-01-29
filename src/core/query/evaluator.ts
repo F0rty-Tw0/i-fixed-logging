@@ -86,6 +86,7 @@ export class Evaluator {
           severity: row('severity'),
           latency: row('latency'),
           customer_id: row('customer_id'),
+          customer_segment: row('customer_segment'),
           ip: row('ip'),
           waiting_room_id: row('waiting_room_id'),
         };

@@ -7,6 +7,7 @@ export class WorkerLogStore {
   public severities: Uint8Array;
   public metaIndices: Int32Array;
   public customerIds: Int32Array;
+  public customerSegments: Uint8Array;
   public ips: Uint32Array;
   public waitingRoomIds: Int32Array;
 
@@ -21,6 +22,7 @@ export class WorkerLogStore {
     this.severities = new Uint8Array(MAX_LOGS);
     this.metaIndices = new Int32Array(MAX_LOGS);
     this.customerIds = new Int32Array(MAX_LOGS);
+    this.customerSegments = new Uint8Array(MAX_LOGS);
     this.ips = new Uint32Array(MAX_LOGS);
     this.waitingRoomIds = new Int32Array(MAX_LOGS);
   }
@@ -32,6 +34,7 @@ export class WorkerLogStore {
     severity: number,
     metaIndex: number,
     customerId: number,
+    customerSegment: number,
     ip: number,
     waitingRoomId: number,
   ) {
@@ -42,6 +45,7 @@ export class WorkerLogStore {
     this.severities[idx] = severity;
     this.metaIndices[idx] = metaIndex;
     this.customerIds[idx] = customerId;
+    this.customerSegments[idx] = customerSegment;
     this.ips[idx] = ip;
     this.waitingRoomIds[idx] = waitingRoomId;
 
@@ -79,6 +83,8 @@ export class WorkerLogStore {
         return this.metaIndices[pIdx];
       case 'customer_id':
         return this.customerIds[pIdx];
+      case 'customer_segment':
+        return this.customerSegments[pIdx] === 1 ? 'VIP' : 'STANDARD';
       case 'ip': {
         const ip = this.ips[pIdx];
         return (
@@ -111,6 +117,7 @@ export class WorkerLogStore {
         ['INFO', 'WARN', 'ERROR', 'BLOCK'][this.severities[pIdx]] || 'INFO',
       latency: this.metaIndices[pIdx],
       customer_id: this.customerIds[pIdx],
+      customer_segment: this.customerSegments[pIdx] === 1 ? 'VIP' : 'STANDARD',
       ip: [
         (ip >>> 24) & 0xff,
         (ip >>> 16) & 0xff,
