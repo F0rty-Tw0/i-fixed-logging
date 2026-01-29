@@ -291,7 +291,7 @@ export const StructuredLogsView: React.FC = () => {
             <div
               className={styles.headerRow}
               style={{
-                gridTemplateColumns: `repeat(${columns.length || 1}, minmax(180px, 1fr))`,
+                gridTemplateColumns: `repeat(${columns.length || 1}, minmax(120px, 300px))`,
               }}
             >
               {columns.map((col) => (
@@ -320,7 +320,7 @@ export const StructuredLogsView: React.FC = () => {
                       left: 0,
                       height: `${vRow.size}px`,
                       transform: `translateY(${vRow.start}px)`,
-                      gridTemplateColumns: `repeat(${columns.length || 1}, minmax(180px, 1fr))`,
+                      gridTemplateColumns: `repeat(${columns.length || 1}, minmax(120px, 300px))`,
                     }}
                   >
                     {columns.map((col) => (
