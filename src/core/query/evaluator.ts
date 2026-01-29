@@ -28,9 +28,15 @@ export class Evaluator {
         const right = this.evaluateExpression(expr.right, row);
         switch (expr.operator) {
           case '=':
+            if (typeof left === 'string' && typeof right === 'string') {
+              return left.toLowerCase() === right.toLowerCase();
+            }
             return left === right;
           case '!=':
           case '<>':
+            if (typeof left === 'string' && typeof right === 'string') {
+              return left.toLowerCase() !== right.toLowerCase();
+            }
             return left !== right;
           case '>':
             return (left as number) > (right as number);
@@ -62,6 +68,12 @@ export class Evaluator {
       case 'InExpression': {
         const left = this.evaluateExpression(expr.left, row);
         const values = expr.values.map((v) => this.evaluateExpression(v, row));
+        if (typeof left === 'string') {
+          const lowerLeft = left.toLowerCase();
+          return (values as unknown[]).some((v) =>
+            typeof v === 'string' ? v.toLowerCase() === lowerLeft : v === left,
+          );
+        }
         return (values as unknown[]).includes(left);
       }
       default:

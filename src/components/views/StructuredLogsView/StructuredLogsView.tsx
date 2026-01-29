@@ -122,14 +122,13 @@ export const StructuredLogsView: React.FC = () => {
         .replace(/&/g, '&amp;')
         .replace(/</g, '&lt;')
         .replace(/>/g, '&gt;')
-        .replace(/"/g, '&quot;')
-        .replace(/'/g, '&#39;');
+        .replace(/"/g, '&quot;');
 
       // Highlight logic applied to escaped string
       // Keywords (\b won't work on escaped chars, but keywords don't have symbols)
       const keywords =
         /\b(SELECT|FROM|WHERE|GROUP|ORDER|BY|LIMIT|AND|OR|NOT|IN|LIKE|ASC|DESC|AVG|COUNT|SUM)\b/gi;
-      const strings = /(&#39;.*?&#39;)/g; // Match escaped quotes
+      const strings = /('.*?')/g; // Match regular quotes
       const numbers = /\b\d+(\.\d+)?\b/g;
 
       let html = escaped;
