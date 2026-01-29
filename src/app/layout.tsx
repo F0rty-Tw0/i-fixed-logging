@@ -1,6 +1,8 @@
 import type { Metadata } from 'next';
 import { Inter, JetBrains_Mono } from 'next/font/google';
 import '../styles/main.css';
+import { SimulationProvider } from '../core/context/SimulationContext';
+import { AppShell } from '../components/AppShell';
 
 const inter = Inter({
   variable: '--font-inter',
@@ -24,10 +26,10 @@ export default function RootLayout({
 }>) {
   return (
     <html lang='en'>
-      <body
-        className={`${inter.variable} ${jetbrainsMono.variable} layout-container`}
-      >
-        {children}
+      <body className={`${inter.variable} ${jetbrainsMono.variable}`}>
+        <SimulationProvider>
+          <AppShell>{children}</AppShell>
+        </SimulationProvider>
       </body>
     </html>
   );
