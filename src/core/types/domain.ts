@@ -103,3 +103,14 @@ export const USER_AGENTS = [
 ];
 
 export type LogColumn = (typeof LOG_COLUMNS)[number];
+
+export interface TraceSummary {
+  traceId: number;
+  startTime: number;
+  endTime: number;
+  duration: number;
+  eventCount: number;
+  maxSeverity: LogSeverityId;
+  lastEvent: JourneyEvent;
+  customerSegment: number;
+}
