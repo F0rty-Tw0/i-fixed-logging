@@ -18,6 +18,15 @@ import styles from './TailSamplingView.module.css';
 import { FilterControls } from './TailSamplingView/FilterControls';
 import { LogTooltip } from './TailSamplingView/LogTooltip';
 
+// Stable function references for useSyncExternalStore
+const subscribeToStore = (cb: () => void) => logStore.subscribe(cb);
+const getTailSamplingSnapshot = () => logStore.getTailSamplingData();
+const INITIAL_TAIL_SAMPLING_DATA = {
+  severities: new Uint8Array(0),
+  logIndices: new Int32Array(0),
+} as const;
+const getServerTailSamplingSnapshot = () => INITIAL_TAIL_SAMPLING_DATA;
+
 export const TailSamplingView = () => {
   const scrollContainerRef = useRef<HTMLDivElement>(null);
   const [hoveredIndex, setHoveredIndex] = useState<number | null>(null);
@@ -43,9 +52,9 @@ export const TailSamplingView = () => {
 
   // Subscribe to log store updates to get tail sampling data
   const { severities, logIndices } = useSyncExternalStore(
-    (cb) => logStore.subscribe(cb),
-    () => logStore.getTailSamplingData(),
-    () => ({ severities: new Uint8Array(0), logIndices: new Int32Array(0) }),
+    subscribeToStore,
+    getTailSamplingSnapshot,
+    getServerTailSamplingSnapshot,
   );
 
   // Helper to check visibility based on all filters
@@ -152,14 +161,21 @@ export const TailSamplingView = () => {
   };
 
   // Calculate filtered count
-  const filteredTotalCount = useSyncExternalStore(
-    (cb) => logStore.subscribe(cb),
+  // Stable getSnapshot for filtered count - needs to be memoized since it depends on filters
+  const getFilteredCountSnapshot = useCallback(
     () =>
       logStore.getFilteredCount({
         ...filters,
         samplingRate: debouncedSamplingRate,
       }),
-    () => 0,
+    [filters, debouncedSamplingRate],
+  );
+  const getServerFilteredCountSnapshot = useCallback(() => 0, []);
+
+  const filteredTotalCount = useSyncExternalStore(
+    subscribeToStore,
+    getFilteredCountSnapshot,
+    getServerFilteredCountSnapshot,
   );
 
   const handleSquareEnter = (e: React.MouseEvent, index: number) => {
