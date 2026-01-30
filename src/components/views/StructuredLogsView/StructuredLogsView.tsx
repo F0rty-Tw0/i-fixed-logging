@@ -86,6 +86,24 @@ export const StructuredLogsView: React.FC = () => {
 
     const colLower = col.toLowerCase();
 
+    if (colLower === 'journey_id') {
+      return (
+        <a
+          href={`/distributed-tracing?traceId=${val}`}
+          style={{
+            color: '#3b82f6',
+            textDecoration: 'none',
+            cursor: 'pointer',
+          }}
+          onClick={(e) => {
+            e.stopPropagation();
+          }}
+        >
+          {String(val)}
+        </a>
+      );
+    }
+
     if (colLower === 'severity') {
       const sevStr = String(val).toUpperCase();
       return (
