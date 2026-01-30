@@ -13,11 +13,10 @@ import { motion } from 'framer-motion';
 import { useVirtualizer } from '@tanstack/react-virtual';
 import clsx from 'clsx';
 import { logStore } from '../../core/store/log-store';
-import { LogSeverityId, EVENT_NAMES } from '../../core/types/domain';
-import { generateLogDetails, getLogSource } from '../../utils/log-details';
+import { LogSeverityId } from '../../core/types/domain';
 import styles from './TailSamplingView.module.css';
-
-const SEVERITY_NAMES = ['INFO', 'WARN', 'ERROR', 'CRITICAL'];
+import { FilterControls } from './TailSamplingView/FilterControls';
+import { LogTooltip } from './TailSamplingView/LogTooltip';
 
 export const TailSamplingView = () => {
   const scrollContainerRef = useRef<HTMLDivElement>(null);
@@ -115,6 +114,7 @@ export const TailSamplingView = () => {
     [severities.length],
   );
 
+  // eslint-disable-next-line react-hooks/incompatible-library
   const virtualizer = useVirtualizer({
     horizontal: true,
     count: columnCount,
@@ -206,70 +206,13 @@ export const TailSamplingView = () => {
         </p>
       </div>
 
-      <div className={styles.controls}>
-        <div className={styles.filterGroup}>
-          <label className={styles.checkboxLabel}>
-            <input
-              type='checkbox'
-              className={styles.checkbox}
-              checked={filters.errors}
-              onChange={() => toggleFilter('errors')}
-            />
-            <span
-              className={`${styles.legendSquare} ${styles.legendSquareError}`}
-            />
-            Errors
-          </label>
-          <label className={styles.checkboxLabel}>
-            <input
-              type='checkbox'
-              className={styles.checkbox}
-              checked={filters.warnings}
-              onChange={() => toggleFilter('warnings')}
-            />
-            <span
-              className={`${styles.legendSquare} ${styles.legendSquareWarn}`}
-            />
-            Warnings
-          </label>
-          <label className={styles.checkboxLabel}>
-            <input
-              type='checkbox'
-              className={styles.checkbox}
-              checked={filters.slow}
-              onChange={() => toggleFilter('slow')}
-            />
-            Slow (&gt;1s)
-          </label>
-          <label className={styles.checkboxLabel}>
-            <input
-              type='checkbox'
-              className={styles.checkbox}
-              checked={filters.sampleInfo}
-              onChange={() => toggleFilter('sampleInfo')}
-            />
-            <span
-              className={`${styles.legendSquare} ${styles.legendSquareInfo}`}
-            />
-            Sample Info (5%)
-          </label>
-        </div>
-        <div className={styles.sliderContainer}>
-          <label className={styles.sliderLabel}>
-            Sampling: {samplingRate}%
-          </label>
-          <input
-            type='range'
-            min='1'
-            max='100'
-            value={samplingRate}
-            onChange={(e) => setSamplingRate(Number(e.target.value))}
-            onMouseUp={() => setDebouncedSamplingRate(samplingRate)}
-            onTouchEnd={() => setDebouncedSamplingRate(samplingRate)}
-            className={styles.slider}
-          />
-        </div>
-      </div>
+      <FilterControls
+        filters={filters}
+        toggleFilter={toggleFilter}
+        samplingRate={samplingRate}
+        setSamplingRate={setSamplingRate}
+        setDebouncedSamplingRate={setDebouncedSamplingRate}
+      />
 
       <div className={styles.scrollContainer} ref={scrollContainerRef}>
         {severities.length === 0 && (
@@ -327,103 +270,7 @@ export const TailSamplingView = () => {
         </div>
       </div>
 
-      {hoveredLog && (
-        <div
-          className={styles.tooltip}
-          style={{
-            top: Math.min(tooltipPos.y, window.innerHeight - 320), // Adjusted for taller tooltip
-            left: Math.min(tooltipPos.x, window.innerWidth - 220),
-          }}
-        >
-          <div className={styles.tooltipHeader}>Log Details</div>
-          <div className={styles.tooltipBody}>
-            <div className={styles.tooltipRow}>
-              <span className={styles.tooltipLabel}>JID</span>
-              <span className={styles.tooltipValue}>
-                #{hoveredLog.journeyId}
-              </span>
-            </div>
-            <div className={styles.tooltipRow}>
-              <span className={styles.tooltipLabel}>Time</span>
-              <span className={styles.tooltipValue}>
-                {new Date(hoveredLog.timestamp)
-                  .toISOString()
-                  .split('T')[1]
-                  .replace('Z', '')}
-              </span>
-            </div>
-            <div className={styles.tooltipRow}>
-              <span className={styles.tooltipLabel}>Type</span>
-              <span
-                className={clsx(styles.tooltipValue, {
-                  [styles.tooltipValueError]:
-                    hoveredLog.severity === LogSeverityId.ERROR ||
-                    hoveredLog.severity === LogSeverityId.CRITICAL,
-                  [styles.tooltipValueWarn]:
-                    hoveredLog.severity === LogSeverityId.WARN,
-                })}
-              >
-                {SEVERITY_NAMES[hoveredLog.severity]}
-              </span>
-            </div>
-            <div className={styles.tooltipRow}>
-              <span className={styles.tooltipLabel}>Service</span>
-              <span className={styles.tooltipValue}>
-                {getLogSource(hoveredLog.eventId)}
-              </span>
-            </div>
-            <div className={styles.tooltipRow}>
-              <span className={styles.tooltipLabel}>WR ID</span>
-              <span className={styles.tooltipValue}>
-                WR-{hoveredLog.waitingRoomId.toString().padStart(2, '0')}
-              </span>
-            </div>
-            <div className={styles.tooltipRow}>
-              <span className={styles.tooltipLabel}>Cust ID</span>
-              <span className={styles.tooltipValue}>
-                c-{hoveredLog.customerId}
-              </span>
-            </div>
-            <div className={styles.tooltipRow}>
-              <span className={styles.tooltipLabel}>IP</span>
-              <span className={styles.tooltipValue}>
-                {(hoveredLog.ip >>> 24) & 0xff}.{(hoveredLog.ip >>> 16) & 0xff}.
-                {(hoveredLog.ip >>> 8) & 0xff}.{hoveredLog.ip & 0xff}
-              </span>
-            </div>
-            <div className={styles.tooltipRow}>
-              <span className={styles.tooltipLabel}>Event</span>
-              <span className={styles.tooltipValue}>
-                {EVENT_NAMES[hoveredLog.eventId]}
-              </span>
-            </div>
-            <div
-              className={`${styles.tooltipRow} ${styles.tooltipRowFlexStart}`}
-            >
-              <span className={styles.tooltipLabel}>Message</span>
-              <span
-                className={`${styles.tooltipValue} ${styles.tooltipValueMessage}`}
-              >
-                {generateLogDetails(
-                  hoveredLog.journeyId,
-                  hoveredLog.eventId,
-                  hoveredLog.severity,
-                  hoveredLog.waitingRoomId,
-                  hoveredLog.customerId,
-                  hoveredLog.metaIndex,
-                  hoveredLog.ip,
-                ).message || '-'}
-              </span>
-            </div>
-            <div className={styles.tooltipRow}>
-              <span className={styles.tooltipLabel}>Latency</span>
-              <span className={styles.tooltipValue}>
-                {hoveredLog.metaIndex > 0 ? `+${hoveredLog.metaIndex}ms` : '-'}
-              </span>
-            </div>
-          </div>
-        </div>
-      )}
+      <LogTooltip hoveredLog={hoveredLog} tooltipPos={tooltipPos} />
     </motion.div>
   );
 };
