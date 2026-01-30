@@ -45,7 +45,7 @@ export const enum LogSeverityId {
 export type LogSeverity = 'INFO' | 'WARN' | 'ERROR' | 'BLOCK';
 
 export const MAX_LOGS = 1_500_000;
-export const MAX_USERS = 100_000;
+export const MAX_USERS = 10_000;
 
 // Data ranges for simulation
 export const CUSTOMER_POOL_SIZE = 50_000;

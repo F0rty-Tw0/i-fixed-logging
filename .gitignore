@@ -44,3 +44,5 @@ next-env.d.ts
 GEMINI.md
 .agent
 conductor
+.next-docs/
+AGENTS.md
