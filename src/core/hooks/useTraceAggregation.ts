@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { logStore } from '../store/log-store';
 import { JourneyEvent, LogSeverityId } from '../types/domain';
 
@@ -15,19 +15,19 @@ export interface TraceSummary {
 
 export const useTraceAggregation = () => {
   const [summaries, setSummaries] = useState<TraceSummary[]>([]);
-  const [lastProcessedTotal, setLastProcessedTotal] = useState(0);
+  const lastProcessedRef = useRef(0);
 
   useEffect(() => {
-    const unsub = logStore.subscribe(() => {
-      const total = logStore.getTotalIngested();
-      // Only re-aggregate if we have significant new data or it's been cleared
-      if (total < lastProcessedTotal || total - lastProcessedTotal > 100) {
-        aggregate();
-      }
-    });
-
     const aggregate = () => {
       const totalLogs = logStore.getLength();
+
+      // If no logs, just clear and return (handles reset)
+      if (totalLogs === 0) {
+        setSummaries([]);
+        lastProcessedRef.current = 0;
+        return;
+      }
+
       const traces = new Map<number, TraceSummary>();
 
       // Scan all logs in the current buffer
@@ -70,14 +70,24 @@ export const useTraceAggregation = () => {
       results.sort((a, b) => b.startTime - a.startTime);
 
       setSummaries(results);
-      setLastProcessedTotal(logStore.getTotalIngested());
+      lastProcessedRef.current = logStore.getTotalIngested();
+    };
+
+    const handleChange = () => {
+      const total = logStore.getTotalIngested();
+      const last = lastProcessedRef.current;
+      // Only re-aggregate if we have significant new data or it's been cleared (total < last)
+      if (total < last || total - last > 50) {
+        aggregate();
+      }
     };
 
     // Initial aggregation
     aggregate();
 
+    const unsub = logStore.subscribe(handleChange);
     return unsub;
-  }, [lastProcessedTotal]);
+  }, []);
 
   return summaries;
 };

@@ -2,6 +2,7 @@ import { useEffect, useMemo } from 'react';
 import { useLogQuery } from './useLogQuery';
 
 export interface TraceSpan {
+  id: string;
   timestamp: number;
   eventId: number;
   event: string;
@@ -28,11 +29,12 @@ export const useTraceDetails = (traceId: number | null) => {
 
     const startTime = (results[0].timestamp as number) || 0;
 
-    return results.map((row) => {
+    return results.map((row, index) => {
       const ts = (row.timestamp as number) || 0;
       const latency = (row.latency as number) || 0;
 
       return {
+        id: `span-${index}`,
         timestamp: ts,
         eventId: row.event_id as number,
         event: (row.event as string) || 'unknown',
