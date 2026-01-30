@@ -7,15 +7,20 @@ import { logStore } from '../core/store/log-store';
 import styles from './VirtualLogList.module.css';
 import { VirtualLogRow } from './VirtualLogList/VirtualLogRow';
 
+// Stable function references for useSyncExternalStore
+const subscribeToStore = (cb: () => void) => logStore.subscribe(cb);
+const getLogCountSnapshot = () => logStore.getLength();
+const getServerLogCountSnapshot = () => 0;
+
 export const VirtualLogList = () => {
   const parentRef = useRef<HTMLDivElement>(null);
 
   // Create a subscribe function that forces re-render based on store updates
   // We use useSyncExternalStore to subscribe to logStore changes
   const logCount = useSyncExternalStore(
-    (cb) => logStore.subscribe(cb),
-    () => logStore.getLength(),
-    () => 0,
+    subscribeToStore,
+    getLogCountSnapshot,
+    getServerLogCountSnapshot,
   );
 
   // eslint-disable-next-line react-hooks/incompatible-library
