@@ -106,10 +106,13 @@ export const Controls: React.FC<ControlsProps> = ({
         </button>
 
         <button
-          className={clsx(styles['button'], styles['secondary'])}
+          className={clsx(
+            styles['button'],
+            styles['secondary'],
+            styles['reset-button'],
+          )}
           onClick={onReset}
           disabled={isRunning}
-          style={{ marginLeft: '10px' }}
         >
           RESET
         </button>

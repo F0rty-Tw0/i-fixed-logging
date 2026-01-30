@@ -130,8 +130,8 @@ export const TailSamplingView = () => {
     }
   }, [columnCount, virtualizer]);
 
-  // Calculate color for a single log square
-  const getSquareStyle = (sevId: number, physicalIdx: number) => {
+  // Calculate class for a single log square
+  const getSquareClass = (sevId: number, physicalIdx: number) => {
     const isVisible = isLogVisible(sevId, physicalIdx);
 
     const isError =
@@ -139,17 +139,16 @@ export const TailSamplingView = () => {
     const isWarn = sevId === LogSeverityId.WARN;
     const isInfo = sevId === LogSeverityId.INFO;
 
-    let baseColor = '';
-    if (isError) baseColor = 'var(--color-error)';
-    else if (isWarn) baseColor = 'var(--color-warn)';
-    else if (isInfo) baseColor = 'var(--color-info)';
-    else baseColor = 'rgba(255, 255, 255, 0.05)';
+    let baseClass = styles['sq-default'];
+    if (isError) baseClass = styles['sq-error'];
+    else if (isWarn) baseClass = styles['sq-warn'];
+    else if (isInfo) baseClass = styles['sq-info'];
 
-    return {
-      backgroundColor: baseColor,
-      opacity: isVisible ? 0.9 : 0.1, // Keep faint color trace
-      filter: isVisible ? 'none' : 'none', // Remove grayscale to preserve color tint
-    };
+    return clsx(
+      styles.square,
+      baseClass,
+      isVisible ? styles['sq-visible'] : styles['sq-dimmed'],
+    );
   };
 
   // Calculate filtered count
@@ -316,8 +315,7 @@ export const TailSamplingView = () => {
                   return (
                     <div
                       key={rowIdx}
-                      className={styles.square}
-                      style={getSquareStyle(sevId, physicalIdx)}
+                      className={getSquareClass(sevId, physicalIdx)}
                       onMouseEnter={(e) => handleSquareEnter(e, actualIndex)}
                       onMouseLeave={handleSquareLeave}
                     />

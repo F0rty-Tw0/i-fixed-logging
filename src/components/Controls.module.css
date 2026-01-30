@@ -67,6 +67,10 @@
   opacity: 0.9;
 }
 
+.reset-button {
+  margin-left: 10px;
+}
+
 .slider-group {
   display: flex;
   flex-direction: column;

@@ -269,6 +269,23 @@
   background-color: var(--color-warn);
 }
 
-.legendSquareInfo {
+/* Square modifiers */
+.sq-info {
   background-color: var(--color-info);
+}
+.sq-warn {
+  background-color: var(--color-warn);
+}
+.sq-error {
+  background-color: var(--color-error);
+}
+.sq-default {
+  background-color: rgba(255, 255, 255, 0.05);
+}
+
+.sq-visible {
+  opacity: 0.9;
+}
+.sq-dimmed {
+  opacity: 0.1;
 }

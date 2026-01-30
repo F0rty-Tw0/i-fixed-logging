@@ -2,6 +2,7 @@
 
 import React from 'react';
 import { motion } from 'framer-motion';
+import styles from './Placeholders.module.css';
 
 const PlaceholderView: React.FC<{ title: string; subtitle: string }> = ({
   title,
@@ -10,42 +11,11 @@ const PlaceholderView: React.FC<{ title: string; subtitle: string }> = ({
   <motion.div
     initial={{ opacity: 0, y: 20 }}
     animate={{ opacity: 1, y: 0 }}
-    style={{
-      display: 'flex',
-      flexDirection: 'column',
-      alignItems: 'center',
-      justifyContent: 'center',
-      height: '400px',
-      background: 'rgba(255, 255, 255, 0.02)',
-      borderRadius: '24px',
-      border: '1px dashed rgba(255, 255, 255, 0.1)',
-      margin: '2rem 0',
-      textAlign: 'center',
-      padding: '2rem',
-    }}
+    className={styles['placeholder-container']}
   >
-    <div
-      style={{
-        fontSize: '3rem',
-        marginBottom: '1rem',
-        filter: 'drop-shadow(0 0 10px rgba(255, 255, 255, 0.2))',
-      }}
-    >
-      ✨
-    </div>
-    <h2
-      style={{
-        fontSize: '1.5rem',
-        fontWeight: 600,
-        color: '#fff',
-        marginBottom: '0.5rem',
-      }}
-    >
-      {title}
-    </h2>
-    <p style={{ color: 'rgba(255, 255, 255, 0.5)', maxWidth: '400px' }}>
-      {subtitle}
-    </p>
+    <div className={styles['icon']}>✨</div>
+    <h2 className={styles['title']}>{title}</h2>
+    <p className={styles['subtitle']}>{subtitle}</p>
   </motion.div>
 );
 

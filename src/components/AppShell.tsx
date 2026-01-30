@@ -4,6 +4,7 @@ import React from 'react';
 import { Controls } from './Controls';
 import { Navigation } from './Navigation';
 import { useSimulationContext } from '../core/context/SimulationContext';
+import styles from './AppShell.module.css';
 
 export const AppShell: React.FC<{ children: React.ReactNode }> = ({
   children,
@@ -23,16 +24,7 @@ export const AppShell: React.FC<{ children: React.ReactNode }> = ({
         navigation={<Navigation />}
       />
 
-      <div
-        style={{
-          flex: 1,
-          display: 'flex',
-          flexDirection: 'column',
-          overflow: 'hidden',
-        }}
-      >
-        {children}
-      </div>
+      <div className={styles['main-content']}>{children}</div>
     </main>
   );
 };
