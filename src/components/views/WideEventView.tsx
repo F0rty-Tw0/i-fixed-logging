@@ -639,22 +639,11 @@ export const WideEventView: React.FC = () => {
                     >
                       <div className={styles.tooltipArrow} />
                       <div className={styles.tooltipContent}>
-                        <div style={{ marginBottom: '12px' }}>
-                          <strong
-                            style={{
-                              color: '#ffd700',
-                              display: 'block',
-                              fontSize: '0.7rem',
-                              textTransform: 'uppercase',
-                              letterSpacing: '0.05em',
-                              marginBottom: '4px',
-                            }}
-                          >
+                        <div className={styles.tooltipSection}>
+                          <strong className={styles.tooltipSectionTitle}>
                             User Reported Issue
                           </strong>
-                          <div
-                            style={{ fontStyle: 'italic', fontSize: '0.85rem' }}
-                          >
+                          <div className={styles.tooltipSectionText}>
                             "I entered the queue, but the page crashed with a
                             'Secure Connection' error after the queue."
                           </div>
@@ -688,14 +677,20 @@ function renderColorizedJson(obj: Record<string, unknown>): React.ReactNode {
   let lineNum = 0;
 
   const addLine = (content: React.ReactNode, indent: number = 0) => {
+    const indentClass =
+      indent === 1
+        ? styles.jsonLineIndent1
+        : indent === 2
+          ? styles.jsonLineIndent2
+          : '';
     lines.push(
-      <div key={lineNum++} style={{ paddingLeft: `${indent * 16}px` }}>
+      <div key={lineNum++} className={`${styles.jsonLine} ${indentClass}`}>
         {content}
       </div>,
     );
   };
 
-  addLine(<span style={{ color: '#fff' }}>{'{'}</span>);
+  addLine(<span className={styles.jsonColorWhite}>{'{'}</span>);
 
   // Base fields
   const baseFields = [
@@ -714,12 +709,16 @@ function renderColorizedJson(obj: Record<string, unknown>): React.ReactNode {
         : '';
     addLine(
       <>
-        <span style={{ color: '#9cdcfe' }}>"{key}"</span>
-        <span style={{ color: '#fff' }}>: </span>
-        <span style={{ color: key === 'severity' ? '#f44747' : '#ce9178' }}>
+        <span className={styles.jsonColorKey}>"{key}"</span>
+        <span className={styles.jsonColorWhite}>: </span>
+        <span
+          className={
+            key === 'severity' ? styles.jsonColorError : styles.jsonColorString
+          }
+        >
           "{String(val)}"
         </span>
-        <span style={{ color: '#fff' }}>{comma}</span>
+        <span className={styles.jsonColorWhite}>{comma}</span>
       </>,
       1,
     );
@@ -735,15 +734,20 @@ function renderColorizedJson(obj: Record<string, unknown>): React.ReactNode {
     const color = stepId ? STEP_COLORS[Number(stepId) as JourneyEvent] : '#888';
 
     addLine(
-      <span
-        style={{ color: '#6a9955' }}
-      >{`// ═══ ${stepName.toUpperCase()} ═══`}</span>,
+      <span className={styles.jsonColorComment}>
+        {`// ═══ ${stepName.toUpperCase()} ═══`}
+      </span>,
       1,
     );
     addLine(
       <>
-        <span style={{ color }}>"{stepName}"</span>
-        <span style={{ color: '#fff' }}>: {'{'}</span>
+        <span
+          className={styles.jsonColorStepName}
+          style={{ '--step-color': color } as React.CSSProperties}
+        >
+          "{stepName}"
+        </span>
+        <span className={styles.jsonColorWhite}>: {'{'}</span>
       </>,
       1,
     );
@@ -758,29 +762,31 @@ function renderColorizedJson(obj: Record<string, unknown>): React.ReactNode {
 
       addLine(
         <>
-          <span style={{ color: isClue ? '#ffd700' : '#9cdcfe' }}>
+          <span className={isClue ? styles.jsonColorClue : styles.jsonColorKey}>
             "{fieldKey}"
           </span>
-          <span style={{ color: '#fff' }}>: </span>
+          <span className={styles.jsonColorWhite}>: </span>
           <span
-            style={{ color: typeof val === 'string' ? '#ce9178' : '#b5cea8' }}
+            className={
+              typeof val === 'string'
+                ? styles.jsonColorString
+                : styles.jsonColorNumber
+            }
           >
             {typeof val === 'string' ? `"${val}"` : String(val)}
           </span>
-          <span style={{ color: '#fff' }}>{comma}</span>
-          {isClue && (
-            <span style={{ color: '#ffd700', marginLeft: 8 }}>← CLUE!</span>
-          )}
+          <span className={styles.jsonColorWhite}>{comma}</span>
+          {isClue && <span className={styles.jsonClueAnnotation}>← CLUE!</span>}
         </>,
         2,
       );
     });
 
     const endComma = stepIdx < enrichedKeys.length - 1 ? ',' : '';
-    addLine(<span style={{ color: '#fff' }}>{`}${endComma}`}</span>, 1);
+    addLine(<span className={styles.jsonColorWhite}>{`}${endComma}`}</span>, 1);
   });
 
-  addLine(<span style={{ color: '#fff' }}>{'}'}</span>);
+  addLine(<span className={styles.jsonColorWhite}>{'}'}</span>);
 
   return lines;
 }

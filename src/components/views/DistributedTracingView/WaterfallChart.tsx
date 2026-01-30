@@ -88,7 +88,7 @@ const SpanDetailsModal: React.FC<{ span: TraceSpan; onClose: () => void }> = ({
         transition={{ type: 'spring', duration: 0.3 }}
       >
         <div className={styles.modalHeader}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+          <div className={styles.flexCenter}>
             <h2>Span Details</h2>
             <div className={styles.badge}>{span.severity}</div>
           </div>
@@ -124,13 +124,7 @@ const SpanDetailsModal: React.FC<{ span: TraceSpan; onClose: () => void }> = ({
             </span>
           </div>
 
-          <div
-            style={{
-              display: 'grid',
-              gridTemplateColumns: '1fr 1fr',
-              gap: '1rem',
-            }}
-          >
+          <div className={styles.gridTwoCol}>
             <div className={styles.detailItem}>
               <span className={styles.label}>Duration</span>
               <span className={styles.value}>{span.duration}ms</span>
@@ -141,13 +135,7 @@ const SpanDetailsModal: React.FC<{ span: TraceSpan; onClose: () => void }> = ({
             </div>
           </div>
 
-          <div
-            style={{
-              display: 'grid',
-              gridTemplateColumns: '1fr 1fr',
-              gap: '1rem',
-            }}
-          >
+          <div className={styles.gridTwoCol}>
             <div className={styles.detailItem}>
               <span className={styles.label}>Customer ID</span>
               <span className={styles.value}>
@@ -162,13 +150,7 @@ const SpanDetailsModal: React.FC<{ span: TraceSpan; onClose: () => void }> = ({
             </div>
           </div>
 
-          <div
-            style={{
-              display: 'grid',
-              gridTemplateColumns: '1fr 1fr',
-              gap: '1rem',
-            }}
-          >
+          <div className={styles.gridTwoCol}>
             <div className={styles.detailItem}>
               <span className={styles.label}>IP Address</span>
               <span className={styles.value}>{span.raw.ip as string}</span>
@@ -243,7 +225,7 @@ export const WaterfallChart: React.FC<WaterfallChartProps> = ({
             <h1>Error or No Data</h1>
           </div>
         </div>
-        <div style={{ padding: '2rem' }}>
+        <div className={styles.padding2}>
           {error ? error : 'No spans found for this trace.'}
         </div>
       </div>
@@ -253,13 +235,13 @@ export const WaterfallChart: React.FC<WaterfallChartProps> = ({
   return (
     <div className={styles.container}>
       <div className={styles.header}>
-        <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
+        <div className={styles.flexCenterGap1}>
           <button onClick={onBack} className={styles.backButton}>
             ← Back
           </button>
           <div className={styles.titleSection}>
             <h1>Trace #{traceId}</h1>
-            <span style={{ fontSize: '0.8rem', color: '#71717a' }}>
+            <span className={styles.statsText}>
               {spans.length} events • {totalDuration}ms
             </span>
           </div>

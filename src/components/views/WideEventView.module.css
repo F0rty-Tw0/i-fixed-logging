@@ -596,3 +596,78 @@
   bottom: 0;
   z-index: 1;
 }
+
+/* ─────────────────────────────────────────────────────────────────────────────
+   JSON SYNTAX HIGHLIGHTING
+   ───────────────────────────────────────────────────────────────────────────── */
+
+.jsonLine {
+  display: block;
+}
+
+.jsonLineIndent1 {
+  padding-left: 16px;
+}
+
+.jsonLineIndent2 {
+  padding-left: 32px;
+}
+
+.jsonColorWhite {
+  color: #fff;
+}
+
+.jsonColorKey {
+  color: #9cdcfe;
+}
+
+.jsonColorString {
+  color: #ce9178;
+}
+
+.jsonColorError {
+  color: #f44747;
+}
+
+.jsonColorComment {
+  color: #6a9955;
+}
+
+.jsonColorClue {
+  color: #ffd700;
+}
+
+.jsonColorNumber {
+  color: #b5cea8;
+}
+
+.jsonColorStepName {
+  color: var(--step-color, #888);
+}
+
+.jsonClueAnnotation {
+  color: #ffd700;
+  margin-left: 8px;
+}
+
+/* ─────────────────────────────────────────────────────────────────────────────
+   TOOLTIP CONTENT STYLING
+   ───────────────────────────────────────────────────────────────────────────── */
+
+.tooltipSection {
+  margin-bottom: 12px;
+}
+
+.tooltipSectionTitle {
+  color: #ffd700;
+  display: block;
+  font-size: 0.7rem;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  margin-bottom: 4px;
+}
+
+.tooltipSectionText {
+  font-style: italic;
+  font-size: 0.85rem;
+}

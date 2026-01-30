@@ -232,3 +232,43 @@
   --color-warn: #ffa502;
   --color-info: #1e90ff;
 }
+
+/* Virtual Column Positioning */
+.virtualColumn {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 14px;
+}
+
+/* Tooltip Value Modifiers */
+.tooltipValueError {
+  color: var(--color-error);
+}
+
+.tooltipValueWarn {
+  color: var(--color-warn);
+}
+
+.tooltipValueMessage {
+  max-width: 180px;
+  text-align: right;
+  white-space: pre-wrap;
+}
+
+.tooltipRowFlexStart {
+  align-items: flex-start;
+}
+
+/* Legend Square Colors */
+.legendSquareError {
+  background-color: var(--color-error);
+}
+
+.legendSquareWarn {
+  background-color: var(--color-warn);
+}
+
+.legendSquareInfo {
+  background-color: var(--color-info);
+}

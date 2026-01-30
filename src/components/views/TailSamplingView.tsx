@@ -11,6 +11,7 @@ import {
 } from 'react';
 import { motion } from 'framer-motion';
 import { useVirtualizer } from '@tanstack/react-virtual';
+import clsx from 'clsx';
 import { logStore } from '../../core/store/log-store';
 import { LogSeverityId, EVENT_NAMES } from '../../core/types/domain';
 import { generateLogDetails, getLogSource } from '../../utils/log-details';
@@ -216,8 +217,7 @@ export const TailSamplingView = () => {
               onChange={() => toggleFilter('errors')}
             />
             <span
-              className={styles.legendSquare}
-              style={{ backgroundColor: 'var(--color-error)' }}
+              className={`${styles.legendSquare} ${styles.legendSquareError}`}
             />
             Errors
           </label>
@@ -229,8 +229,7 @@ export const TailSamplingView = () => {
               onChange={() => toggleFilter('warnings')}
             />
             <span
-              className={styles.legendSquare}
-              style={{ backgroundColor: 'var(--color-warn)' }}
+              className={`${styles.legendSquare} ${styles.legendSquareWarn}`}
             />
             Warnings
           </label>
@@ -251,8 +250,7 @@ export const TailSamplingView = () => {
               onChange={() => toggleFilter('sampleInfo')}
             />
             <span
-              className={styles.legendSquare}
-              style={{ backgroundColor: 'var(--color-info)' }}
+              className={`${styles.legendSquare} ${styles.legendSquareInfo}`}
             />
             Sample Info (5%)
           </label>
@@ -289,8 +287,6 @@ export const TailSamplingView = () => {
           className={styles.virtualTrack}
           style={{
             width: `${virtualizer.getTotalSize()}px`,
-            height: '100%',
-            position: 'relative',
           }}
         >
           {virtualizer.getVirtualItems().map((virtualColumn) => {
@@ -308,13 +304,9 @@ export const TailSamplingView = () => {
             return (
               <div
                 key={virtualColumn.key}
-                className={styles.column}
+                className={styles.virtualColumn}
                 style={{
-                  position: 'absolute',
-                  top: 0,
-                  left: 0,
                   transform: `translateX(${virtualColumn.start}px)`,
-                  width: '14px',
                 }}
               >
                 {columnSeverities.map((sevId, rowIdx) => {
@@ -365,16 +357,13 @@ export const TailSamplingView = () => {
             <div className={styles.tooltipRow}>
               <span className={styles.tooltipLabel}>Type</span>
               <span
-                className={styles.tooltipValue}
-                style={{
-                  color:
+                className={clsx(styles.tooltipValue, {
+                  [styles.tooltipValueError]:
                     hoveredLog.severity === LogSeverityId.ERROR ||
-                    hoveredLog.severity === LogSeverityId.CRITICAL
-                      ? 'var(--color-error)'
-                      : hoveredLog.severity === LogSeverityId.WARN
-                        ? 'var(--color-warn)'
-                        : '#fff',
-                }}
+                    hoveredLog.severity === LogSeverityId.CRITICAL,
+                  [styles.tooltipValueWarn]:
+                    hoveredLog.severity === LogSeverityId.WARN,
+                })}
               >
                 {SEVERITY_NAMES[hoveredLog.severity]}
               </span>
@@ -411,17 +400,11 @@ export const TailSamplingView = () => {
               </span>
             </div>
             <div
-              className={styles.tooltipRow}
-              style={{ alignItems: 'flex-start' }}
+              className={`${styles.tooltipRow} ${styles.tooltipRowFlexStart}`}
             >
               <span className={styles.tooltipLabel}>Message</span>
               <span
-                className={styles.tooltipValue}
-                style={{
-                  maxWidth: '180px',
-                  textAlign: 'right',
-                  whiteSpace: 'pre-wrap',
-                }}
+                className={`${styles.tooltipValue} ${styles.tooltipValueMessage}`}
               >
                 {generateLogDetails(
                   hoveredLog.journeyId,

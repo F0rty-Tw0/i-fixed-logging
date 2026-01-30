@@ -85,10 +85,9 @@ export const VirtualLogList = () => {
         }}
       >
         <div
+          className={styles['virtual-container']}
           style={{
             height: `${virtualizer.getTotalSize()}px`,
-            width: '100%',
-            position: 'relative',
           }}
         >
           {virtualizer.getVirtualItems().map((virtualItem) => {
@@ -110,14 +109,14 @@ export const VirtualLogList = () => {
                 key={virtualItem.key}
                 data-index={virtualItem.index}
                 ref={virtualizer.measureElement}
-                className={clsx(styles['log-row-wrapper'], {
-                  [styles['expanded']]: isExpanded,
-                })}
+                className={clsx(
+                  styles['log-row-wrapper'],
+                  styles['virtual-item'],
+                  {
+                    [styles['expanded']]: isExpanded,
+                  },
+                )}
                 style={{
-                  position: 'absolute',
-                  top: 0,
-                  left: 0,
-                  width: '100%',
                   transform: `translateY(${virtualItem.start}px)`,
                 }}
               >
