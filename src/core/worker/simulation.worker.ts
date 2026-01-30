@@ -77,7 +77,7 @@ self.onmessage = (e: MessageEvent) => {
   const { type, payload } = e.data;
   if (type === 'START') {
     isRunning = true;
-    requestAnimationFrame(tick);
+    setTimeout(tick, 0);
   } else if (type === 'STOP') {
     isRunning = false;
   } else if (type === 'SET_USERS') {
