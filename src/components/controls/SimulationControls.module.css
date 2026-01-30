@@ -1,0 +1,101 @@
+.container {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.button {
+  background-color: rgba(255, 255, 255, 0.1);
+  color: white;
+  border: none;
+  min-width: 80px;
+  padding: 8px 16px;
+  border-radius: 4px;
+  cursor: pointer;
+  font-weight: 600;
+  transition: background 0.2s;
+}
+
+.button:hover {
+  background-color: rgba(255, 255, 255, 0.2);
+}
+
+.button:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+  pointer-events: none;
+}
+
+.primary {
+  background-color: var(--accent-color);
+}
+.primary:hover {
+  opacity: 0.9;
+}
+
+.danger {
+  background-color: var(--color-error);
+}
+.danger:hover {
+  opacity: 0.9;
+}
+
+.secondary {
+  background-color: #546e7a;
+}
+.secondary:hover {
+  opacity: 0.9;
+}
+
+.slider-group {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.slider-group label {
+  font-size: 0.8rem;
+  color: var(--text-secondary);
+}
+
+.slider-group input[type='range'] {
+  width: 200px;
+}
+
+.users-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+}
+
+.number-input {
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 4px;
+  color: var(--accent-color);
+  font-family: var(--font-mono);
+  font-size: 0.9rem;
+  font-weight: 700;
+  padding: 2px 6px;
+  width: 80px;
+  outline: none;
+  transition: all 0.2s;
+}
+
+.number-input:focus {
+  border-color: var(--accent-color);
+  background: rgba(255, 255, 255, 0.1);
+}
+
+/* Hide arrows in Chrome, Safari, Edge, Opera */
+.number-input::-webkit-inner-spin-button,
+.number-input::-webkit-outer-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+
+/* Hide arrows in Firefox */
+.number-input[type='number'] {
+  -moz-appearance: textfield;
+}
