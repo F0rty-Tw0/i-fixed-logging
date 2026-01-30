@@ -18,22 +18,64 @@ const StatusBadge: React.FC<{ event: JourneyEvent }> = ({ event }) => {
   );
 };
 
+type SortField = 'traceId' | 'duration' | 'eventCount' | 'startTime';
+type SortDirection = 'asc' | 'desc';
+
 export const TraceList: React.FC<{ onSelectTrace?: (id: number) => void }> = ({
   onSelectTrace,
 }) => {
   const traces = useTraceAggregation();
   const parentRef = useRef<HTMLDivElement>(null);
   const [filter, setFilter] = useState('');
+  const [sortField, setSortField] = useState<SortField>('startTime');
+  const [sortDirection, setSortDirection] = useState<SortDirection>('desc');
+
+  const handleSort = (field: SortField) => {
+    if (sortField === field) {
+      setSortDirection(sortDirection === 'asc' ? 'desc' : 'asc');
+    } else {
+      setSortField(field);
+      setSortDirection(field === 'startTime' ? 'desc' : 'asc');
+    }
+  };
 
   const filteredTraces = useMemo(() => {
-    if (!filter) return traces;
-    const lower = filter.toLowerCase();
-    return traces.filter(
-      (t) =>
-        t.traceId.toString().includes(lower) ||
-        EVENT_NAMES[t.lastEvent].toLowerCase().includes(lower),
-    );
-  }, [traces, filter]);
+    let result = traces;
+
+    // Apply filter
+    if (filter) {
+      const lower = filter.toLowerCase();
+      result = traces.filter(
+        (t) =>
+          t.traceId.toString().includes(lower) ||
+          EVENT_NAMES[t.lastEvent].toLowerCase().includes(lower),
+      );
+    }
+
+    // Apply sorting
+    const sorted = [...result].sort((a, b) => {
+      let comparison = 0;
+
+      switch (sortField) {
+        case 'traceId':
+          comparison = a.traceId - b.traceId;
+          break;
+        case 'duration':
+          comparison = a.duration - b.duration;
+          break;
+        case 'eventCount':
+          comparison = a.eventCount - b.eventCount;
+          break;
+        case 'startTime':
+          comparison = a.startTime - b.startTime;
+          break;
+      }
+
+      return sortDirection === 'asc' ? comparison : -comparison;
+    });
+
+    return sorted;
+  }, [traces, filter, sortField, sortDirection]);
 
   const virtualizer = useVirtualizer({
     count: filteredTraces.length,
@@ -70,25 +112,16 @@ export const TraceList: React.FC<{ onSelectTrace?: (id: number) => void }> = ({
           <h1>Live Traces</h1>
           <input
             type='text'
-            placeholder='Filter trace ID...'
+            placeholder='Filter...'
             value={filter}
             onChange={(e) => setFilter(e.target.value)}
-            style={{
-              background: '#18181b',
-              border: '1px solid #27272a',
-              color: '#fff',
-              padding: '4px 8px',
-              borderRadius: '4px',
-              fontSize: '0.8rem',
-              marginLeft: '1rem',
-              outline: 'none',
-            }}
+            className={styles.filterInput}
           />
         </div>
 
         <div className={styles.statsBar}>
           <div className={styles.statItem}>
-            <span className={styles.statLabel}>Active Exporters</span>
+            <span className={styles.statLabel}>Active Traces</span>
             <span className={styles.statValue}>{traces.length}</span>
           </div>
           <div className={styles.statItem}>
@@ -106,12 +139,53 @@ export const TraceList: React.FC<{ onSelectTrace?: (id: number) => void }> = ({
 
       <div className={styles.listContainer} ref={parentRef}>
         <div className={styles.listHeader}>
-          <div>Trace ID</div>
+          <div
+            className={styles.sortableHeader}
+            onClick={() => handleSort('traceId')}
+          >
+            Trace ID
+            {sortField === 'traceId' && (
+              <span className={styles.sortIndicator}>
+                {sortDirection === 'asc' ? '↑' : '↓'}
+              </span>
+            )}
+          </div>
           <div>Status</div>
-          <div style={{ textAlign: 'right' }}>Duration</div>
-          <div>Timeline</div>
+          <div
+            className={styles.sortableHeader}
+            onClick={() => handleSort('duration')}
+          >
+            Duration
+            {sortField === 'duration' && (
+              <span className={styles.sortIndicator}>
+                {sortDirection === 'asc' ? '↑' : '↓'}
+              </span>
+            )}
+          </div>
+          <div
+            className={styles.sortableHeader}
+            onClick={() => handleSort('duration')}
+            title='Visual bar showing trace duration (time from first to last event)'
+          >
+            Timeline
+            {sortField === 'duration' && (
+              <span className={styles.sortIndicator}>
+                {sortDirection === 'asc' ? '↑' : '↓'}
+              </span>
+            )}
+          </div>
           <div>Segment</div>
-          <div style={{ textAlign: 'right' }}>Events</div>
+          <div
+            className={styles.sortableHeader}
+            onClick={() => handleSort('eventCount')}
+          >
+            Events
+            {sortField === 'eventCount' && (
+              <span className={styles.sortIndicator}>
+                {sortDirection === 'asc' ? '↑' : '↓'}
+              </span>
+            )}
+          </div>
         </div>
 
         <div
@@ -163,9 +237,7 @@ export const TraceList: React.FC<{ onSelectTrace?: (id: number) => void }> = ({
                     {trace.customerSegment === 1 ? 'VIP' : 'STANDARD'}
                   </span>
                 </div>
-                <div className={styles.cell} style={{ textAlign: 'right' }}>
-                  {trace.eventCount}
-                </div>
+                <div className={styles.cell}>{trace.eventCount}</div>
               </div>
             );
           })}
