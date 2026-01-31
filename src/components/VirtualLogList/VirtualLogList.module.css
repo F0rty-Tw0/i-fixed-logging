@@ -55,7 +55,8 @@
   padding: 4px var(--space-3);
   font-size: 0.8125rem;
   line-height: 1.4;
-  white-space: pre;
+  white-space: nowrap;
+  overflow: hidden;
   border-bottom: 1px solid var(--border-subtle);
   cursor: pointer;
   transition: background-color var(--transition-fast);

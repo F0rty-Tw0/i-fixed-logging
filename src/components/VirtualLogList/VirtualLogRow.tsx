@@ -3,76 +3,117 @@ import clsx from 'clsx';
 import { VirtualItem } from '@tanstack/react-virtual';
 import { LogSeverityId, EVENT_NAMES } from '../../core/types/domain';
 import { generateLogDetails, getLogSource } from '../../utils/log-details';
+import { logStore } from '../../core/store';
 import styles from './VirtualLogList.module.css';
-import { LogSnapshot as LogSnapshotType } from '../../core/store/log-store';
 
 interface VirtualLogRowProps {
   virtualItem: VirtualItem;
-  measureElement: (element: Element | null) => void;
-  log: LogSnapshotType;
+  measureElement?: (element: Element | null | undefined) => void;
+  absIndex: number;
   isExpanded: boolean;
   toggleExpand: (index: number) => void;
 }
 
 export const VirtualLogRow: React.FC<VirtualLogRowProps> = React.memo(
-  ({ virtualItem, measureElement, log, isExpanded, toggleExpand }) => {
-    const date = React.useMemo(
-      () =>
-        new Date(log.timestamp).toISOString().split('T')[1].replace('Z', ''),
-      [log.timestamp],
-    );
+  ({ virtualItem, measureElement, absIndex, isExpanded, toggleExpand }) => {
+    // Read properties directly from logStore using columnar accessors
+    // This avoids allocating LogSnapshot objects
+    const timestamp = logStore.getTimestamp(absIndex);
+    const eventId = logStore.getEventId(absIndex);
+    const severityId = logStore.getSeverity(absIndex);
+    const metaIndex = logStore.getMetaIndex(absIndex);
+    const customerId = logStore.getCustomerId(absIndex);
+    const waitingRoomId = logStore.getWaitingRoomId(absIndex);
+    const ip = logStore.getIp(absIndex);
+    const journeyId = logStore.getJourneyId(absIndex);
 
-    const logDetails = React.useMemo(
-      () =>
-        generateLogDetails(
-          log.journeyId,
-          log.eventId,
-          log.severity,
-          log.waitingRoomId,
-          log.customerId,
-          log.metaIndex,
-          log.ip,
-        ),
-      [
-        log.journeyId,
-        log.eventId,
-        log.severity,
-        log.waitingRoomId,
-        log.customerId,
-        log.metaIndex,
-        log.ip,
-      ],
-    );
+    const date = React.useMemo(() => {
+      if (timestamp <= 0) return '';
+      try {
+        return new Date(timestamp).toISOString().split('T')[1].replace('Z', '');
+      } catch (e) {
+        return '';
+      }
+    }, [timestamp]);
+
+    // Only generate full details if expanded, otherwise just get the message lazily
+    const logDetails = React.useMemo(() => {
+      if (absIndex < 0) return { message: '' };
+      if (!isExpanded) {
+        // Light version for the main list - only what's needed for the message column
+        // We can optimize generateLogDetails later, but for now we only call it if we have to.
+        return generateLogDetails(
+          journeyId,
+          eventId,
+          severityId,
+          waitingRoomId,
+          customerId,
+          metaIndex,
+          ip,
+          absIndex, // Pass absIndex for LRU caching
+        );
+      }
+      return generateLogDetails(
+        journeyId,
+        eventId,
+        severityId,
+        waitingRoomId,
+        customerId,
+        metaIndex,
+        ip,
+        absIndex, // Pass absIndex for LRU caching
+      );
+    }, [
+      isExpanded,
+      journeyId,
+      eventId,
+      severityId,
+      waitingRoomId,
+      customerId,
+      metaIndex,
+      ip,
+      absIndex,
+    ]);
 
     const eventName = React.useMemo(
-      () => EVENT_NAMES[log.eventId] || 'UNKNOWN',
-      [log.eventId],
+      () => EVENT_NAMES[eventId] || 'UNKNOWN',
+      [eventId],
     );
 
-    const source = React.useMemo(
-      () => getLogSource(log.eventId),
-      [log.eventId],
-    );
+    const source = React.useMemo(() => getLogSource(eventId), [eventId]);
 
-    // Determine severity
+    // Determine severity string
     const severity = React.useMemo(() => {
-      let sev = 'INFO';
-      if (log.severity === LogSeverityId.WARN) sev = 'WARN';
-      else if (log.severity === LogSeverityId.ERROR) sev = 'ERROR';
-      else if (log.severity === LogSeverityId.CRITICAL) sev = 'CRIT';
-      return sev;
-    }, [log.severity]);
+      if (severityId === LogSeverityId.WARN) return 'WARN';
+      if (severityId === LogSeverityId.ERROR) return 'ERROR';
+      if (severityId === LogSeverityId.CRITICAL) return 'CRIT';
+      return 'INFO';
+    }, [severityId]);
 
-    const ipAddress = React.useMemo(
-      () =>
-        [
-          (log.ip >>> 24) & 0xff,
-          (log.ip >>> 16) & 0xff,
-          (log.ip >>> 8) & 0xff,
-          log.ip & 0xff,
-        ].join('.'),
-      [log.ip],
-    );
+    const ipAddress = React.useMemo(() => {
+      if (absIndex < 0) return '';
+      return [
+        (ip >>> 24) & 0xff,
+        (ip >>> 16) & 0xff,
+        (ip >>> 8) & 0xff,
+        ip & 0xff,
+      ].join('.');
+    }, [ip, absIndex]);
+
+    // Final safety check before rendering - move it here to avoid hook violation
+    if (absIndex < 0) {
+      return (
+        <div
+          ref={measureElement}
+          className={clsx(styles['log-row-wrapper'], styles['virtual-item'])}
+          style={{
+            transform: `translate3d(0, ${virtualItem.start}px, 0)`,
+            willChange: 'transform',
+            height: virtualItem.size,
+          }}
+        />
+      );
+    }
 
     return (
       <div
@@ -83,23 +124,24 @@ export const VirtualLogRow: React.FC<VirtualLogRowProps> = React.memo(
           [styles['expanded']]: isExpanded,
         })}
         style={{
-          transform: `translateY(${virtualItem.start}px)`,
+          transform: `translate3d(0, ${virtualItem.start}px, 0)`,
+          willChange: 'transform',
         }}
       >
         <div
           className={clsx(styles['log-row'], styles[`row-sev-${severity}`])}
           onClick={() => toggleExpand(virtualItem.index)}
         >
-          <span className={styles['col-id']}>#{log.journeyId}</span>
+          <span className={styles['col-id']}>#{journeyId}</span>
           <span className={styles['col-ts']}>{date}</span>
           <span className={clsx(styles['col-type'], styles[`sev-${severity}`])}>
             {severity}
           </span>
           <span className={styles['col-service']}>{source}</span>
           <span className={styles['col-wrid']}>
-            WR-{log.waitingRoomId.toString().padStart(2, '0')}
+            WR-{waitingRoomId.toString().padStart(2, '0')}
           </span>
-          <span className={styles['col-cid']}>c-{log.customerId}</span>
+          <span className={styles['col-cid']}>c-{customerId}</span>
           <span className={styles['col-ip']}>{ipAddress}</span>
           <span className={styles['col-event']}>{eventName}</span>
           <span
@@ -111,7 +153,7 @@ export const VirtualLogRow: React.FC<VirtualLogRowProps> = React.memo(
             {logDetails.message || '-'}
           </span>
           <span className={styles['col-meta']}>
-            {log.metaIndex > 0 ? `+${log.metaIndex}ms` : '-'}
+            {metaIndex > 0 ? `+${metaIndex}ms` : '-'}
           </span>
         </div>
         {isExpanded && (
@@ -126,18 +168,11 @@ export const VirtualLogRow: React.FC<VirtualLogRowProps> = React.memo(
     );
   },
   (prev, next) => {
+    // Extremely fast comparison
     return (
+      prev.absIndex === next.absIndex &&
       prev.isExpanded === next.isExpanded &&
-      prev.virtualItem.start === next.virtualItem.start &&
-      prev.virtualItem.index === next.virtualItem.index &&
-      prev.log.timestamp === next.log.timestamp &&
-      prev.log.journeyId === next.log.journeyId &&
-      prev.log.eventId === next.log.eventId &&
-      prev.log.severity === next.log.severity &&
-      prev.log.metaIndex === next.log.metaIndex &&
-      prev.log.customerId === next.log.customerId &&
-      prev.log.ip === next.log.ip &&
-      prev.log.waitingRoomId === next.log.waitingRoomId
+      prev.virtualItem.start === next.virtualItem.start
     );
   },
 );

@@ -26,7 +26,6 @@ const getServerSearchStatusSnapshot = () => INITIAL_SEARCH_STATUS;
 export const VirtualLogList = () => {
   const parentRef = useRef<HTMLDivElement>(null);
 
-  // Create a subscribe function that forces re-render based on store updates
   // We use useSyncExternalStore to subscribe to logStore changes
   const logCount = useSyncExternalStore(
     subscribeToStore,
@@ -50,9 +49,51 @@ export const VirtualLogList = () => {
   // Use absolute count if not filtered to prevent flashing on buffer shifts
   const effectiveCount = isFiltered ? logCount : totalIngested;
 
+  // Damping logic: catch up to effectiveCount at a manageable rate
+  const [dampedCount, setDampedCount] = useState(effectiveCount);
+  const targetCountRef = useRef(effectiveCount);
+  const lastUpdateTimeRef = useRef(Date.now());
+
+  // Sync target ref
+  useEffect(() => {
+    if (targetCountRef.current !== effectiveCount) {
+      targetCountRef.current = effectiveCount;
+      lastUpdateTimeRef.current = Date.now();
+    }
+  }, [effectiveCount]);
+
+  useEffect(() => {
+    let frameId: number;
+
+    const animate = () => {
+      setDampedCount((prev) => {
+        const target = targetCountRef.current;
+        if (prev === target) return prev;
+
+        // If count decreased (RESET) or we're catastrophically behind, catch up immediately
+        const diff = target - prev;
+        if (diff < 0 || diff > 50000) {
+          return target;
+        }
+
+        // Quiet detection: If the stream has stopped for >200ms, catch up instantly
+        if (Date.now() - lastUpdateTimeRef.current > 200) {
+          return target;
+        }
+
+        // 1 log per frame for smooth readability (60 logs/sec)
+        return prev + 1;
+      });
+      frameId = requestAnimationFrame(animate);
+    };
+
+    frameId = requestAnimationFrame(animate);
+    return () => cancelAnimationFrame(frameId);
+  }, []);
+
   // eslint-disable-next-line react-hooks/incompatible-library
   const virtualizer = useVirtualizer({
-    count: effectiveCount,
+    count: dampedCount,
     getScrollElement: () => parentRef.current,
     estimateSize: () => 28, // Matched to actual CSS height (line-height + padding) + border
     overscan: 12, // Reduced overscan for better performance during bursts
@@ -68,14 +109,17 @@ export const VirtualLogList = () => {
     if (
       isAutoScroll &&
       expandedIndex === null &&
-      effectiveCount > 0 &&
+      dampedCount > 0 &&
       parentRef.current
     ) {
-      virtualizer.scrollToIndex(effectiveCount - 1, {
-        align: 'end',
+      // Throttle auto-scroll to requestAnimationFrame to avoid layout thrashing
+      requestAnimationFrame(() => {
+        virtualizer.scrollToIndex(dampedCount - 1, {
+          align: 'end',
+        });
       });
     }
-  }, [effectiveCount, isAutoScroll, expandedIndex, virtualizer]);
+  }, [dampedCount, isAutoScroll, expandedIndex, virtualizer]);
 
   const toggleExpand = (index: number) => {
     setExpandedIndex((prev) => (prev === index ? null : index));
@@ -131,34 +175,18 @@ export const VirtualLogList = () => {
           }}
         >
           {virtualizer.getVirtualItems().map((virtualItem) => {
-            const log = isFiltered
-              ? logStore.getSnapshot(virtualItem.index)
-              : logStore.getSnapshotByAbsoluteIndex(virtualItem.index);
-
-            if (!log) {
-              return (
-                <div
-                  key={virtualItem.key}
-                  style={{
-                    position: 'absolute',
-                    top: 0,
-                    left: 0,
-                    width: '100%',
-                    height: `${virtualItem.size}px`,
-                    transform: `translateY(${virtualItem.start}px)`,
-                  }}
-                />
-              );
-            }
-
+            const absIndex = logStore.getAbsoluteIndex(virtualItem.index);
             const isExpanded = expandedIndex === virtualItem.index;
 
             return (
               <VirtualLogRow
                 key={virtualItem.key}
                 virtualItem={virtualItem}
-                measureElement={virtualizer.measureElement}
-                log={log}
+                // Only pass measureElement if expanded to avoid thousands of unnecessary measurements
+                measureElement={
+                  isExpanded ? virtualizer.measureElement : undefined
+                }
+                absIndex={absIndex}
                 isExpanded={isExpanded}
                 toggleExpand={toggleExpand}
               />

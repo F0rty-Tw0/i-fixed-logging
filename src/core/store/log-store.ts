@@ -230,6 +230,85 @@ export class LogStore {
     return this.getSnapshotInternal(index);
   }
 
+  /**
+   * Columnar accessors for high-performance UI rendering
+   * Avoids allocating LogSnapshot objects in tight loops
+   */
+
+  private getPhysicalIdx(absIndex: number): number {
+    return absIndex % MAX_LOGS;
+  }
+
+  private getLogicalIdx(index: number): number {
+    const matchIndices = this.searchEngine.getMatchIndices();
+    if (matchIndices) {
+      return matchIndices[index];
+    }
+    return index;
+  }
+
+  public getTimestamp(absIndex: number): number {
+    if (absIndex < 0) return 0;
+    return this.timestamps[absIndex % MAX_LOGS];
+  }
+
+  public getJourneyId(absIndex: number): JourneyId {
+    if (absIndex < 0) return 0 as JourneyId;
+    return this.journeyIds[absIndex % MAX_LOGS] as JourneyId;
+  }
+
+  public getEventId(absIndex: number): JourneyEvent {
+    if (absIndex < 0) return 0 as JourneyEvent;
+    return this.eventIds[absIndex % MAX_LOGS] as JourneyEvent;
+  }
+
+  public getSeverity(absIndex: number): LogSeverityId {
+    if (absIndex < 0) return LogSeverityId.INFO;
+    return this.severities[absIndex % MAX_LOGS] as LogSeverityId;
+  }
+
+  public getMetaIndex(absIndex: number): number {
+    if (absIndex < 0) return 0;
+    return this.metaIndices[absIndex % MAX_LOGS];
+  }
+
+  public getCustomerId(absIndex: number): CustomerId {
+    if (absIndex < 0) return 0 as CustomerId;
+    return this.customerIds[absIndex % MAX_LOGS] as CustomerId;
+  }
+
+  public getIp(absIndex: number): number {
+    if (absIndex < 0) return 0;
+    return this.ips[absIndex % MAX_LOGS];
+  }
+
+  public getWaitingRoomId(absIndex: number): number {
+    if (absIndex < 0) return 0;
+    return this.waitingRoomIds[absIndex % MAX_LOGS];
+  }
+
+  /**
+   * Resolves a logical index (from virtualizer) to an absolute index
+   */
+  public getAbsoluteIndex(logicalIndex: number): number {
+    const matchIndices = this.searchEngine.getMatchIndices();
+    if (matchIndices) {
+      // In filtered mode, the logical index is our position in matchIndices
+      const logicalIdx = matchIndices[logicalIndex];
+      if (logicalIdx === undefined) return -1;
+
+      const offset =
+        this.totalIngested > MAX_LOGS ? this.totalIngested - MAX_LOGS : 0;
+      return offset + logicalIdx;
+    }
+
+    // In non-filtered mode, we just offset from the start of the buffer
+    if (logicalIndex >= this.length) return -1;
+    const offset =
+      this.totalIngested > MAX_LOGS ? this.totalIngested - MAX_LOGS : 0;
+    return offset + logicalIndex;
+  }
+
   public getLength() {
     const matchIndices = this.searchEngine.getMatchIndices();
     if (matchIndices) {

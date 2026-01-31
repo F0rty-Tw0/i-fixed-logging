@@ -15,6 +15,7 @@ type LogInfo = {
   warn_code?: string;
   message?: string;
   client_ip?: string;
+  [key: string]: string | number | boolean | undefined;
 };
 // Simple deterministic RNG based on seed
 // Simple deterministic RNG based on sfc32
@@ -62,6 +63,10 @@ export function getLogSource(eventId: JourneyEvent): string {
   return sourceMap[eventId] || 'unknown-service';
 }
 
+// LRU Cache for log details to avoid redundant RNG/string operations
+const DETAILS_CACHE = new Map<string, LogInfo>();
+const MAX_CACHE_SIZE = 1000;
+
 export function generateLogDetails(
   journeyId: number,
   eventId: JourneyEvent,
@@ -70,7 +75,16 @@ export function generateLogDetails(
   customerId?: number,
   latency?: number,
   ip?: number,
+  absIndex?: number, // Optional stable key for better caching
 ) {
+  // Use absIndex as cache key if available, otherwise hash the critical inputs
+  const cacheKey =
+    absIndex !== undefined
+      ? `idx-${absIndex}`
+      : `${journeyId}-${eventId}-${severity}-${latency}-${ip}`;
+
+  const cached = DETAILS_CACHE.get(cacheKey);
+  if (cached) return cached;
   // Seed the RNG with journeyId + eventId for consistent results per log
   const s = stir(journeyId ^ (eventId * 10000));
   const rand = sfc32(s, s + 1, s + 2, s + 3);
@@ -245,64 +259,77 @@ export function generateLogDetails(
     }
   }
 
-  switch (eventId) {
-    case JourneyEvent.CONNECT:
-      return {
-        ...base,
-        user_agent: 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7)',
-        tls_version: rand() > 0.5 ? 'TLS 1.3' : 'TLS 1.2',
-        cipher: 'TLS_AES_128_GCM_SHA256',
-      };
-    case JourneyEvent.WAF_CHECK:
-      return {
-        ...base,
-        rules_checked: Math.floor(rand() * 100) + 10,
-        score: Math.floor(rand() * 100),
-        action: 'allow',
-        risk_level: rand() > 0.9 ? 'high' : 'low',
-      };
-    case JourneyEvent.GEO_CHECK:
-      const countries = ['US', 'DE', 'FR', 'GB', 'JP', 'BR', 'AU'];
-      return {
-        ...base,
-        country: countries[Math.floor(rand() * countries.length)],
-        region: `region-${Math.floor(rand() * 10)}`,
-        asn: Math.floor(rand() * 10000) + 1000,
-      };
-    case JourneyEvent.BOT_CHECK_START:
-    case JourneyEvent.JS_CHALLENGE:
-      // Bot score should be journey-consistent "once assigned"
-      const bs = stir(journeyId);
-      const botRand = sfc32(bs, bs + 1, bs + 2, bs + 3);
-      for (let i = 0; i < 4; i++) botRand();
-      return {
-        ...base,
-        bot_score: botRand().toFixed(4),
-        headless: false,
-        webdriver: false,
-        screen_res: '1920x1080',
-      };
-    case JourneyEvent.QUEUE_ENTER:
-    case JourneyEvent.QUEUE_POLL_1:
-    case JourneyEvent.QUEUE_POLL_2:
-      return {
-        ...base,
-        queue_id: 'standard-queue',
-        position: Math.floor(rand() * 5000),
-        est_wait: `${Math.floor(rand() * 120)}s`,
-      };
-    case JourneyEvent.ADMITTED:
-      return {
-        ...base,
-        session_token: `tok_${Math.floor(rand() * 1000000).toString(16)}`,
-        final_action: 'redirect_origin',
-        target: '/checkout',
-      };
-    default:
-      return {
-        ...base,
-        details: 'Standard event processing',
-        duration_us: Math.floor(rand() * 1000),
-      };
+  const result = detailsResult();
+
+  // LRU Maintenance
+  if (DETAILS_CACHE.size >= MAX_CACHE_SIZE) {
+    const firstKey = DETAILS_CACHE.keys().next().value;
+    if (firstKey !== undefined) DETAILS_CACHE.delete(firstKey);
+  }
+  DETAILS_CACHE.set(cacheKey, result);
+
+  return result;
+
+  function detailsResult(): LogInfo {
+    switch (eventId) {
+      case JourneyEvent.CONNECT:
+        return {
+          ...base,
+          user_agent: 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7)',
+          tls_version: rand() > 0.5 ? 'TLS 1.3' : 'TLS 1.2',
+          cipher: 'TLS_AES_128_GCM_SHA256',
+        };
+      case JourneyEvent.WAF_CHECK:
+        return {
+          ...base,
+          rules_checked: Math.floor(rand() * 100) + 10,
+          score: Math.floor(rand() * 100),
+          action: 'allow',
+          risk_level: rand() > 0.9 ? 'high' : 'low',
+        };
+      case JourneyEvent.GEO_CHECK:
+        const countries = ['US', 'DE', 'FR', 'GB', 'JP', 'BR', 'AU'];
+        return {
+          ...base,
+          country: countries[Math.floor(rand() * countries.length)],
+          region: `region-${Math.floor(rand() * 10)}`,
+          asn: Math.floor(rand() * 10000) + 1000,
+        };
+      case JourneyEvent.BOT_CHECK_START:
+      case JourneyEvent.JS_CHALLENGE:
+        // Bot score should be journey-consistent "once assigned"
+        const bs = stir(journeyId);
+        const botRand = sfc32(bs, bs + 1, bs + 2, bs + 3);
+        for (let i = 0; i < 4; i++) botRand();
+        return {
+          ...base,
+          bot_score: botRand().toFixed(4),
+          headless: false,
+          webdriver: false,
+          screen_res: '1920x1080',
+        };
+      case JourneyEvent.QUEUE_ENTER:
+      case JourneyEvent.QUEUE_POLL_1:
+      case JourneyEvent.QUEUE_POLL_2:
+        return {
+          ...base,
+          queue_id: 'standard-queue',
+          position: Math.floor(rand() * 5000),
+          est_wait: `${Math.floor(rand() * 120)}s`,
+        };
+      case JourneyEvent.ADMITTED:
+        return {
+          ...base,
+          session_token: `tok_${Math.floor(rand() * 1000000).toString(16)}`,
+          final_action: 'redirect_origin',
+          target: '/checkout',
+        };
+      default:
+        return {
+          ...base,
+          details: 'Standard event processing',
+          duration_us: Math.floor(rand() * 1000),
+        };
+    }
   }
 }
