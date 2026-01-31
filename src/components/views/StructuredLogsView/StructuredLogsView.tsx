@@ -257,7 +257,10 @@ export const StructuredLogsView: React.FC = () => {
           {PREDEFINED_FILTERS.map((filter) => (
             <button
               key={filter.label}
-              className={styles.chip}
+              className={clsx(
+                styles.chip,
+                sql === filter.sql && styles.activeChip,
+              )}
               onClick={() => {
                 setSql(filter.sql);
                 runQuery(filter.sql);
