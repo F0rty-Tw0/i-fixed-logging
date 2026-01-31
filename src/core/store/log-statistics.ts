@@ -76,6 +76,7 @@ export class LogStatistics {
       let count = 0;
       const len = matchIndices.length;
       const physicalStart = totalIngested > MAX_LOGS ? head : 0;
+      const samplingRateLimit = filters.samplingRate;
 
       for (let i = 0; i < len; i++) {
         const logicalIdx = matchIndices[i];
@@ -89,8 +90,9 @@ export class LogStatistics {
           sev === LogSeverityId.CRITICAL || sev === LogSeverityId.ERROR;
         const isWarn = sev === LogSeverityId.WARN;
         const isInfo = sev === LogSeverityId.INFO;
+        const isSlow = latency > 1000;
 
-        // Priority Bypass
+        // 1. Priority Bypass
         if (isError && filters.errors) {
           count++;
           continue;
@@ -99,16 +101,22 @@ export class LogStatistics {
           count++;
           continue;
         }
+        if (isInfo && filters.sampleInfo && physicalIdx % 20 === 0) {
+          count++;
+          continue;
+        }
 
-        // Sampling applies to the rest
-        if (bucket >= filters.samplingRate) continue;
+        // 2. Sampled categories
+        if (bucket >= samplingRateLimit) continue;
 
-        let visible = false;
-        if (filters.slow && latency > 1000) visible = true;
-        if (filters.sampleInfo && isInfo && physicalIdx % 20 === 0)
-          visible = true;
-
-        if (visible) count++;
+        if (filters.slow && isSlow) {
+          count++;
+          continue;
+        }
+        if (isInfo && !filters.sampleInfo) {
+          count++;
+          continue;
+        }
       }
       return count;
     }
@@ -125,35 +133,31 @@ export class LogStatistics {
       const cntSlowWarn = this.statsColumns.slowWarn[b];
       const cntSlowError = this.statsColumns.slowError[b];
 
-      // 1. Priority logs: always added regardless of bucket if filter is ON
+      // 1. Errors Match
       if (filters.errors) {
         total += cntError;
+      } else if (filters.slow && b < samplingLimit) {
+        total += cntSlowError;
       }
+
+      // 2. Warnings Match
       if (filters.warnings) {
         total += cntWarn;
+      } else if (filters.slow && b < samplingLimit) {
+        total += cntSlowWarn;
       }
 
-      // 2. Sampled logs: only added if bucket is within sampling limit
-      if (b < samplingLimit) {
-        // Slow logs that were NOT errors or warnings (already counted or bypassed)
-        if (filters.slow) {
-          if (!filters.errors) total += cntSlowError;
-          if (!filters.warnings) total += cntSlowWarn;
+      // 3. Info Match
+      // Priority 5% mode (bypasses slider)
+      if (filters.sampleInfo && b % 20 === 0) {
+        total += cntInfo;
+      }
+      // Slider-based mode (Standard 100% scaled by slider or Slow scaled by slider)
+      else if (b < samplingLimit) {
+        if (!filters.sampleInfo) {
+          total += cntInfo;
+        } else if (filters.slow) {
           total += cntSlowInfo;
-        }
-
-        // Info logs (sampled at 5%)
-        // Note: b % 20 === 0 is not quite the same as physicalIdx % 20,
-        // but since buckets are random, it's roughly the same statistical distribution for the count.
-        // Actually, for an exact count we'd need to check physicalIdx.
-        // But for "Fast Path" we use probability. 5% of Info logs.
-        if (filters.sampleInfo) {
-          // Add 1/20th of non-slow info logs (to avoid double counting slow info)
-          const nonSlowInfo = cntInfo - cntSlowInfo;
-          // Statistically we take 5%. Since buckets are random, we can just take every 20th bucket's full count.
-          if (b % 20 === 0) {
-            total += nonSlowInfo;
-          }
         }
       }
     }

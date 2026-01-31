@@ -64,33 +64,23 @@ export const TailSamplingView = () => {
         sevId === LogSeverityId.CRITICAL || sevId === LogSeverityId.ERROR;
       const isWarn = sevId === LogSeverityId.WARN;
       const isInfo = sevId === LogSeverityId.INFO;
+      const latency = logStore.metaIndices[physicalIdx];
 
-      // 1. PRIORITY BYPASS: Errors and Warnings bypass global sampling IF their filters are on.
-      // This ensures critical events are ALWAYS visible in the matrix.
+      // 1. PRIORITY BYPASS: High-signal telemetry bypasses global slider
       if (isError && filters.errors) return true;
       if (isWarn && filters.warnings) return true;
+      if (isInfo && filters.sampleInfo && physicalIdx % 20 === 0) return true;
 
-      // 2. CATEGORY FILTERING:
-      let passesCategory = false;
+      // 2. SAMPLED TELEMETRY: Subject to the Sampling Density slider
+      const bucket = logStore.samplingBuckets[physicalIdx];
 
       // Slow logs (Latency > 1s)
-      if (filters.slow) {
-        const latency = logStore.metaIndices[physicalIdx];
-        if (latency > 1000) passesCategory = true;
+      if (filters.slow && latency > 1000) {
+        return bucket < debouncedSamplingRate;
       }
 
-      // Info logs with forced 5% tail sampling
-      if (filters.sampleInfo && isInfo) {
-        // Correct 5% sampling: physicalIdx % 20 === 0
-        if (physicalIdx % 20 === 0) {
-          passesCategory = true;
-        }
-      }
-
-      // 3. GLOBAL SAMPLING: Selective attenuation of non-priority telemetry.
-      if (passesCategory) {
-        const bucket = logStore.samplingBuckets[physicalIdx];
-        // bucket is 0-99. debouncedSamplingRate is 1-100.
+      // Info logs follow slider when not in forced 5% mode
+      if (isInfo && !filters.sampleInfo) {
         return bucket < debouncedSamplingRate;
       }
 
