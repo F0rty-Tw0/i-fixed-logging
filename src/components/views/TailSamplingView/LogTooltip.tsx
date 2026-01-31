@@ -1,6 +1,6 @@
 import clsx from 'clsx';
 import { LogSeverityId, EVENT_NAMES } from '../../../core/types/domain';
-import { generateLogDetails, getLogSource } from '../../../utils/log-details';
+import { generateLogDetails } from '../../../utils/log-details';
 import styles from './LogTooltip.module.css';
 
 export interface LogSnapshot {
@@ -97,10 +97,22 @@ export const LogTooltip: React.FC<LogTooltipProps> = ({
       <div className={styles.body}>
         <div className={styles.grid}>
           <div className={styles.item}>
-            <span className={styles.label}>Journey ID</span>
+            <span className={styles.label}>Trace ID</span>
             <span className={clsx(styles.value, styles.valueHighlight)}>
               #{hoveredLog.journeyId}
             </span>
+          </div>
+          <div className={styles.item}>
+            <span className={styles.label}>Status</span>
+            <span className={styles.value}>{eventName}</span>
+          </div>
+          <div className={styles.item}>
+            <span className={styles.label}>Duration</span>
+            <span className={styles.value}>{hoveredLog.metaIndex}ms</span>
+          </div>
+          <div className={styles.item}>
+            <span className={styles.label}>Segment</span>
+            <span className={styles.value}>{details.customer_segment}</span>
           </div>
           <div className={styles.item}>
             <span className={styles.label}>Severity</span>
@@ -115,23 +127,7 @@ export const LogTooltip: React.FC<LogTooltipProps> = ({
             </span>
           </div>
           <div className={styles.item}>
-            <span className={styles.label}>Source</span>
-            <span className={styles.value}>
-              {getLogSource(hoveredLog.eventId)}
-            </span>
-          </div>
-          <div className={styles.item}>
-            <span className={styles.label}>Room ID</span>
-            <span className={styles.value}>
-              WR-{hoveredLog.waitingRoomId.toString().padStart(2, '0')}
-            </span>
-          </div>
-          <div className={styles.item}>
-            <span className={styles.label}>Customer</span>
-            <span className={styles.value}>C-{hoveredLog.customerId}</span>
-          </div>
-          <div className={styles.item}>
-            <span className={styles.label}>Client IP</span>
+            <span className={styles.label}>IP</span>
             <span className={styles.value}>{formattedIp}</span>
           </div>
         </div>
@@ -151,9 +147,6 @@ export const LogTooltip: React.FC<LogTooltipProps> = ({
             .replace('T', ' ')
             .replace('Z', '')}
         </span>
-        {hoveredLog.metaIndex > 0 && (
-          <span className={styles.latencyTag}>+{hoveredLog.metaIndex}ms</span>
-        )}
       </div>
     </div>
   );

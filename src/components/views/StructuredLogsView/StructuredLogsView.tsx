@@ -104,6 +104,18 @@ export const StructuredLogsView: React.FC = () => {
       );
     }
 
+    if (colLower === 'customer_segment') {
+      const segStr = String(val).toUpperCase();
+      const isVip = segStr === 'VIP';
+      return (
+        <span
+          className={`${styles.badge} ${styles[`badge_${isVip ? 'VIP' : 'STANDARD'}`]}`}
+        >
+          {isVip ? 'VIP' : 'STANDARD'}
+        </span>
+      );
+    }
+
     if (typeof val === 'number') {
       return val.toLocaleString();
     }
@@ -135,9 +147,10 @@ export const StructuredLogsView: React.FC = () => {
     const colLower = col.toLowerCase();
     if (colLower === 'journey_id') return 'ID';
     if (colLower === 'waiting_room_id') return 'WR ID';
-    if (colLower === 'customer_segment') return 'SEGMENT';
-    if (colLower === 'event') return 'SERVICE';
+    if (colLower === 'customer_segment') return 'Segment';
+    if (colLower === 'event') return 'Status';
     if (colLower === 'ip') return 'IP';
+    if (colLower === 'latency') return 'Duration';
     return col.replace(/_/g, ' ').toUpperCase();
   };
 

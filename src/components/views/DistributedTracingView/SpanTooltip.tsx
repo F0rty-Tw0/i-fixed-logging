@@ -3,7 +3,7 @@
 import React from 'react';
 import { TraceSpan } from '../../../core/hooks/useTraceDetails';
 import { LogSeverityId } from '../../../core/types/domain';
-import { generateLogDetails, getLogSource } from '../../../utils/log-details';
+import { generateLogDetails } from '../../../utils/log-details';
 import { clsx } from 'clsx';
 import styles from './SpanTooltip.module.css';
 
@@ -99,10 +99,22 @@ export const SpanTooltip: React.FC<SpanTooltipProps> = ({ span, position }) => {
       <div className={styles.body}>
         <div className={styles.grid}>
           <div className={styles.item}>
-            <span className={styles.label}>Journey ID</span>
+            <span className={styles.label}>Trace ID</span>
             <span className={clsx(styles.value, styles.valueHighlight)}>
               #{journeyId}
             </span>
+          </div>
+          <div className={styles.item}>
+            <span className={styles.label}>Status</span>
+            <span className={styles.value}>{span.event}</span>
+          </div>
+          <div className={styles.item}>
+            <span className={styles.label}>Duration</span>
+            <span className={styles.value}>{span.latency}ms</span>
+          </div>
+          <div className={styles.item}>
+            <span className={styles.label}>Segment</span>
+            <span className={styles.value}>{details.customer_segment}</span>
           </div>
           <div className={styles.item}>
             <span className={styles.label}>Severity</span>
@@ -117,21 +129,7 @@ export const SpanTooltip: React.FC<SpanTooltipProps> = ({ span, position }) => {
             </span>
           </div>
           <div className={styles.item}>
-            <span className={styles.label}>Source</span>
-            <span className={styles.value}>{getLogSource(span.eventId)}</span>
-          </div>
-          <div className={styles.item}>
-            <span className={styles.label}>Room ID</span>
-            <span className={styles.value}>
-              {details.waiting_room || 'N/A'}
-            </span>
-          </div>
-          <div className={styles.item}>
-            <span className={styles.label}>Customer</span>
-            <span className={styles.value}>{details.customer_segment}</span>
-          </div>
-          <div className={styles.item}>
-            <span className={styles.label}>Client IP</span>
+            <span className={styles.label}>IP</span>
             <span className={styles.value}>
               {details.client_ip || '0.0.0.0'}
             </span>
@@ -153,7 +151,6 @@ export const SpanTooltip: React.FC<SpanTooltipProps> = ({ span, position }) => {
             .replace('T', ' ')
             .replace('Z', '')}
         </span>
-        <div className={styles.durationTag}>Δ {span.latency}ms</div>
       </div>
     </div>
   );

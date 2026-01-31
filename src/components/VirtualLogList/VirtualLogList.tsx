@@ -134,7 +134,7 @@ export const VirtualLogList = () => {
   return (
     <div className={styles['log-container']}>
       <div className={styles['header-row']}>
-        <span className={styles['col-id']}>JID</span>
+        <span className={styles['col-id']}>ID</span>
         <span className={styles['col-ts']}>TIME</span>
         <span className={styles['col-type']}>TYPE</span>
         <span className={styles['col-service']}>SERVICE</span>

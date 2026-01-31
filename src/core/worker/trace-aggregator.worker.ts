@@ -25,16 +25,16 @@ self.onmessage = (e: MessageEvent) => {
     let hasChanges = false;
 
     for (let i = 0; i < count; i++) {
-      const jId = journeyIds[i];
+      const id = journeyIds[i];
       const ts = timestamps[i];
       const evt = eventIds[i];
       const sev = severities[i];
       const seg = customerSegments[i];
 
-      let summary = summariesMap.get(jId);
+      let summary = summariesMap.get(id);
       if (!summary) {
         summary = {
-          traceId: jId,
+          traceId: id,
           startTime: ts,
           endTime: ts,
           duration: 0,
@@ -43,7 +43,7 @@ self.onmessage = (e: MessageEvent) => {
           lastEvent: evt,
           customerSegment: seg,
         };
-        summariesMap.set(jId, summary);
+        summariesMap.set(id, summary);
       }
 
       summary.endTime = Math.max(summary.endTime, ts);

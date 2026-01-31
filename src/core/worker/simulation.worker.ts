@@ -68,7 +68,7 @@ function flushChunk() {
   if (chunkPtr === 0) return;
 
   const ts = chunkTimestamps.slice(0, chunkPtr);
-  const jid = chunkJourneyIds.slice(0, chunkPtr);
+  const id = chunkJourneyIds.slice(0, chunkPtr);
   const eid = chunkEventIds.slice(0, chunkPtr);
   const sev = chunkSeverities.slice(0, chunkPtr);
   const meta = chunkMetaIndices.slice(0, chunkPtr);
@@ -84,7 +84,7 @@ function flushChunk() {
       type: 'BATCH',
       payload: {
         timestamps: ts,
-        journeyIds: jid,
+        journeyIds: id,
         eventIds: eid,
         severities: sev,
         metaIndices: meta,
@@ -99,7 +99,7 @@ function flushChunk() {
     },
     [
       ts.buffer,
-      jid.buffer,
+      id.buffer,
       eid.buffer,
       sev.buffer,
       meta.buffer,
