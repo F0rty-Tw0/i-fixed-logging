@@ -6,6 +6,9 @@ import { useVirtualizer } from '@tanstack/react-virtual';
 import { logStore } from '../../core/store';
 import styles from './VirtualLogList.module.css';
 import { VirtualLogRow } from './VirtualLogRow';
+import { EVENT_NAMES } from '../../core/types/domain';
+import { REGIONS } from '../../core/constants';
+import { getLogSource, generateLogDetails } from '../../utils/log-details';
 
 // Stable function references for useSyncExternalStore
 const subscribeToStore = (cb: () => void) => logStore.subscribe(cb);
@@ -26,6 +29,21 @@ const getServerSearchStatusSnapshot = () => INITIAL_SEARCH_STATUS;
 // Added REGION (80px) after SEGMENT (90px)
 const COLUMNS_CONFIG =
   '45px 100px 70px 120px 65px 90px 90px 80px 150px 165px 1fr 100px';
+
+const COLUMNS_KEYS = [
+  'journey_id',
+  'timestamp',
+  'severity',
+  'service',
+  'waiting_room_id',
+  'customer_segment',
+  'customer_id',
+  'region',
+  'ip',
+  'event',
+  'message',
+  'latency',
+];
 
 export const VirtualLogList = () => {
   const parentRef = useRef<HTMLDivElement>(null);
@@ -200,6 +218,69 @@ export const VirtualLogList = () => {
                 isExpanded={isExpanded}
                 toggleExpand={toggleExpand}
                 gridTemplateColumns={COLUMNS_CONFIG}
+                columns={COLUMNS_KEYS}
+                getItem={(col: string) => {
+                  switch (col) {
+                    case 'journey_id':
+                      return logStore.getJourneyId(absIndex);
+                    case 'timestamp':
+                      return logStore.getTimestamp(absIndex);
+                    case 'severity':
+                      return logStore.getSeverity(absIndex);
+                    case 'service':
+                      return getLogSource(logStore.getEventId(absIndex));
+                    case 'waiting_room_id':
+                      return logStore.getWaitingRoomId(absIndex);
+                    case 'customer_segment':
+                      return logStore.getCustomerSegment(absIndex);
+                    case 'customer_id':
+                      return logStore.getCustomerId(absIndex);
+                    case 'region':
+                      return REGIONS[logStore.getRegion(absIndex)] || 'UNKNOWN';
+                    case 'ip': {
+                      const ip = logStore.getIp(absIndex);
+                      return [
+                        (ip >>> 24) & 0xff,
+                        (ip >>> 16) & 0xff,
+                        (ip >>> 8) & 0xff,
+                        ip & 0xff,
+                      ].join('.');
+                    }
+                    case 'event':
+                      return (
+                        EVENT_NAMES[logStore.getEventId(absIndex)] || 'UNKNOWN'
+                      );
+                    case 'message': {
+                      // generate message lazily
+                      return generateLogDetails(
+                        logStore.getJourneyId(absIndex),
+                        logStore.getEventId(absIndex),
+                        logStore.getSeverity(absIndex),
+                        logStore.getWaitingRoomId(absIndex),
+                        logStore.getCustomerId(absIndex),
+                        logStore.getMetaIndex(absIndex),
+                        logStore.getIp(absIndex),
+                        absIndex,
+                      ).message;
+                    }
+                    case 'latency':
+                      return logStore.getMetaIndex(absIndex);
+                    default:
+                      return null;
+                  }
+                }}
+                getRowData={() => {
+                  return generateLogDetails(
+                    logStore.getJourneyId(absIndex),
+                    logStore.getEventId(absIndex),
+                    logStore.getSeverity(absIndex),
+                    logStore.getWaitingRoomId(absIndex),
+                    logStore.getCustomerId(absIndex),
+                    logStore.getMetaIndex(absIndex),
+                    logStore.getIp(absIndex),
+                    absIndex,
+                  );
+                }}
               />
             );
           })}

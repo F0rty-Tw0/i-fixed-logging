@@ -8,8 +8,7 @@ import { Parser } from '../../../core/query/parser';
 import styles from './StructuredLogsView.module.css';
 import { motion, AnimatePresence } from 'framer-motion';
 import { clsx } from 'clsx';
-import Link from 'next/link';
-
+import { VirtualLogRow } from '../../VirtualLogList/VirtualLogRow';
 import { PREDEFINED_FILTERS } from '../../../core/constants';
 
 export const StructuredLogsView: React.FC = () => {
@@ -18,13 +17,19 @@ export const StructuredLogsView: React.FC = () => {
   const { results, columns, loading, error, runQuery } = useLogQuery();
   const parentRef = useRef<HTMLDivElement>(null);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
+  const [expandedIndex, setExpandedIndex] = useState<number | null>(null);
 
   const virtualizer = useVirtualizer({
     count: results.length,
     getScrollElement: () => parentRef.current,
-    estimateSize: () => 31,
+    estimateSize: () => 36, // Matching VirtualLogList
     overscan: 10,
+    getItemKey: (index) => index,
   });
+
+  const toggleExpand = (index: number) => {
+    setExpandedIndex((prev) => (prev === index ? null : index));
+  };
 
   const validateSql = useCallback((input: string) => {
     try {
@@ -53,80 +58,6 @@ export const StructuredLogsView: React.FC = () => {
   useEffect(() => {
     runQuery(PREDEFINED_FILTERS[0].sql);
   }, [runQuery]);
-
-  const renderCell = (row: Record<string, unknown>, col: string) => {
-    const val = row[col];
-    if (val === null || val === undefined)
-      return <span style={{ opacity: 0.3 }}>null</span>;
-
-    const colLower = col.toLowerCase();
-
-    if (colLower === 'journey_id') {
-      return (
-        <Link
-          href={`/distributed-tracing?traceId=${val}`}
-          onClick={(e) => {
-            e.stopPropagation();
-          }}
-          className={styles.traceLink}
-        >
-          {String(val)}
-        </Link>
-      );
-    }
-
-    if (colLower === 'severity') {
-      const sevStr = String(val).toUpperCase();
-      return (
-        <span className={styles[`severity_${sevStr}`] || ''}>{sevStr}</span>
-      );
-    }
-
-    if (colLower === 'timestamp' && typeof val === 'number') {
-      return (
-        <span className={styles.timestampCell}>
-          {new Date(val).toLocaleTimeString('en-GB', {
-            hour12: false,
-            hour: '2-digit',
-            minute: '2-digit',
-            second: '2-digit',
-          })}
-        </span>
-      );
-    }
-
-    if (
-      typeof val === 'number' &&
-      (colLower.includes('latency') ||
-        col.toUpperCase().includes('AVG') ||
-        colLower.includes('p99'))
-    ) {
-      const isSlow = val > 200;
-      return (
-        <span className={isSlow ? styles.latencySlow : styles.latencyCell}>
-          {val.toFixed(0)}ms
-        </span>
-      );
-    }
-
-    if (colLower === 'customer_segment') {
-      const segStr = String(val).toUpperCase();
-      const isVip = segStr === 'VIP';
-      return (
-        <span
-          className={`${styles.badge} ${styles[`badge_${isVip ? 'VIP' : 'STANDARD'}`]}`}
-        >
-          {isVip ? 'VIP' : 'STANDARD'}
-        </span>
-      );
-    }
-
-    if (typeof val === 'number') {
-      return val.toLocaleString();
-    }
-
-    return String(val);
-  };
 
   const getColumnWidth = (col: string): string => {
     const colLower = col.toLowerCase();
@@ -254,6 +185,10 @@ export const StructuredLogsView: React.FC = () => {
     }
   };
 
+  const gridTemplateColumns = columns
+    .map((col) => getColumnWidth(col))
+    .join(' ');
+
   return (
     <div className={styles.container}>
       <div className={styles.header}>
@@ -370,9 +305,7 @@ export const StructuredLogsView: React.FC = () => {
             <div
               className={styles.headerRow}
               style={{
-                gridTemplateColumns: columns
-                  .map((col) => getColumnWidth(col))
-                  .join(' '),
+                gridTemplateColumns: gridTemplateColumns,
               }}
             >
               {columns.map((col) => (
@@ -391,31 +324,23 @@ export const StructuredLogsView: React.FC = () => {
               {virtualizer.getVirtualItems().map((vRow) => {
                 const row = results[vRow.index];
                 if (!row) return null;
+                const isExpanded = expandedIndex === vRow.index;
 
                 return (
-                  <div
+                  <VirtualLogRow
                     key={vRow.key}
-                    className={styles.row}
-                    style={{
-                      top: 0,
-                      left: 0,
-                      height: `${vRow.size}px`,
-                      transform: `translateY(${vRow.start}px)`,
-                      gridTemplateColumns: columns
-                        .map((col) => getColumnWidth(col))
-                        .join(' '),
-                    }}
-                  >
-                    {columns.map((col) => (
-                      <div
-                        key={col}
-                        className={styles.cell}
-                        title={String(row[col] || '')}
-                      >
-                        {renderCell(row, col)}
-                      </div>
-                    ))}
-                  </div>
+                    virtualItem={vRow}
+                    absIndex={vRow.index}
+                    isExpanded={isExpanded}
+                    toggleExpand={toggleExpand}
+                    gridTemplateColumns={gridTemplateColumns}
+                    columns={columns}
+                    getItem={(col) => row[col]}
+                    getRowData={() => row}
+                    measureElement={
+                      isExpanded ? virtualizer.measureElement : undefined
+                    }
+                  />
                 );
               })}
             </div>
