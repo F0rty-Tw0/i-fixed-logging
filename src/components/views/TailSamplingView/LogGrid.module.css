@@ -2,7 +2,7 @@
 
 .virtualTrack {
   position: relative;
-  min-height: 270px; /* 15 rows * (14px + 4px gap) */
+  min-height: 322px; /* 15 rows * 14px + 14 gaps * 8px */
   transform-style: preserve-3d;
   perspective: 1000px;
 }
@@ -14,7 +14,7 @@
   width: 14px;
   display: flex;
   flex-direction: column;
-  gap: 4px;
+  gap: 8px;
 }
 
 .square {

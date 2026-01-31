@@ -118,7 +118,7 @@ export const TailSamplingView = () => {
     horizontal: true,
     count: columnCount,
     getScrollElement: () => scrollContainerRef.current,
-    estimateSize: () => 16, // 14px + 2px gap
+    estimateSize: () => 22, // 14px + 8px gap
     overscan: 20,
   });
 
