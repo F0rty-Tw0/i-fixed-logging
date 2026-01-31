@@ -3,9 +3,9 @@
 
 import { useRef, useEffect, useState, useSyncExternalStore } from 'react';
 import { useVirtualizer } from '@tanstack/react-virtual';
-import { logStore } from '../core/store';
+import { logStore } from '../../core/store';
 import styles from './VirtualLogList.module.css';
-import { VirtualLogRow } from './VirtualLogList/VirtualLogRow';
+import { VirtualLogRow } from './VirtualLogRow';
 
 // Stable function references for useSyncExternalStore
 const subscribeToStore = (cb: () => void) => logStore.subscribe(cb);

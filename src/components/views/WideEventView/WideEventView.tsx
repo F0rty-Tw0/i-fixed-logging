@@ -2,12 +2,12 @@
 
 import React, { useState, useMemo, useEffect } from 'react';
 import { motion } from 'framer-motion';
-import { JourneyEvent, EVENT_NAMES } from '../../core/types/domain';
+import { JourneyEvent, EVENT_NAMES } from '../../../core/types/domain';
 import styles from './WideEventView.module.css';
-import { JourneyTimeline } from './WideEventView/JourneyTimeline';
-import { JsonPreviewPanel } from './WideEventView/JsonPreviewPanel';
-import { InvestigationProgress } from './WideEventView/InvestigationProgress';
-import { JOURNEY_FIELDS } from './WideEventView/data';
+import { JourneyTimeline } from './JourneyTimeline';
+import { JsonPreviewPanel } from './JsonPreviewPanel';
+import { InvestigationProgress } from './InvestigationProgress';
+import { JOURNEY_FIELDS } from './data';
 
 // ─────────────────────────────────────────────────────────────────────────────
 // COMPONENT

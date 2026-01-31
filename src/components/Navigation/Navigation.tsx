@@ -5,7 +5,7 @@ import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import clsx from 'clsx';
 
-import { ViewMode } from '../core/types/domain';
+import { ViewMode } from '../../core/types/domain';
 import styles from './Navigation.module.css';
 
 const TABS = [

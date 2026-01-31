@@ -2,7 +2,7 @@
 
 import React from 'react';
 import { usePathname } from 'next/navigation';
-import styles from '../Controls.module.css';
+import styles from './Controls.module.css';
 import { ViewMode } from '../../core/types/domain';
 
 const PAGE_TITLES: Record<string, string> = {

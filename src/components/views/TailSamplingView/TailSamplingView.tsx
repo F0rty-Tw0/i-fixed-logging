@@ -11,12 +11,12 @@ import {
 } from 'react';
 import { motion } from 'framer-motion';
 import { useVirtualizer } from '@tanstack/react-virtual';
-import { logStore } from '../../core/store';
-import { LogSeverityId } from '../../core/types/domain';
+import { logStore } from '../../../core/store';
+import { LogSeverityId } from '../../../core/types/domain';
 import styles from './TailSamplingView.module.css';
-import { FilterPanel } from './TailSamplingView/FilterPanel';
-import { LogTooltip } from './TailSamplingView/LogTooltip';
-import { LogGrid } from './TailSamplingView/LogGrid';
+import { FilterPanel } from './FilterPanel';
+import { LogTooltip } from './LogTooltip';
+import { LogGrid } from './LogGrid';
 
 // Stable function references for useSyncExternalStore
 const subscribeToStore = (cb: () => void) => logStore.subscribe(cb);

@@ -2,7 +2,7 @@ import React from 'react';
 import clsx from 'clsx';
 import { LogSeverityId, EVENT_NAMES } from '../../../core/types/domain';
 import { generateLogDetails, getLogSource } from '../../../utils/log-details';
-import styles from '../TailSamplingView.module.css';
+import styles from './TailSamplingView.module.css';
 
 // Type from LogStore logic, we can define a subset if we don't carry the full type,
 // but let's define an interface for the log snapshot as used here.

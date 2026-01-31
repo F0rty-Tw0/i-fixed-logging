@@ -1,7 +1,7 @@
 'use client';
 
 import React from 'react';
-import { Controls } from './Controls';
+import { Controls } from './controls';
 import { Navigation } from './Navigation';
 import { useSimulationContext } from '../core/context/SimulationContext';
 import styles from './AppShell.module.css';

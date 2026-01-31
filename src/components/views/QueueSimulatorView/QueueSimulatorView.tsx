@@ -1,7 +1,7 @@
 'use client';
 
 import React from 'react';
-import { VirtualLogList } from '../VirtualLogList';
+import { VirtualLogList } from '../../VirtualLogList';
 
 import styles from './QueueSimulatorView.module.css';
 

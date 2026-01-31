@@ -2,10 +2,10 @@
 
 import React from 'react';
 import styles from './Controls.module.css';
-import { SearchBar } from './controls/SearchBar';
-import { SimulationControls } from './controls/SimulationControls';
-import { HUD } from './controls/HUD';
-import { PageHeader } from './controls/PageHeader';
+import { SearchBar } from './SearchBar';
+import { SimulationControls } from './SimulationControls';
+import { HUD } from './HUD';
+import { PageHeader } from './PageHeader';
 
 import { ThemeToggle } from './ThemeToggle';
 

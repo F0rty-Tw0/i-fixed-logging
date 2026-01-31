@@ -3,7 +3,7 @@ import clsx from 'clsx';
 import { VirtualItem } from '@tanstack/react-virtual';
 import { LogSeverityId, EVENT_NAMES } from '../../core/types/domain';
 import { generateLogDetails, getLogSource } from '../../utils/log-details';
-import styles from '../VirtualLogList.module.css';
+import styles from './VirtualLogList.module.css';
 import { LogSnapshot as LogSnapshotType } from '../../core/store/log-store';
 
 interface VirtualLogRowProps {
