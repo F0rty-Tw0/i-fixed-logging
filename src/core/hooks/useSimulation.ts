@@ -46,6 +46,8 @@ export const useSimulation = (): SimulationControls => {
           customerSegments,
           ips,
           waitingRoomIds,
+          regions,
+          userAgents,
           activeCount,
         } = payload;
 
@@ -60,6 +62,8 @@ export const useSimulation = (): SimulationControls => {
           customerSegments,
           ips,
           waitingRoomIds,
+          regions,
+          userAgents,
         );
 
         // Throttle the stats state update

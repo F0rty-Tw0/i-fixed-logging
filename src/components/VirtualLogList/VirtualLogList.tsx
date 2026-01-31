@@ -23,6 +23,10 @@ const INITIAL_SEARCH_STATUS = {
 };
 const getServerSearchStatusSnapshot = () => INITIAL_SEARCH_STATUS;
 
+// Added REGION (80px) after SEGMENT (90px)
+const COLUMNS_CONFIG =
+  '45px 100px 70px 120px 65px 90px 90px 80px 150px 165px 1fr 100px';
+
 export const VirtualLogList = () => {
   const parentRef = useRef<HTMLDivElement>(null);
 
@@ -95,7 +99,7 @@ export const VirtualLogList = () => {
   const virtualizer = useVirtualizer({
     count: dampedCount,
     getScrollElement: () => parentRef.current,
-    estimateSize: () => 28, // Matched to actual CSS height (line-height + padding) + border
+    estimateSize: () => 36, // Adjusted for new row height
     overscan: 12, // Reduced overscan for better performance during bursts
     getItemKey: (index) => index, // Stable keys using indices
   });
@@ -133,17 +137,23 @@ export const VirtualLogList = () => {
 
   return (
     <div className={styles['log-container']}>
-      <div className={styles['header-row']}>
-        <span className={styles['col-id']}>ID</span>
-        <span className={styles['col-ts']}>TIME</span>
-        <span className={styles['col-type']}>TYPE</span>
-        <span className={styles['col-service']}>SERVICE</span>
-        <span className={styles['col-wrid']}>WR ID</span>
-        <span className={styles['col-cid']}>CUST ID</span>
-        <span className={styles['col-ip']}>IP</span>
-        <span className={styles['col-event']}>EVENT</span>
-        <span className={styles['col-msg']}>MESSAGE</span>
-        <span className={styles['col-meta']}>LATENCY</span>
+      <div
+        className={styles['header-row']}
+        style={{ gridTemplateColumns: COLUMNS_CONFIG }}
+      >
+        <div className={styles['header-cell']}>ID</div>
+        <div className={styles['header-cell']}>TIME</div>
+        <div className={styles['header-cell']}>TYPE</div>
+        <div className={styles['header-cell']}>SERVICE</div>
+        <div className={styles['header-cell']}>WR ID</div>
+        <div className={styles['header-cell']}>SEGMENT</div>
+        {/* Added CUST ID column */}
+        <div className={styles['header-cell']}>CUST ID</div>
+        <div className={styles['header-cell']}>REGION</div>
+        <div className={styles['header-cell']}>IP</div>
+        <div className={styles['header-cell']}>EVENT</div>
+        <div className={styles['header-cell']}>MESSAGE</div>
+        <div className={styles['header-cell']}>LATENCY</div>
       </div>
       <div
         ref={parentRef}
@@ -189,6 +199,7 @@ export const VirtualLogList = () => {
                 absIndex={absIndex}
                 isExpanded={isExpanded}
                 toggleExpand={toggleExpand}
+                gridTemplateColumns={COLUMNS_CONFIG}
               />
             );
           })}

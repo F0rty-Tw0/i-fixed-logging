@@ -46,15 +46,16 @@ export const USER_AGENTS = [
 ];
 
 export const LOG_COLUMNS = [
-  'timestamp',
   'journey_id',
-  'event',
+  'timestamp',
   'severity',
-  'latency',
-  'customer_id',
-  'customer_segment',
-  'ip',
+  'service',
   'waiting_room_id',
+  'customer_segment',
+  'customer_id',
   'region',
-  'user_agent',
+  'ip',
+  'event',
+  'message',
+  'latency',
 ] as const;

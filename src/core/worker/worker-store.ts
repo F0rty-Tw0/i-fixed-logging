@@ -1,5 +1,6 @@
 import { MAX_LOGS, REGIONS, USER_AGENTS } from '../constants';
 import { EVENT_NAMES, JourneyEvent } from '../types/domain';
+import { generateLogDetails, getLogSource } from '../../utils/log-details';
 
 export class WorkerLogStore {
   public timestamps: Float64Array;
@@ -112,6 +113,25 @@ export class WorkerLogStore {
         return REGIONS[this.regions[pIdx]] || 'unknown';
       case 'user_agent':
         return USER_AGENTS[this.userAgents[pIdx]] || 'unknown';
+      case 'message': {
+        const offset =
+          this.totalIngested > this.length
+            ? this.totalIngested - this.length
+            : 0;
+        const absIndex = offset + index;
+        return generateLogDetails(
+          this.journeyIds[pIdx],
+          this.eventIds[pIdx] as JourneyEvent,
+          this.severities[pIdx],
+          this.waitingRoomIds[pIdx],
+          this.customerIds[pIdx],
+          this.metaIndices[pIdx],
+          this.ips[pIdx],
+          absIndex,
+        ).message;
+      }
+      case 'service':
+        return getLogSource(this.eventIds[pIdx] as JourneyEvent);
       default:
         return null;
     }
@@ -121,6 +141,21 @@ export class WorkerLogStore {
     if (index < 0 || index >= this.length) return {};
     const pIdx = this.getPhysicalIndex(index);
     const ip = this.ips[pIdx];
+
+    const offset =
+      this.totalIngested > this.length ? this.totalIngested - this.length : 0;
+    const absIndex = offset + index;
+
+    const details = generateLogDetails(
+      this.journeyIds[pIdx],
+      this.eventIds[pIdx] as JourneyEvent,
+      this.severities[pIdx],
+      this.waitingRoomIds[pIdx],
+      this.customerIds[pIdx],
+      this.metaIndices[pIdx],
+      this.ips[pIdx],
+      absIndex,
+    );
 
     return {
       timestamp: this.timestamps[pIdx],
@@ -140,6 +175,8 @@ export class WorkerLogStore {
       waiting_room_id: this.waitingRoomIds[pIdx],
       region: REGIONS[this.regions[pIdx]] || 'unknown',
       user_agent: USER_AGENTS[this.userAgents[pIdx]] || 'unknown',
+      message: details.message,
+      service: getLogSource(this.eventIds[pIdx] as JourneyEvent),
     };
   }
 

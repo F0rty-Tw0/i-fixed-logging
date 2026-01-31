@@ -85,7 +85,12 @@ export const StructuredLogsView: React.FC = () => {
     if (colLower === 'timestamp' && typeof val === 'number') {
       return (
         <span className={styles.timestampCell}>
-          {new Date(val).toLocaleTimeString()}
+          {new Date(val).toLocaleTimeString('en-GB', {
+            hour12: false,
+            hour: '2-digit',
+            minute: '2-digit',
+            second: '2-digit',
+          })}
         </span>
       );
     }
@@ -129,28 +134,36 @@ export const StructuredLogsView: React.FC = () => {
     if (colLower === 'timestamp') return '100px';
     if (colLower === 'severity') return '70px';
     if (colLower === 'customer_segment') return '90px';
+    if (colLower === 'customer_id') return '90px';
+    if (colLower === 'service') return '120px';
+    if (colLower === 'region') return '80px';
     if (colLower === 'event') return '165px';
     if (colLower === 'waiting_room_id') return '65px';
-    if (colLower === 'user_agent') return '450px';
     if (colLower === 'ip') return '150px';
+    if (colLower === 'message') return '1fr';
     if (
       colLower.includes('latency') ||
       colLower.includes('p99') ||
       colLower.includes('avg')
     )
-      return '140px';
+      return '100px';
     return '120px';
   };
 
   const getColumnLabel = (col: string): string => {
-    console.log(col);
     const colLower = col.toLowerCase();
     if (colLower === 'journey_id') return 'ID';
     if (colLower === 'waiting_room_id') return 'WR ID';
-    if (colLower === 'customer_segment') return 'Segment';
-    if (colLower === 'event') return 'Status';
+    if (colLower === 'customer_segment') return 'SEGMENT';
+    if (colLower === 'customer_id') return 'CUST ID';
+    if (colLower === 'event') return 'EVENT';
     if (colLower === 'ip') return 'IP';
-    if (colLower === 'latency') return 'Duration';
+    if (colLower === 'latency') return 'LATENCY';
+    if (colLower === 'service') return 'SERVICE';
+    if (colLower === 'message') return 'MESSAGE';
+    if (colLower === 'region') return 'REGION';
+    if (colLower === 'timestamp') return 'TIME';
+    if (colLower === 'severity') return 'TYPE';
     return col.replace(/_/g, ' ').toUpperCase();
   };
 

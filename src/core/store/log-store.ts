@@ -20,6 +20,7 @@ export type LogSnapshot = {
   customerSegment: number;
   ip: number;
   waitingRoomId: number;
+  region: number;
 };
 
 export class LogStore {
@@ -34,6 +35,8 @@ export class LogStore {
   public ips: Uint32Array;
   public waitingRoomIds: Int32Array;
   public samplingBuckets: Uint8Array;
+  public regions: Uint8Array;
+  public userAgents: Uint8Array;
 
   private head: number = 0; // Next write position
   private tail: number = 0; // Oldest unread position (if we implement full ring buffer logic)
@@ -64,6 +67,8 @@ export class LogStore {
     this.ips = new Uint32Array(MAX_LOGS);
     this.waitingRoomIds = new Int32Array(MAX_LOGS);
     this.samplingBuckets = new Uint8Array(MAX_LOGS);
+    this.regions = new Uint8Array(MAX_LOGS);
+    this.userAgents = new Uint8Array(MAX_LOGS);
   }
 
   /**
@@ -79,6 +84,8 @@ export class LogStore {
     chunkCustomerSegments: Uint8Array | number[],
     chunkIps: Uint32Array | number[],
     chunkWaitingRoomIds: Int32Array | number[],
+    chunkRegions: Uint8Array | number[],
+    chunkUserAgents: Uint8Array | number[],
   ) {
     const batchSize = chunkTimestamps.length;
 
@@ -103,6 +110,8 @@ export class LogStore {
       this.customerSegments[idx] = chunkCustomerSegments[i];
       this.ips[idx] = chunkIps[i];
       this.waitingRoomIds[idx] = chunkWaitingRoomIds[i];
+      this.regions[idx] = chunkRegions[i];
+      this.userAgents[idx] = chunkUserAgents[i];
 
       // Assign a random sampling bucket for visual distribution
       const bucket = (Math.random() * 100) | 0;
@@ -179,6 +188,7 @@ export class LogStore {
       customerSegment: this.customerSegments[physicalIdx],
       ip: this.ips[physicalIdx],
       waitingRoomId: this.waitingRoomIds[physicalIdx],
+      region: this.regions[physicalIdx],
     };
   }
 
@@ -202,6 +212,7 @@ export class LogStore {
       customerSegment: this.customerSegments[physicalIdx],
       ip: this.ips[physicalIdx],
       waitingRoomId: this.waitingRoomIds[physicalIdx],
+      region: this.regions[physicalIdx],
     };
   }
 
@@ -218,6 +229,7 @@ export class LogStore {
       customerSegment: this.customerSegments[physicalIdx],
       ip: this.ips[physicalIdx],
       waitingRoomId: this.waitingRoomIds[physicalIdx],
+      region: this.regions[physicalIdx],
     };
   }
 
@@ -277,6 +289,11 @@ export class LogStore {
     return this.customerIds[absIndex % MAX_LOGS] as CustomerId;
   }
 
+  public getCustomerSegment(absIndex: number): number {
+    if (absIndex < 0) return 0;
+    return this.customerSegments[absIndex % MAX_LOGS];
+  }
+
   public getIp(absIndex: number): number {
     if (absIndex < 0) return 0;
     return this.ips[absIndex % MAX_LOGS];
@@ -285,6 +302,11 @@ export class LogStore {
   public getWaitingRoomId(absIndex: number): number {
     if (absIndex < 0) return 0;
     return this.waitingRoomIds[absIndex % MAX_LOGS];
+  }
+
+  public getRegion(absIndex: number): number {
+    if (absIndex < 0) return 0;
+    return this.regions[absIndex % MAX_LOGS];
   }
 
   /**
@@ -382,6 +404,8 @@ export class LogStore {
     this.ips.fill(0);
     this.waitingRoomIds.fill(0);
     this.samplingBuckets.fill(0);
+    this.regions.fill(0);
+    this.userAgents.fill(0);
     this.notify();
   }
   private updateCache() {

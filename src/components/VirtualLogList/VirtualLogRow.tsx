@@ -4,7 +4,9 @@ import { VirtualItem } from '@tanstack/react-virtual';
 import { LogSeverityId, EVENT_NAMES } from '../../core/types/domain';
 import { generateLogDetails, getLogSource } from '../../utils/log-details';
 import { logStore } from '../../core/store';
+import { REGIONS } from '../../core/constants';
 import styles from './VirtualLogList.module.css';
+import Link from 'next/link';
 
 interface VirtualLogRowProps {
   virtualItem: VirtualItem;
@@ -12,10 +14,18 @@ interface VirtualLogRowProps {
   absIndex: number;
   isExpanded: boolean;
   toggleExpand: (index: number) => void;
+  gridTemplateColumns: string;
 }
 
 export const VirtualLogRow: React.FC<VirtualLogRowProps> = React.memo(
-  ({ virtualItem, measureElement, absIndex, isExpanded, toggleExpand }) => {
+  ({
+    virtualItem,
+    measureElement,
+    absIndex,
+    isExpanded,
+    toggleExpand,
+    gridTemplateColumns,
+  }) => {
     // Read properties directly from logStore using columnar accessors
     // This avoids allocating LogSnapshot objects
     const timestamp = logStore.getTimestamp(absIndex);
@@ -23,17 +33,29 @@ export const VirtualLogRow: React.FC<VirtualLogRowProps> = React.memo(
     const severityId = logStore.getSeverity(absIndex);
     const metaIndex = logStore.getMetaIndex(absIndex);
     const customerId = logStore.getCustomerId(absIndex);
+    const customerSegment = logStore.getCustomerSegment(absIndex);
     const waitingRoomId = logStore.getWaitingRoomId(absIndex);
     const ip = logStore.getIp(absIndex);
+    const regionIdx = logStore.getRegion(absIndex);
     const journeyId = logStore.getJourneyId(absIndex);
 
     const date = React.useMemo(() => {
       if (timestamp <= 0) return '';
       try {
-        return new Date(timestamp).toISOString().split('T')[1].replace('Z', '');
+        return new Date(timestamp).toLocaleTimeString('en-GB', {
+          hour12: false,
+          hour: '2-digit',
+          minute: '2-digit',
+          second: '2-digit',
+        });
       } catch (e) {
         return '';
       }
+    }, [timestamp]);
+
+    const fullTime = React.useMemo(() => {
+      if (timestamp <= 0) return '';
+      return new Date(timestamp).toLocaleTimeString();
     }, [timestamp]);
 
     // Only generate full details if expanded, otherwise just get the message lazily
@@ -82,6 +104,11 @@ export const VirtualLogRow: React.FC<VirtualLogRowProps> = React.memo(
 
     const source = React.useMemo(() => getLogSource(eventId), [eventId]);
 
+    const regionName = React.useMemo(
+      () => REGIONS[regionIdx] || 'UNKNOWN',
+      [regionIdx],
+    );
+
     // Determine severity string
     const severity = React.useMemo(() => {
       if (severityId === LogSeverityId.WARN) return 'WARN';
@@ -100,6 +127,8 @@ export const VirtualLogRow: React.FC<VirtualLogRowProps> = React.memo(
       ].join('.');
     }, [ip, absIndex]);
 
+    const isVip = customerSegment === 1;
+
     // Final safety check before rendering - move it here to avoid hook violation
     if (absIndex < 0) {
       return (
@@ -115,6 +144,8 @@ export const VirtualLogRow: React.FC<VirtualLogRowProps> = React.memo(
       );
     }
 
+    const isSlow = metaIndex > 200;
+
     return (
       <div
         key={virtualItem.key}
@@ -129,32 +160,81 @@ export const VirtualLogRow: React.FC<VirtualLogRowProps> = React.memo(
         }}
       >
         <div
-          className={clsx(styles['log-row'], styles[`row-sev-${severity}`])}
+          className={clsx(styles['log-row'])}
           onClick={() => toggleExpand(virtualItem.index)}
+          style={{ gridTemplateColumns }}
         >
-          <span className={styles['col-id']}>#{journeyId}</span>
-          <span className={styles['col-ts']}>{date}</span>
-          <span className={clsx(styles['col-type'], styles[`sev-${severity}`])}>
-            {severity}
-          </span>
-          <span className={styles['col-service']}>{source}</span>
-          <span className={styles['col-wrid']}>
-            WR-{waitingRoomId.toString().padStart(2, '0')}
-          </span>
-          <span className={styles['col-cid']}>c-{customerId}</span>
-          <span className={styles['col-ip']}>{ipAddress}</span>
-          <span className={styles['col-event']}>{eventName}</span>
-          <span
-            className={clsx(
-              styles['col-msg'],
-              severity !== 'INFO' && styles[`sev-${severity}`],
-            )}
+          <div className={styles.cell}>
+            <Link
+              href={`/distributed-tracing?traceId=${journeyId}`}
+              onClick={(e) => e.stopPropagation()}
+              className={styles.traceLink}
+            >
+              {journeyId}
+            </Link>
+          </div>
+          <div
+            className={clsx(styles.cell, styles['timestamp-cell'])}
+            title={fullTime}
+          >
+            {date}
+          </div>
+          <div className={styles.cell}>
+            <span
+              className={clsx(
+                styles['severity-badge'],
+                styles[`severity-${severity}`],
+              )}
+            >
+              {severity}
+            </span>
+          </div>
+          <div
+            className={styles.cell}
+            style={{ color: 'var(--text-secondary)' }}
+          >
+            {source}
+          </div>
+          <div className={styles.cell} style={{ color: 'var(--text-muted)' }}>
+            {waitingRoomId}
+          </div>
+          <div className={styles.cell}>
+            <span
+              className={clsx(
+                styles.badge,
+                isVip ? styles['badge-VIP'] : styles['badge-STANDARD'],
+              )}
+            >
+              {isVip ? 'VIP' : 'STANDARD'}
+            </span>
+          </div>
+          <div className={styles.cell} style={{ color: 'var(--text-muted)' }}>
+            {customerId}
+          </div>
+          <div className={styles.cell} style={{ color: 'var(--text-muted)' }}>
+            {regionName}
+          </div>
+          <div className={styles.cell} style={{ color: 'var(--text-muted)' }}>
+            {ipAddress}
+          </div>
+          <div className={clsx(styles.cell, styles['event-name'])}>
+            {eventName}
+          </div>
+          <div
+            className={clsx(styles.cell, styles['message-text'])}
+            title={logDetails.message}
           >
             {logDetails.message || '-'}
-          </span>
-          <span className={styles['col-meta']}>
-            {metaIndex > 0 ? `+${metaIndex}ms` : '-'}
-          </span>
+          </div>
+          <div className={styles.cell} style={{ justifyContent: 'flex-end' }}>
+            <span
+              className={
+                isSlow ? styles['latency-slow'] : styles['latency-cell']
+              }
+            >
+              {metaIndex > 0 ? `${metaIndex}ms` : '-'}
+            </span>
+          </div>
         </div>
         {isExpanded && (
           <div className={styles['details-panel']}>
@@ -168,11 +248,14 @@ export const VirtualLogRow: React.FC<VirtualLogRowProps> = React.memo(
     );
   },
   (prev, next) => {
-    // Extremely fast comparison
+    // Extremely fast comparison.
+    // Note: If customer segment could change for the same index/journey, we'd need to check it too.
+    // But logs are immutable relative to absIndex.
     return (
       prev.absIndex === next.absIndex &&
       prev.isExpanded === next.isExpanded &&
-      prev.virtualItem.start === next.virtualItem.start
+      prev.virtualItem.start === next.virtualItem.start &&
+      prev.gridTemplateColumns === next.gridTemplateColumns
     );
   },
 );
