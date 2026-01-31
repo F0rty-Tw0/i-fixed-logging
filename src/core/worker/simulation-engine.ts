@@ -56,7 +56,7 @@ export class SimulationEngine {
           this.totalStartedCount < targetUsers &&
           spawnsThisTick < MAX_SPAWNS_PER_TICK
         ) {
-          if (Math.random() < 0.1) {
+          if (Math.random() < 0.05) {
             const jitter = Math.random() * 400;
             this.startJourney(i, now + jitter);
             spawnsThisTick++;

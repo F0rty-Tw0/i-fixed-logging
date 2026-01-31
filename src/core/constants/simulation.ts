@@ -16,7 +16,7 @@ export const CUSTOMER_ID_STANDARD = 88888;
 
 export const STATE_INACTIVE = 255;
 export const STATE_COMPLETED = 254;
-export const MAX_SPAWNS_PER_TICK = 50;
+export const MAX_SPAWNS_PER_TICK = 25;
 
 export const JOURNEY_SEQUENCE = [
   JourneyEvent.CONNECT,
