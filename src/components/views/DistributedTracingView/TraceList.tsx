@@ -1,4 +1,5 @@
 'use client';
+'use no memo';
 
 import React, { useRef, useState, useMemo } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
@@ -68,6 +69,7 @@ export const TraceList: React.FC<{ onSelectTrace?: (id: number) => void }> = ({
     return sorted;
   }, [traces, filter, sortField, sortDirection]);
 
+  // eslint-disable-next-line react-hooks/incompatible-library
   const virtualizer = useVirtualizer({
     count: filteredTraces.length,
     getScrollElement: () => parentRef.current,
