@@ -1,8 +1,9 @@
 import React from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import styles from '../WideEventView.module.css';
+import styles from './JourneyTimeline.module.css';
 import { JourneyEvent, EVENT_NAMES } from '../../../core/types/domain';
-import { JOURNEY_FIELDS, STEP_COLORS } from './data';
+import { STEP_COLORS } from '../../../core/constants';
+import { JOURNEY_FIELDS } from './data';
 
 interface JourneyTimelineProps {
   expandedStep: JourneyEvent | null;

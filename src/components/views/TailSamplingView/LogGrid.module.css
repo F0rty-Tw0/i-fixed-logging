@@ -1,0 +1,51 @@
+.virtualTrack {
+  position: relative;
+  min-height: 240px;
+}
+
+.virtualColumn {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 14px;
+}
+
+.square {
+  width: 14px;
+  height: 14px;
+  min-width: 14px;
+  border-radius: 2px;
+  border: 1px solid rgba(255, 255, 255, 0.02);
+  cursor: default;
+  transition: transform 0.1s ease;
+  position: relative;
+}
+
+.square:hover {
+  transform: scale(1.4);
+  z-index: 10;
+  box-shadow: 0 0 10px rgba(255, 255, 255, 0.5);
+  border-radius: 4px;
+}
+
+/* Color variables copied from root if needed, but better to use variables */
+
+.sq-info {
+  background-color: #1e90ff;
+}
+.sq-warn {
+  background-color: #ffa502;
+}
+.sq-error {
+  background-color: #ff4757;
+}
+.sq-default {
+  background-color: rgba(255, 255, 255, 0.05);
+}
+
+.sq-visible {
+  opacity: 0.9;
+}
+.sq-dimmed {
+  opacity: 0.1;
+}

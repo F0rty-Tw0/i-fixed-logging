@@ -1,9 +1,5 @@
-import {
-  JourneyEvent,
-  LogSeverityId,
-  EVENT_NAMES,
-  CUSTOMER_ID_VIP,
-} from '../core/types/domain';
+import { JourneyEvent, LogSeverityId, EVENT_NAMES } from '../core/types/domain';
+import { CUSTOMER_ID_VIP } from '../core/constants';
 
 type LogInfo = {
   trace_id: string;

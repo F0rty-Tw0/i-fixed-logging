@@ -3,7 +3,7 @@
 
 import { useRef, useEffect, useState, useSyncExternalStore } from 'react';
 import { useVirtualizer } from '@tanstack/react-virtual';
-import { logStore } from '../core/store/log-store';
+import { logStore } from '../core/store';
 import styles from './VirtualLogList.module.css';
 import { VirtualLogRow } from './VirtualLogList/VirtualLogRow';
 

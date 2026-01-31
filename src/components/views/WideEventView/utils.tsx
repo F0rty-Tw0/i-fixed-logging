@@ -1,7 +1,8 @@
 import React from 'react';
-import styles from '../WideEventView.module.css';
+import styles from './JsonPreviewPanel.module.css';
 import { JourneyEvent, EVENT_NAMES } from '../../../core/types/domain';
-import { STEP_COLORS, JOURNEY_FIELDS } from './data';
+import { STEP_COLORS } from '../../../core/constants';
+import { JOURNEY_FIELDS } from './data';
 
 // Helper to render colorized JSON
 export function renderColorizedJson(

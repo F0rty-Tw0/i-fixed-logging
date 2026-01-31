@@ -246,28 +246,4 @@ export const JOURNEY_FIELDS: Record<JourneyEvent, FieldDef[]> = {
   ],
 };
 
-export const STEP_COLORS: Record<JourneyEvent, string> = {
-  [JourneyEvent.CONNECT]: '#00d4ff',
-  [JourneyEvent.TLS_HANDSHAKE]: '#00d4ff',
-  [JourneyEvent.WAF_CHECK]: '#ff6b35',
-  [JourneyEvent.GEO_CHECK]: '#ff6b35',
-  [JourneyEvent.BOT_CHECK_START]: '#ff6b35',
-  [JourneyEvent.JS_CHALLENGE]: '#ff6b35',
-  [JourneyEvent.CAPTCHA_PRESENTED]: '#ffd700',
-  [JourneyEvent.CAPTCHA_SOLVED]: '#ffd700',
-  [JourneyEvent.INTEGRITY_PASSED]: '#ffd700',
-  [JourneyEvent.QUEUE_ENTER]: '#a855f7',
-  [JourneyEvent.QUEUE_POLL_1]: '#a855f7',
-  [JourneyEvent.QUEUE_POLL_2]: '#a855f7',
-  [JourneyEvent.QUEUE_NEXT]: '#a855f7',
-  [JourneyEvent.TOKEN_GRANT]: '#22c55e',
-  [JourneyEvent.ADMITTED]: '#22c55e',
-};
-
-export const GAP_NAMES = {
-  trace: 'Trace',
-  customer: 'Customer',
-  security: 'Security',
-  timing: 'Timing',
-  infra: 'Infra',
-};
+// GAP_NAMES and STEP_COLORS moved to core/constants

@@ -1,3 +1,6 @@
+export type JourneyId = number & { readonly __brand: 'JourneyId' };
+export type CustomerId = number & { readonly __brand: 'CustomerId' };
+
 export enum JourneyEvent {
   CONNECT = 0,
   TLS_HANDSHAKE = 1,
@@ -44,18 +47,6 @@ export const enum LogSeverityId {
 
 export type LogSeverity = 'INFO' | 'WARN' | 'ERROR' | 'BLOCK';
 
-export const MAX_LOGS = 1_500_000;
-export const MAX_USERS = 10_000;
-
-// Data ranges for simulation
-export const CUSTOMER_POOL_SIZE = 50_000;
-export const IP_POOL_SIZE = 100_000;
-export const WAITING_ROOM_COUNT = 10;
-
-// Fixed Customer IDs
-export const CUSTOMER_ID_VIP = 77777;
-export const CUSTOMER_ID_STANDARD = 88888;
-
 export enum ViewMode {
   QUEUE_SIMULATOR = 'queue-simulator',
   TAIL_SAMPLING = 'tail-sampling',
@@ -79,33 +70,21 @@ export interface BatchPayload {
   activeCount: number;
 }
 
-export const LOG_COLUMNS = [
-  'timestamp',
-  'journey_id',
-  'event',
-  'severity',
-  'latency',
-  'customer_id',
-  'customer_segment',
-  'ip',
-  'waiting_room_id',
-  'region',
-  'user_agent',
-] as const;
-
-export const REGIONS = ['US-EAST', 'US-WEST', 'EU-WEST', 'AP-SOUTH', 'SA-EAST'];
-export const USER_AGENTS = [
-  'Mozilla/5.0 (Windows NT 10.0; Win64; x64) Chrome/120.0.0.0',
-  'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) Safari/605.1.15',
-  'Mozilla/5.0 (X11; Linux x86_64) Firefox/121.0',
-  'Mozilla/5.0 (iPhone; CPU iPhone OS 17_2 like Mac OS X) Mobile/15E148',
-  'Mozilla/5.0 (iPad; CPU OS 17_2 like Mac OS X) AppleWebKit/605.1.15',
-];
-
-export type LogColumn = (typeof LOG_COLUMNS)[number];
+export type LogColumn =
+  | 'timestamp'
+  | 'journey_id'
+  | 'event'
+  | 'severity'
+  | 'latency'
+  | 'customer_id'
+  | 'customer_segment'
+  | 'ip'
+  | 'waiting_room_id'
+  | 'region'
+  | 'user_agent';
 
 export interface TraceSummary {
-  traceId: number;
+  traceId: JourneyId;
   startTime: number;
   endTime: number;
   duration: number;

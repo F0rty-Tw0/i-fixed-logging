@@ -1,0 +1,75 @@
+.container {
+  display: flex;
+  flex-direction: column;
+  items: center;
+  justify-content: center;
+  height: 100vh;
+  width: 100vw;
+  background-color: var(--bg-color);
+  color: var(--text-primary);
+}
+
+.content {
+  text-align: center;
+  max-width: 500px;
+  margin: 0 auto;
+  padding: 2rem;
+}
+
+.title {
+  font-size: 8rem;
+  font-weight: 900;
+  margin: 0;
+  line-height: 1;
+  background: linear-gradient(
+    180deg,
+    var(--text-primary) 0%,
+    rgba(255, 255, 255, 0.1) 100%
+  );
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  opacity: 0.8;
+}
+
+.divider {
+  height: 2px;
+  width: 60px;
+  background: var(--accent-color);
+  margin: 2rem auto;
+}
+
+.subtitle {
+  font-size: 1.5rem;
+  font-family: var(--font-mono);
+  text-transform: uppercase;
+  letter-spacing: 0.2em;
+  margin-bottom: 1rem;
+  color: var(--text-primary);
+}
+
+.message {
+  color: var(--text-secondary);
+  font-size: 1.1rem;
+  line-height: 1.6;
+  margin-bottom: 3rem;
+}
+
+.homeButton {
+  display: inline-block;
+  background: transparent;
+  border: 1px solid var(--accent-color);
+  color: var(--accent-color);
+  padding: 0.75rem 2rem;
+  border-radius: 4px;
+  font-family: var(--font-mono);
+  font-size: 0.9rem;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  transition: all 0.3s ease;
+}
+
+.homeButton:hover {
+  background: var(--accent-color);
+  color: white;
+  box-shadow: 0 0 20px rgba(59, 130, 246, 0.4);
+}

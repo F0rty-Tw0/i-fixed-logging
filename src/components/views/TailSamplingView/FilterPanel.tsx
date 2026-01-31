@@ -1,7 +1,9 @@
-import React from 'react';
-import styles from '../TailSamplingView.module.css';
+'use client';
 
-interface FilterControlsProps {
+import React from 'react';
+import styles from './FilterPanel.module.css';
+
+interface FilterPanelProps {
   filters: {
     errors: boolean;
     warnings: boolean;
@@ -14,7 +16,7 @@ interface FilterControlsProps {
   setDebouncedSamplingRate: (rate: number) => void;
 }
 
-export const FilterControls: React.FC<FilterControlsProps> = ({
+export const FilterPanel: React.FC<FilterPanelProps> = ({
   filters,
   toggleFilter,
   samplingRate,

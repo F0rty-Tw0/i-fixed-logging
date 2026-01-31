@@ -1,10 +1,5 @@
-import {
-  MAX_LOGS,
-  EVENT_NAMES,
-  JourneyEvent,
-  REGIONS,
-  USER_AGENTS,
-} from '../types/domain';
+import { MAX_LOGS, REGIONS, USER_AGENTS } from '../constants';
+import { EVENT_NAMES, JourneyEvent } from '../types/domain';
 
 export class WorkerLogStore {
   public timestamps: Float64Array;

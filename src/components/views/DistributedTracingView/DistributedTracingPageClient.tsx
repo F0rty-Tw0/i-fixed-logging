@@ -1,13 +1,12 @@
 'use client';
 
-import { TraceList } from '@/components/views/DistributedTracingView/TraceList';
-import { WaterfallChart } from '@/components/views/DistributedTracingView/WaterfallChart';
+import { TraceList } from './TraceList';
+import { WaterfallChart } from './WaterfallChart';
 import { useSearchParams, useRouter } from 'next/navigation';
-import { Suspense } from 'react';
 
-function TracingContent() {
+export function DistributedTracingPageClient() {
   const searchParams = useSearchParams();
-  const router = useRouter(); // We need to import this
+  const router = useRouter();
 
   const traceIdParam = searchParams.get('traceId');
   const selectedTraceId = traceIdParam ? parseInt(traceIdParam) : null;
@@ -25,12 +24,4 @@ function TracingContent() {
   }
 
   return <TraceList onSelectTrace={handleSelectTrace} />;
-}
-
-export default function Page() {
-  return (
-    <Suspense fallback={<div style={{ color: '#fff' }}>Loading...</div>}>
-      <TracingContent />
-    </Suspense>
-  );
 }

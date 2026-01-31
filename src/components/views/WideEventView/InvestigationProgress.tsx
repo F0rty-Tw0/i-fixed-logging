@@ -1,7 +1,7 @@
 import React from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import styles from '../WideEventView.module.css';
-import { GAP_NAMES } from './data';
+import styles from './InvestigationProgress.module.css';
+import { GAP_NAMES } from '../../../core/constants';
 
 interface InvestigationProgressProps {
   cluesFound: number;

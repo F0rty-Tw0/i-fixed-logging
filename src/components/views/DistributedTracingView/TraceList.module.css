@@ -183,25 +183,6 @@
   border: 1px solid rgba(113, 113, 122, 0.3);
 }
 
-/* Severity/Status Colors */
-.status_ADMITTED {
-  color: #4ade80;
-} /* Green */
-.status_BLOCK,
-.status_WAF_CHECK,
-.status_GEO_CHECK {
-  color: #f87171;
-} /* Red */
-.status_QUEUE_ENTER,
-.status_QUEUE_POLL_1,
-.status_QUEUE_POLL_2 {
-  color: #fbbf24;
-} /* Amber */
-.status_CONNECT,
-.status_TLS_HANDSHAKE {
-  color: #60a5fa;
-} /* Blue */
-
 .durationBar {
   height: 6px;
   background: #27272a;

@@ -11,12 +11,12 @@ import {
 } from 'react';
 import { motion } from 'framer-motion';
 import { useVirtualizer } from '@tanstack/react-virtual';
-import clsx from 'clsx';
-import { logStore } from '../../core/store/log-store';
+import { logStore } from '../../core/store';
 import { LogSeverityId } from '../../core/types/domain';
 import styles from './TailSamplingView.module.css';
-import { FilterControls } from './TailSamplingView/FilterControls';
+import { FilterPanel } from './TailSamplingView/FilterPanel';
 import { LogTooltip } from './TailSamplingView/LogTooltip';
+import { LogGrid } from './TailSamplingView/LogGrid';
 
 // Stable function references for useSyncExternalStore
 const subscribeToStore = (cb: () => void) => logStore.subscribe(cb);
@@ -139,27 +139,6 @@ export const TailSamplingView = () => {
     }
   }, [columnCount, virtualizer]);
 
-  // Calculate class for a single log square
-  const getSquareClass = (sevId: number, physicalIdx: number) => {
-    const isVisible = isLogVisible(sevId, physicalIdx);
-
-    const isError =
-      sevId === LogSeverityId.CRITICAL || sevId === LogSeverityId.ERROR;
-    const isWarn = sevId === LogSeverityId.WARN;
-    const isInfo = sevId === LogSeverityId.INFO;
-
-    let baseClass = styles['sq-default'];
-    if (isError) baseClass = styles['sq-error'];
-    else if (isWarn) baseClass = styles['sq-warn'];
-    else if (isInfo) baseClass = styles['sq-info'];
-
-    return clsx(
-      styles.square,
-      baseClass,
-      isVisible ? styles['sq-visible'] : styles['sq-dimmed'],
-    );
-  };
-
   // Calculate filtered count
   // Stable getSnapshot for filtered count - needs to be memoized since it depends on filters
   const getFilteredCountSnapshot = useCallback(
@@ -222,7 +201,7 @@ export const TailSamplingView = () => {
         </p>
       </div>
 
-      <FilterControls
+      <FilterPanel
         filters={filters}
         toggleFilter={toggleFilter}
         samplingRate={samplingRate}
@@ -241,49 +220,14 @@ export const TailSamplingView = () => {
             </p>
           </div>
         )}
-        <div
-          className={styles.virtualTrack}
-          style={{
-            width: `${virtualizer.getTotalSize()}px`,
-          }}
-        >
-          {virtualizer.getVirtualItems().map((virtualColumn) => {
-            const startIdx = virtualColumn.index * 15;
-            const columnSeverities = Array.from(
-              severities.subarray(startIdx, startIdx + 15),
-            );
-
-            // We need physical indices for this column to check latency
-            const columnPhysicalIndices = logIndices.subarray(
-              startIdx,
-              startIdx + 15,
-            );
-
-            return (
-              <div
-                key={virtualColumn.key}
-                className={styles.virtualColumn}
-                style={{
-                  transform: `translateX(${virtualColumn.start}px)`,
-                }}
-              >
-                {columnSeverities.map((sevId, rowIdx) => {
-                  const actualIndex = startIdx + rowIdx;
-                  const physicalIdx = columnPhysicalIndices[rowIdx];
-
-                  return (
-                    <div
-                      key={rowIdx}
-                      className={getSquareClass(sevId, physicalIdx)}
-                      onMouseEnter={(e) => handleSquareEnter(e, actualIndex)}
-                      onMouseLeave={handleSquareLeave}
-                    />
-                  );
-                })}
-              </div>
-            );
-          })}
-        </div>
+        <LogGrid
+          severities={severities}
+          logIndices={logIndices}
+          virtualizer={virtualizer}
+          isLogVisible={isLogVisible}
+          onSquareEnter={handleSquareEnter}
+          onSquareLeave={handleSquareLeave}
+        />
       </div>
 
       <LogTooltip hoveredLog={hoveredLog} tooltipPos={tooltipPos} />

@@ -3,20 +3,11 @@
 import React, { useRef, useState, useMemo } from 'react';
 import { useVirtualizer } from '@tanstack/react-virtual';
 import { useTraceAggregation } from '../../../core/hooks/useTraceAggregation';
-import { EVENT_NAMES, JourneyEvent } from '../../../core/types/domain';
+import { EVENT_NAMES } from '../../../core/types/domain';
 import styles from './TraceList.module.css';
 import { motion } from 'framer-motion';
 
-const StatusBadge: React.FC<{ event: JourneyEvent }> = ({ event }) => {
-  const name = EVENT_NAMES[event];
-  const colorClass = `status_${name.toUpperCase()}`;
-
-  return (
-    <span className={`${styles.badge} ${styles[colorClass] || ''}`}>
-      {name}
-    </span>
-  );
-};
+import { StatusBadge } from '../../common/StatusBadge/StatusBadge';
 
 type SortField = 'traceId' | 'duration' | 'eventCount' | 'startTime';
 type SortDirection = 'asc' | 'desc';

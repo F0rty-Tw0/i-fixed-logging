@@ -1,0 +1,199 @@
+.previewPanel {
+  background: rgba(0, 0, 0, 0.3);
+  border-radius: 16px;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+.panelHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0.75rem 1.25rem;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+  background: rgba(255, 255, 255, 0.02);
+}
+
+.panelTitle {
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: rgba(255, 255, 255, 0.7);
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  margin: 0;
+}
+
+.jsonContainer {
+  flex: 1;
+  overflow: auto;
+  padding: 1rem;
+}
+
+.jsonPre {
+  margin: 0;
+  font-family: 'SF Mono', 'Monaco', 'Consolas', monospace;
+  font-size: 0.8rem;
+  line-height: 1.6;
+  white-space: pre;
+}
+
+/* Scrollbar */
+.jsonContainer::-webkit-scrollbar {
+  width: 6px;
+}
+
+.jsonContainer::-webkit-scrollbar-track {
+  background: rgba(255, 255, 255, 0.05);
+  border-radius: 3px;
+}
+
+.jsonContainer::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.2);
+  border-radius: 3px;
+}
+
+.jsonContainer::-webkit-scrollbar-thumb:hover {
+  background: rgba(255, 255, 255, 0.3);
+}
+
+/* Syntax Highlighting */
+.jsonLine {
+  display: block;
+}
+
+.jsonLineIndent1 {
+  padding-left: 16px;
+}
+
+.jsonLineIndent2 {
+  padding-left: 32px;
+}
+
+.jsonColorWhite {
+  color: #fff;
+}
+
+.jsonColorKey {
+  color: #9cdcfe;
+}
+
+.jsonColorString {
+  color: #ce9178;
+}
+
+.jsonColorError {
+  color: #f44747;
+}
+
+.jsonColorComment {
+  color: #6a9955;
+}
+
+.jsonColorClue {
+  color: #ffd700;
+}
+
+.jsonColorNumber {
+  color: #b5cea8;
+}
+
+.jsonColorStepName {
+  color: var(--step-color, #888);
+}
+
+.jsonClueAnnotation {
+  color: #ffd700;
+  margin-left: 8px;
+}
+
+/* Reported Problem & Tooltip */
+.reportedProblemWrapper {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+.reportedProblemIcon {
+  background: rgba(255, 215, 0, 0.1);
+  border: 1px solid rgba(255, 215, 0, 0.2);
+  color: #ffd700;
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s ease;
+  padding: 0;
+  z-index: 2;
+}
+
+.reportedProblemIcon:hover {
+  background: rgba(255, 215, 0, 0.2);
+  transform: scale(1.1);
+  box-shadow: 0 0 15px rgba(255, 215, 0, 0.3);
+}
+
+.problemTooltip {
+  position: absolute;
+  top: calc(100% + 12px);
+  right: 0;
+  width: 240px;
+  background: rgba(20, 25, 45, 0.98);
+  backdrop-filter: blur(12px);
+  border: 1px solid rgba(255, 215, 0, 0.3);
+  border-radius: 12px;
+  padding: 1rem;
+  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.6);
+  z-index: 1000;
+}
+
+.tooltipArrow {
+  position: absolute;
+  top: -6px;
+  right: 10px;
+  width: 12px;
+  height: 12px;
+  background: rgba(20, 25, 45, 0.98);
+  border-left: 1px solid rgba(255, 215, 0, 0.3);
+  border-top: 1px solid rgba(255, 215, 0, 0.3);
+  transform: rotate(45deg);
+}
+
+.tooltipContent {
+  color: #fff;
+  font-size: 0.85rem;
+  line-height: 1.4;
+  font-weight: 500;
+  text-align: left;
+}
+
+.tooltipOverlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 1;
+}
+
+.tooltipSection {
+  margin-bottom: 12px;
+}
+
+.tooltipSectionTitle {
+  color: #ffd700;
+  display: block;
+  font-size: 0.7rem;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  margin-bottom: 4px;
+}
+
+.tooltipSectionText {
+  font-style: italic;
+  font-size: 0.85rem;
+}

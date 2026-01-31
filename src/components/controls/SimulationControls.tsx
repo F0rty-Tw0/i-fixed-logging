@@ -1,7 +1,7 @@
 'use client';
 import React, { useState } from 'react';
 import clsx from 'clsx';
-import { MAX_USERS } from '../../core/types/domain';
+import { MAX_USERS } from '../../core/constants';
 import styles from './SimulationControls.module.css';
 
 interface SimulationControlsProps {

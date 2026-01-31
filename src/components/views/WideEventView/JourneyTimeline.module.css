@@ -1,0 +1,233 @@
+.journeyPanel {
+  background: rgba(0, 0, 0, 0.3);
+  border-radius: 16px;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+.panelHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0.75rem 1.25rem;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+  background: rgba(255, 255, 255, 0.02);
+}
+
+.panelTitle {
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: rgba(255, 255, 255, 0.7);
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  margin: 0;
+}
+
+.hintButton {
+  background: rgba(255, 215, 0, 0.1);
+  border: 1px solid rgba(255, 215, 0, 0.2);
+  color: #ffd700;
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1rem;
+  transition: all 0.2s ease;
+  padding: 0;
+}
+
+.hintButton:hover {
+  background: rgba(255, 215, 0, 0.2);
+  transform: scale(1.1);
+  box-shadow: 0 0 10px rgba(255, 215, 0, 0.3);
+}
+
+.hintActive {
+  background: #ffd700;
+  color: #000;
+  border-color: #ffd700;
+  box-shadow: 0 0 15px rgba(255, 215, 0, 0.5);
+}
+
+.timeline {
+  flex: 1;
+  overflow-y: auto;
+  padding: 0.5rem;
+}
+
+/* Scrollbar */
+.timeline::-webkit-scrollbar {
+  width: 6px;
+}
+
+.timeline::-webkit-scrollbar-track {
+  background: rgba(255, 255, 255, 0.05);
+  border-radius: 3px;
+}
+
+.timeline::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.2);
+  border-radius: 3px;
+}
+
+.timeline::-webkit-scrollbar-thumb:hover {
+  background: rgba(255, 255, 255, 0.3);
+}
+
+.timelineStep {
+  position: relative;
+  margin-bottom: 2px;
+}
+
+.stepHeader {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.6rem 1rem;
+  background: transparent;
+  border: none;
+  color: rgba(255, 255, 255, 0.8);
+  font-size: 0.85rem;
+  font-family: inherit;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  border-radius: 8px;
+  text-align: left;
+}
+
+.stepHeader:hover {
+  background: rgba(255, 255, 255, 0.05);
+}
+
+.stepHeader.expanded {
+  background: rgba(255, 255, 255, 0.08);
+}
+
+.stepDot {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background: var(--step-color, #888);
+  box-shadow: 0 0 8px var(--step-color, #888);
+  flex-shrink: 0;
+}
+
+.stepName {
+  flex: 1;
+  font-weight: 500;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.errorBadge {
+  font-size: 1rem;
+  animation: pulse 2s infinite;
+}
+
+.clueBadge {
+  font-size: 0.8rem;
+  opacity: 0.6;
+}
+
+@keyframes pulse {
+  0%,
+  100% {
+    opacity: 1;
+    transform: scale(1);
+  }
+  50% {
+    opacity: 0.7;
+    transform: scale(1.1);
+  }
+}
+
+.stepCount {
+  font-size: 0.75rem;
+  color: rgba(255, 255, 255, 0.4);
+  font-family: monospace;
+}
+
+.chevron {
+  font-size: 0.7rem;
+  color: rgba(255, 255, 255, 0.4);
+  transition: transform 0.2s;
+}
+
+.stepFields {
+  overflow: hidden;
+  padding: 0 0 0.5rem 2rem;
+}
+
+.fieldLabel {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.35rem 0.75rem;
+  font-size: 0.8rem;
+  color: rgba(255, 255, 255, 0.7);
+  cursor: pointer;
+  border-radius: 6px;
+  transition: background 0.15s;
+}
+
+.fieldLabel:hover {
+  background: rgba(255, 255, 255, 0.05);
+}
+
+.clueField {
+  background: rgba(255, 215, 0, 0.1);
+  border: 1px solid rgba(255, 215, 0, 0.3);
+}
+
+.clueField:hover {
+  background: rgba(255, 215, 0, 0.15);
+}
+
+.fieldHintClue {
+  background: rgba(255, 215, 0, 0.25) !important;
+  border-color: rgba(255, 215, 0, 0.6) !important;
+  box-shadow: 0 0 12px rgba(255, 215, 0, 0.3);
+}
+
+.fieldHintCategory {
+  background: color-mix(
+    in srgb,
+    var(--category-color, #fff) 15%,
+    transparent
+  ) !important;
+  border: 1px solid
+    color-mix(in srgb, var(--category-color, #fff) 50%, transparent) !important;
+  box-shadow: 0 0 10px
+    color-mix(in srgb, var(--category-color, #fff) 20%, transparent);
+}
+
+.checkboxWrapper {
+  display: flex;
+  align-items: center;
+  gap: 0.25rem;
+  position: relative;
+}
+
+.checkbox {
+  width: 14px;
+  height: 14px;
+  accent-color: var(--step-color, #a855f7);
+  cursor: pointer;
+  z-index: 1;
+}
+
+.fieldName {
+  font-family: 'SF Mono', 'Monaco', monospace;
+  flex: 1;
+}
+
+.clueIndicator {
+  font-size: 0.75rem;
+}

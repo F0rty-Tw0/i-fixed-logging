@@ -1,5 +1,5 @@
 import { ExpressionNode, SelectNode } from './types';
-import { LOG_COLUMNS } from '../types/domain';
+import { LOG_COLUMNS } from '../constants';
 
 export type RowData = Record<string, unknown> | ((field: string) => unknown);
 

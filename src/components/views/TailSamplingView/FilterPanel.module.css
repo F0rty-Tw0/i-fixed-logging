@@ -1,0 +1,88 @@
+.controls {
+  display: flex;
+  gap: 1.5rem;
+  padding: 1rem;
+  gap: 16px;
+  margin-bottom: 16px;
+  align-items: center;
+  justify-content: space-between;
+  font-size: 0.9rem;
+  color: #ccc;
+}
+
+.checkboxLabel {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  cursor: pointer;
+  user-select: none;
+  transition: color 0.2s;
+}
+
+.checkboxLabel:hover {
+  color: #fff;
+}
+
+.legendSquare {
+  width: 14px;
+  height: 14px;
+  border-radius: 3px;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.checkbox {
+  appearance: none;
+  width: 16px;
+  height: 16px;
+  border: 1px solid #444;
+  border-radius: 3px;
+  background: #222;
+  cursor: pointer;
+  display: grid;
+  place-content: center;
+  position: relative;
+  transition: all 0.2s;
+}
+
+.checkbox:checked::after {
+  content: '✓';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  color: #fff;
+  font-size: 0.8rem;
+  font-weight: bold;
+}
+
+.filterGroup {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+.sliderContainer {
+  display: flex;
+}
+
+.slider {
+  /* Add slider styles if needed, or copy from TailSamplingView.module.css */
+}
+
+/* Color variables or hardcoded for now to match LogGrid */
+.legendSquareError {
+  background-color: #ff4757;
+}
+
+.legendSquareWarn {
+  background-color: #ffa502;
+}
+
+.legendSquareInfo {
+  background-color: #1e90ff;
+}
+
+.sliderLabel {
+  /* Add sliderLabel style */
+  margin-right: 8px;
+}

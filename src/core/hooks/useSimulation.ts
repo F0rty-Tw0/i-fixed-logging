@@ -1,5 +1,5 @@
 import { useEffect, useState, useCallback } from 'react';
-import { logStore } from '../store/log-store';
+import { logStore } from '../store';
 import { workerManager } from '../worker/worker-manager';
 import { BatchPayload } from '../types/domain';
 
@@ -83,6 +83,10 @@ export const useSimulation = (): SimulationControls => {
       payload: count,
     });
   }, []);
+
+  useEffect(() => {
+    logStore.setSimulationRunning(isRunning);
+  }, [isRunning]);
 
   return {
     start,

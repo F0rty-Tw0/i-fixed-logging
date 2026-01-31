@@ -1,6 +1,6 @@
 'use client';
 import React, { useSyncExternalStore } from 'react';
-import { logStore } from '../../core/store/log-store';
+import { logStore } from '../../core/store';
 import styles from './HUD.module.css';
 
 // Stable function references for useSyncExternalStore

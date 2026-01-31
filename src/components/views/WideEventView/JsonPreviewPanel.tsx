@@ -1,6 +1,6 @@
 import React from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import styles from '../WideEventView.module.css';
+import styles from './JsonPreviewPanel.module.css';
 import { renderColorizedJson } from './utils';
 
 interface JsonPreviewPanelProps {

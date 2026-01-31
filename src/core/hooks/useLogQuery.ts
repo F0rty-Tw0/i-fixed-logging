@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, useRef } from 'react';
 import { workerManager } from '../worker/worker-manager';
 
 export interface QueryResult {
@@ -20,13 +20,15 @@ interface QueryErrorPayload {
   error: string;
 }
 
-export const useLogQuery = () => {
+export const useLogQuery = (debounceMs = 0) => {
   const [queryState, setQueryState] = useState<QueryResult>({
     queryId: '',
     results: [],
     columns: [],
     loading: false,
   });
+
+  const debounceTimerRef = useRef<NodeJS.Timeout | null>(null);
 
   useEffect(() => {
     const unsubResults = workerManager.subscribe<QueryResultsPayload>(
@@ -66,24 +68,39 @@ export const useLogQuery = () => {
     return () => {
       unsubResults();
       unsubError();
+      if (debounceTimerRef.current) clearTimeout(debounceTimerRef.current);
     };
   }, []);
 
-  const runQuery = useCallback((sql: string) => {
-    const queryId = Math.random().toString(36).substring(7);
-    setQueryState({
-      queryId,
-      results: [],
-      columns: [],
-      loading: true,
-      error: undefined,
-    });
+  const runQuery = useCallback(
+    (sql: string, immediate = false) => {
+      if (debounceTimerRef.current) {
+        clearTimeout(debounceTimerRef.current);
+      }
 
-    workerManager.postMessage({
-      type: 'QUERY',
-      payload: { queryId, sql },
-    });
-  }, []);
+      const execute = () => {
+        const queryId = Math.random().toString(36).substring(7);
+        setQueryState((prev) => ({
+          ...prev,
+          queryId,
+          loading: true,
+          error: undefined,
+        }));
+
+        workerManager.postMessage({
+          type: 'QUERY',
+          payload: { queryId, sql },
+        });
+      };
+
+      if (immediate || debounceMs === 0) {
+        execute();
+      } else {
+        debounceTimerRef.current = setTimeout(execute, debounceMs);
+      }
+    },
+    [debounceMs],
+  );
 
   return {
     ...queryState,

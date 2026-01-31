@@ -1,6 +1,6 @@
 'use client';
 import React, { useState, useEffect, useSyncExternalStore } from 'react';
-import { logStore } from '../../core/store/log-store';
+import { logStore } from '../../core/store';
 import styles from './SearchBar.module.css';
 
 // Stable reference for SSR - must be defined outside component
