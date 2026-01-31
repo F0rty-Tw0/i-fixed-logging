@@ -1,19 +1,20 @@
-/* Obsidian Filter Panel Styling */
+/* Obsidian Filter Panel Styling - Premium Edition */
 
 .controls {
   display: flex;
   justify-content: space-between;
-  align-items: center;
+  align-items: flex-end;
   gap: var(--space-6);
+  margin-bottom: var(--space-4);
 }
 
 .filterGroup {
   display: flex;
-  gap: var(--space-4);
+  gap: var(--space-2);
   align-items: center;
-  padding: var(--space-2);
+  padding: 4px;
   background: var(--bg-void);
-  border-radius: 10px;
+  border-radius: 8px;
   border: 1px solid var(--border-subtle);
 }
 
@@ -23,146 +24,146 @@
   gap: var(--space-2);
   cursor: pointer;
   font-family: var(--font-mono);
-  font-size: 0.7rem;
+  font-size: 0.75rem;
   font-weight: 700;
   color: var(--text-muted);
-  background: linear-gradient(to bottom, var(--bg-elevated), var(--bg-raised));
-  padding: var(--space-2) var(--space-4);
-  border-radius: 4px;
-  border: 1px solid var(--border-default);
-  transition: all var(--transition-normal);
+  background: transparent;
+  padding: var(--space-1) var(--space-3);
+  border-radius: 6px;
+  border: 1px solid transparent;
+  transition: all var(--transition-fast);
   user-select: none;
   text-transform: uppercase;
   letter-spacing: 0.05em;
   position: relative;
-  overflow: hidden;
-}
-
-.checkboxLabel::before {
-  content: '';
-  position: absolute;
-  top: 0;
-  left: 0;
-  width: 2px;
-  height: 100%;
-  background: transparent;
-  transition: all var(--transition-fast);
 }
 
 .checkboxLabel:hover {
-  background: var(--bg-hover);
-  color: var(--text-primary);
-  border-color: var(--text-muted);
-  transform: translateY(-1px);
-}
-
-/* Specific colors for labeled chips */
-.checkboxLabelActive {
   background: var(--bg-elevated);
-  border-color: var(--accent-500);
+  color: var(--text-secondary);
+}
+
+/* Base Active State */
+.checkboxLabelActive {
+  background: var(--bg-raised);
   color: var(--text-primary);
-  box-shadow:
-    0 4px 12px rgba(0, 0, 0, 0.3),
-    0 0 10px var(--accent-glow);
+  border-color: var(--border-default);
+  box-shadow: var(--shadow-sm);
 }
 
-.checkboxLabelActive::before {
-  background: var(--accent-500);
-  box-shadow: 0 0 10px var(--accent-500);
+/* Indicator (The LED) */
+.indicator {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--bg-elevated);
+  transition: all var(--transition-normal);
+  flex-shrink: 0;
+  border: 1px solid var(--border-subtle);
 }
 
-.checkboxLabelError.checkboxLabelActive {
-  border-color: var(--error);
-  box-shadow: 0 0 15px var(--error-bg);
+/* Active Indicator / Severity Colors */
+.checkboxLabelActive.checkboxLabelError {
+  border-color: rgba(239, 68, 68, 0.4);
 }
-.checkboxLabelError.checkboxLabelActive::before {
+.checkboxLabelActive.checkboxLabelError .indicator {
   background: var(--error);
+  box-shadow: 0 0 8px var(--error);
+  border-color: var(--error);
 }
 
-.checkboxLabelWarn.checkboxLabelActive {
-  border-color: var(--warning);
-  box-shadow: 0 0 15px var(--warning-bg);
+.checkboxLabelActive.checkboxLabelWarn {
+  border-color: rgba(245, 158, 11, 0.4);
 }
-.checkboxLabelWarn.checkboxLabelActive::before {
+.checkboxLabelActive.checkboxLabelWarn .indicator {
   background: var(--warning);
+  box-shadow: 0 0 8px var(--warning);
+  border-color: var(--warning);
 }
 
-.checkboxLabelInfo.checkboxLabelActive {
-  border-color: var(--info);
-  box-shadow: 0 0 15px var(--info-bg);
+.checkboxLabelActive.checkboxLabelInfo {
+  border-color: rgba(59, 130, 246, 0.4);
 }
-.checkboxLabelInfo.checkboxLabelActive::before {
+.checkboxLabelActive.checkboxLabelInfo .indicator {
   background: var(--info);
+  box-shadow: 0 0 8px var(--info);
+  border-color: var(--info);
+}
+
+.checkboxLabelActive.checkboxLabelSlow {
+  border-color: rgba(168, 85, 247, 0.4);
+}
+.checkboxLabelActive.checkboxLabelSlow .indicator {
+  background: var(--accent-500);
+  box-shadow: 0 0 8px var(--accent-500);
+  border-color: var(--accent-500);
 }
 
 .checkbox {
-  display: none;
+  opacity: 0;
+  position: absolute;
+  pointer-events: none;
 }
 
-.legendSquare {
-  width: 8px;
-  height: 8px;
-  border-radius: 2px;
-}
-
-.legendSquareError {
-  background-color: var(--error);
-  box-shadow: 0 0 8px var(--error);
-}
-.legendSquareWarn {
-  background-color: var(--warning);
-  box-shadow: 0 0 8px var(--warning);
-}
-.legendSquareInfo {
-  background-color: var(--info);
-  box-shadow: 0 0 8px var(--info);
-}
-
+/* Slider Section */
 .sliderContainer {
   display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+  min-width: 200px;
+}
+
+.sliderHeader {
+  display: flex;
+  justify-content: space-between;
   align-items: center;
-  gap: var(--space-4);
-  background-color: var(--bg-hover);
-  padding: 0 var(--space-4);
-  height: 36px;
-  border-radius: 12px;
-  border: 1px solid var(--border-default);
 }
 
 .sliderLabel {
   font-family: var(--font-mono);
-  font-size: 0.75rem;
-  font-weight: 600;
+  font-size: 0.7rem;
+  font-weight: 700;
   color: var(--text-muted);
-  white-space: nowrap;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+}
+
+.sliderValue {
+  font-family: var(--font-mono);
+  font-size: 0.75rem;
+  font-weight: 700;
+  color: var(--accent-500);
 }
 
 .slider {
   -webkit-appearance: none;
-  width: 120px;
+  width: 100%;
   background: transparent;
+  cursor: pointer;
 }
 
 .slider::-webkit-slider-runnable-track {
   width: 100%;
   height: 4px;
-  background: var(--border-subtle);
+  background: var(--bg-void);
   border-radius: 2px;
+  border: 1px solid var(--border-subtle);
 }
 
 .slider::-webkit-slider-thumb {
   -webkit-appearance: none;
   height: 14px;
   width: 14px;
-  background: var(--accent-500);
-  border-radius: 50%;
-  cursor: pointer;
-  margin-top: -5px;
-  box-shadow: 0 0 10px var(--accent-glow);
+  background: var(--bg-raised);
+  border: 2px solid var(--accent-500);
+  border-radius: 3px;
+  margin-top: -6px;
   transition: all var(--transition-fast);
+  box-shadow: 0 0 5px rgba(0, 0, 0, 0.3);
 }
 
 .slider:hover::-webkit-slider-thumb {
-  transform: scale(1.2);
-  background: var(--accent-400);
+  background: var(--accent-500);
+  transform: scale(1.1);
+  box-shadow: 0 0 10px var(--accent-glow);
 }

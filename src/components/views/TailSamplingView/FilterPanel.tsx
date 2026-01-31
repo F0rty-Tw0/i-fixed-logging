@@ -31,7 +31,7 @@ export const FilterPanel: React.FC<FilterPanelProps> = ({
           className={clsx(
             styles.checkboxLabel,
             filters.errors && styles.checkboxLabelActive,
-            filters.errors && styles.checkboxLabelError,
+            styles.checkboxLabelError,
           )}
         >
           <input
@@ -40,9 +40,7 @@ export const FilterPanel: React.FC<FilterPanelProps> = ({
             checked={filters.errors}
             onChange={() => toggleFilter('errors')}
           />
-          <span
-            className={`${styles.legendSquare} ${styles.legendSquareError}`}
-          />
+          <span className={clsx(styles.indicator, styles.indicatorError)} />
           ERRORS
         </label>
 
@@ -50,7 +48,7 @@ export const FilterPanel: React.FC<FilterPanelProps> = ({
           className={clsx(
             styles.checkboxLabel,
             filters.warnings && styles.checkboxLabelActive,
-            filters.warnings && styles.checkboxLabelWarn,
+            styles.checkboxLabelWarn,
           )}
         >
           <input
@@ -59,9 +57,7 @@ export const FilterPanel: React.FC<FilterPanelProps> = ({
             checked={filters.warnings}
             onChange={() => toggleFilter('warnings')}
           />
-          <span
-            className={`${styles.legendSquare} ${styles.legendSquareWarn}`}
-          />
+          <span className={clsx(styles.indicator, styles.indicatorWarn)} />
           WARNINGS
         </label>
 
@@ -69,6 +65,7 @@ export const FilterPanel: React.FC<FilterPanelProps> = ({
           className={clsx(
             styles.checkboxLabel,
             filters.slow && styles.checkboxLabelActive,
+            styles.checkboxLabelSlow,
           )}
         >
           <input
@@ -77,15 +74,15 @@ export const FilterPanel: React.FC<FilterPanelProps> = ({
             checked={filters.slow}
             onChange={() => toggleFilter('slow')}
           />
-          <span>🐢</span>
-          LATENCY &gt; 1s
+          <span className={clsx(styles.indicator, styles.indicatorSlow)} />
+          LATENCY &gt; 1S
         </label>
 
         <label
           className={clsx(
             styles.checkboxLabel,
             filters.sampleInfo && styles.checkboxLabelActive,
-            filters.sampleInfo && styles.checkboxLabelInfo,
+            styles.checkboxLabelInfo,
           )}
         >
           <input
@@ -94,15 +91,16 @@ export const FilterPanel: React.FC<FilterPanelProps> = ({
             checked={filters.sampleInfo}
             onChange={() => toggleFilter('sampleInfo')}
           />
-          <span
-            className={`${styles.legendSquare} ${styles.legendSquareInfo}`}
-          />
+          <span className={clsx(styles.indicator, styles.indicatorInfo)} />
           INFO (5%)
         </label>
       </div>
 
       <div className={styles.sliderContainer}>
-        <label className={styles.sliderLabel}>Sampling: {samplingRate}%</label>
+        <div className={styles.sliderHeader}>
+          <span className={styles.sliderLabel}>Sampling Density</span>
+          <span className={styles.sliderValue}>{samplingRate}%</span>
+        </div>
         <input
           type='range'
           min='1'

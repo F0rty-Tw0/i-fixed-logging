@@ -29,46 +29,28 @@
   background-clip: padding-box;
 }
 
-.square::after {
-  content: '';
-  position: absolute;
-  inset: 0;
-  background: linear-gradient(
-    135deg,
-    light-dark(rgba(255, 255, 255, 0.5), rgba(255, 255, 255, 0.1)),
-    transparent
-  );
-  pointer-events: none;
-  opacity: 0.5;
-}
-
 .square:hover {
-  transform: scale(1.8) translateZ(20px);
+  transform: scale(1.5) translateZ(10px);
   z-index: 50;
-  border-radius: 3px;
+  border-radius: 2px;
   border-color: var(--text-primary);
-  box-shadow:
-    0 10px 20px light-dark(rgba(0, 0, 0, 0.2), rgba(0, 0, 0, 0.5)),
-    0 0 15px var(--accent-glow);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.5);
 }
 
 .sq-info {
   background-color: var(--info-bg);
-  border-color: rgba(59, 130, 246, 0.2);
-  box-shadow: inset 0 0 4px var(--info-bg);
+  border-color: rgba(59, 130, 246, 0.15);
 }
 
 .sq-warn {
   background-color: var(--warning-bg);
-  border-color: rgba(245, 158, 11, 0.2);
-  box-shadow: inset 0 0 4px var(--warning-bg);
+  border-color: rgba(245, 158, 11, 0.15);
 }
 
 .sq-error {
   background-color: var(--error-bg);
-  border-color: rgba(239, 68, 68, 0.3);
-  animation: tactical-pulse 2s infinite ease-in-out;
-  box-shadow: inset 0 0 6px var(--error-bg);
+  border-color: rgba(239, 68, 68, 0.2);
+  animation: tactical-pulse 3s infinite ease-in-out;
 }
 
 .sq-default {
@@ -100,24 +82,15 @@
 
 @keyframes tactical-pulse {
   0% {
-    box-shadow:
-      inset 0 0 4px var(--error-bg),
-      0 0 2px var(--error-bg);
     filter: brightness(1);
-    border-color: rgba(239, 68, 68, 0.3);
+    opacity: 0.8;
   }
   50% {
-    box-shadow:
-      inset 0 0 8px var(--error),
-      0 0 12px var(--error-bg);
-    filter: brightness(1.4);
-    border-color: var(--error);
+    filter: brightness(1.2);
+    opacity: 1;
   }
   100% {
-    box-shadow:
-      inset 0 0 4px var(--error-bg),
-      0 0 2px var(--error-bg);
     filter: brightness(1);
-    border-color: rgba(239, 68, 68, 0.3);
+    opacity: 0.8;
   }
 }

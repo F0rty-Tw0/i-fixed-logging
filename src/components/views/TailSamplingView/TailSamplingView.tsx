@@ -206,8 +206,8 @@ export const TailSamplingView = () => {
           transition={{ delay: 0.3 }}
           className={styles.subtitle}
         >
-          Each square represents a single log. The grid fills 15x down, then
-          moves to the next column. Hover for details.
+          High-density telemetry stream. Each cell maps a discrete event across
+          the sampling dimension. Standby for signature detection.
         </motion.p>
       </div>
 
@@ -222,11 +222,26 @@ export const TailSamplingView = () => {
       <div className={styles.scrollContainer} ref={scrollContainerRef}>
         {severities.length === 0 && (
           <div className={styles.emptyState}>
-            <span className={styles.emptyIcon}>💎</span>
+            <div className={styles.emptyIcon}>
+              <svg
+                width='48'
+                height='48'
+                viewBox='0 0 24 24'
+                fill='none'
+                stroke='currentColor'
+                strokeWidth='1'
+                strokeLinecap='round'
+                strokeLinejoin='round'
+              >
+                <circle cx='12' cy='12' r='10'></circle>
+                <line x1='12' y1='8' x2='12' y2='12'></line>
+                <line x1='12' y1='16' x2='12.01' y2='16'></line>
+              </svg>
+            </div>
             <p>
               {logStore.getSearchStatus().query
-                ? `No logs matching "${logStore.getSearchStatus().query}"`
-                : 'Waiting for incoming logs...'}
+                ? `NO_MATCH: No signatures matching "${logStore.getSearchStatus().query}"`
+                : 'NO_SIGNAL: System standing by for incoming telemetry stream...'}
             </p>
           </div>
         )}

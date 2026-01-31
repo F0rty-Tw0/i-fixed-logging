@@ -63,7 +63,7 @@
   /* Text Hierarchy */
   --text-primary: light-dark(#18181b, #fafafa);
   --text-secondary: light-dark(#52525b, #a1a1aa);
-  --text-muted: light-dark(#71717a, #71717a);
+  --text-muted: light-dark(#71717a, #8b8b94);
   --text-disabled: light-dark(#a1a1aa, #52525b);
 
   /* Borders & Dividers */
