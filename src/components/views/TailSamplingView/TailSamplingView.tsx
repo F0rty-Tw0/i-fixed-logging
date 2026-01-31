@@ -65,36 +65,36 @@ export const TailSamplingView = () => {
       const isWarn = sevId === LogSeverityId.WARN;
       const isInfo = sevId === LogSeverityId.INFO;
 
-      let isVisible = false;
+      // 1. PRIORITY BYPASS: Errors and Warnings bypass global sampling IF their filters are on.
+      // This ensures critical events are ALWAYS visible in the matrix.
+      if (isError && filters.errors) return true;
+      if (isWarn && filters.warnings) return true;
 
-      // Check Type Filters
-      if (isError && filters.errors) isVisible = true;
-      if (isWarn && filters.warnings) isVisible = true;
+      // 2. CATEGORY FILTERING:
+      let passesCategory = false;
 
-      // Check Slow Filter
+      // Slow logs (Latency > 1s)
       if (filters.slow) {
         const latency = logStore.metaIndices[physicalIdx];
-        if (latency > 1000) isVisible = true;
+        if (latency > 1000) passesCategory = true;
       }
 
-      // Check Info Filter
-      if (isInfo) {
-        if (!filters.sampleInfo) {
-          isVisible = true;
-        } else if (physicalIdx % 20 === 0) {
-          isVisible = true;
+      // Info logs with forced 5% tail sampling
+      if (filters.sampleInfo && isInfo) {
+        // Correct 5% sampling: physicalIdx % 20 === 0
+        if (physicalIdx % 20 === 0) {
+          passesCategory = true;
         }
       }
 
-      // Apply Global Sampling on top of everything
-      if (isVisible) {
+      // 3. GLOBAL SAMPLING: Selective attenuation of non-priority telemetry.
+      if (passesCategory) {
         const bucket = logStore.samplingBuckets[physicalIdx];
-        if (bucket >= debouncedSamplingRate) {
-          isVisible = false;
-        }
+        // bucket is 0-99. debouncedSamplingRate is 1-100.
+        return bucket < debouncedSamplingRate;
       }
 
-      return isVisible;
+      return false;
     },
     [filters, debouncedSamplingRate],
   );
