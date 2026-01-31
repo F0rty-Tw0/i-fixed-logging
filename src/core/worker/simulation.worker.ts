@@ -129,10 +129,17 @@ function flushChunk() {
 function tick() {
   if (!isRunning) return;
 
-  lastActiveCount = simulationEngine.tick(targetUsers);
+  const result = simulationEngine.tick(targetUsers);
+  lastActiveCount = result.activeCount;
 
   if (chunkPtr > 0) {
     flushChunk();
+  }
+
+  if (result.isFinished) {
+    isRunning = false;
+    self.postMessage({ type: 'FINISHED' });
+    return;
   }
 
   setTimeout(tick, 50);

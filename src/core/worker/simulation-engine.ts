@@ -71,7 +71,11 @@ export class SimulationEngine {
       }
     }
 
-    return this.totalRunningCount;
+    return {
+      activeCount: this.totalRunningCount,
+      isFinished:
+        this.totalOccupiedCount >= targetUsers && this.totalRunningCount === 0,
+    };
   }
 
   private startJourney(id: number, time: number) {

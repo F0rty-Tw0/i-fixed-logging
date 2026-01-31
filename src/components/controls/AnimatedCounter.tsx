@@ -9,7 +9,7 @@ interface AnimatedCounterProps {
 
 export const AnimatedCounter: React.FC<AnimatedCounterProps> = ({
   value,
-  duration = 1000,
+  duration = 150,
 }) => {
   const [displayCount, setDisplayCount] = useState(value);
   const rafRef = React.useRef<number>(0);

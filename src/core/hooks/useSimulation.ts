@@ -18,6 +18,7 @@ export interface SimulationControls {
 
 export const useSimulation = (): SimulationControls => {
   const [isRunning, setIsRunning] = useState(false);
+  const [isFinished, setIsFinished] = useState(false);
   const [stats, setStats] = useState<SimulationStats>({ activeCount: 0 });
 
   useEffect(() => {
@@ -55,26 +56,37 @@ export const useSimulation = (): SimulationControls => {
       },
     );
 
+    const unsubscribeFinished = workerManager.subscribe('FINISHED', () => {
+      setIsRunning(false);
+      setIsFinished(true);
+    });
+
     return () => {
       unsubscribe();
+      unsubscribeFinished();
     };
-  }, []);
-
-  const start = useCallback(() => {
-    workerManager.postMessage({ type: 'START' });
-    setIsRunning(true);
-  }, []);
-
-  const stop = useCallback(() => {
-    workerManager.postMessage({ type: 'STOP' });
-    setIsRunning(false);
   }, []);
 
   const reset = useCallback(() => {
     workerManager.postMessage({ type: 'RESET' });
     setIsRunning(false);
+    setIsFinished(false);
     logStore.clear();
     setStats({ activeCount: 0 });
+  }, []);
+
+  const start = useCallback(() => {
+    if (isFinished) {
+      reset();
+    }
+    workerManager.postMessage({ type: 'START' });
+    setIsRunning(true);
+    setIsFinished(false);
+  }, [isFinished, reset]);
+
+  const stop = useCallback(() => {
+    workerManager.postMessage({ type: 'STOP' });
+    setIsRunning(false);
   }, []);
 
   const setUsers = useCallback((count: number) => {

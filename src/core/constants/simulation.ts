@@ -2,7 +2,7 @@ import { JourneyEvent } from '../types/domain';
 
 export const MAX_LOGS = 1_500_000;
 export const MAX_USERS = 10_000;
-export const CHUNK_SIZE = 10000;
+export const CHUNK_SIZE = 100;
 export const TICK_INTERVAL = 16; // ms
 
 // Data ranges for simulation
