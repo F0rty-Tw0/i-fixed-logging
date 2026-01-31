@@ -11,21 +11,8 @@
 .header {
   display: flex;
   justify-content: space-between;
-  align-items: flex-end;
-  padding-bottom: var(--space-6);
-  border-bottom: 1px solid var(--border-default);
+  align-items: center;
   position: relative;
-}
-
-.header::after {
-  content: '';
-  position: absolute;
-  bottom: -1px;
-  left: 0;
-  width: 100px;
-  height: 2px;
-  background: var(--accent-500);
-  box-shadow: 0 0 10px var(--accent-glow);
 }
 
 .backButton {
@@ -51,7 +38,6 @@
   color: var(--text-primary);
   border-color: var(--accent-500);
   box-shadow: 0 0 15px var(--accent-glow);
-  transform: translateX(-4px);
 }
 
 .titleSection {
@@ -101,7 +87,7 @@
 }
 
 .timelineHeader {
-  height: 48px;
+  height: 32px;
   background-color: var(--bg-raised);
   border-bottom: 2px solid var(--border-default);
   position: relative;
@@ -150,8 +136,8 @@
 .row {
   display: flex;
   align-items: center;
-  height: 40px;
-  padding: 0 var(--space-6);
+  height: 32px;
+  padding: 0 var(--space-4);
   border-bottom: 1px solid var(--border-subtle);
   cursor: pointer;
   transition: all var(--transition-fast);
@@ -159,12 +145,13 @@
 }
 
 .row:hover {
-  background-color: var(--bg-hover);
+  background-color: rgba(var(--accent-rgb), 0.06);
+  box-shadow: inset 3px 0 0 var(--accent-500);
 }
 
 .row.selected {
-  background-color: rgba(139, 92, 246, 0.1);
-  box-shadow: inset 4px 0 0 var(--accent-500);
+  background-color: rgba(var(--accent-rgb), 0.12);
+  box-shadow: inset 3px 0 0 var(--accent-500);
 }
 
 .rowLabel {
@@ -179,7 +166,7 @@
   text-overflow: ellipsis;
   padding-right: var(--space-4);
   border-right: 1px solid var(--border-subtle);
-  margin-right: var(--space-6);
+  margin-right: var(--space-4);
   height: 100%;
   display: flex;
   align-items: center;
@@ -193,7 +180,7 @@
 
 .spanBar {
   position: absolute;
-  top: 10px;
+  top: 6px;
   height: 20px;
   border-radius: 4px;
   min-width: 4px;

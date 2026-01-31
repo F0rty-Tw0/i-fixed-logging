@@ -7,7 +7,8 @@ import {
 } from '../../../core/hooks/useTraceDetails';
 import styles from './WaterfallChart.module.css';
 import { EVENT_NAMES, JourneyEvent } from '../../../core/types/domain';
-import { motion, AnimatePresence } from 'framer-motion';
+import { motion } from 'framer-motion';
+import { SpanTooltip } from './SpanTooltip';
 
 interface WaterfallChartProps {
   traceId: number;
@@ -37,19 +38,17 @@ const TimelineHeader: React.FC<{ totalDuration: number }> = ({
 const WaterfallRow: React.FC<{
   span: TraceSpan;
   totalDuration: number;
-  isSelected: boolean;
-  onClick: () => void;
-}> = ({ span, totalDuration, isSelected, onClick }) => {
+  isHovered: boolean;
+  onMouseEnter: (e: React.MouseEvent) => void;
+  onMouseLeave: () => void;
+}> = ({ span, totalDuration, isHovered, onMouseEnter, onMouseLeave }) => {
   const left = (span.relativeStart / totalDuration) * 100;
   const width = Math.max((span.duration / totalDuration) * 100, 0.5); // Min width for visibility
 
   const severityClass = `severity_${span.severity || 'INFO'}`;
 
   return (
-    <div
-      className={`${styles.row} ${isSelected ? styles.selected : ''}`}
-      onClick={onClick}
-    >
+    <div className={`${styles.row} ${isHovered ? styles.selected : ''}`}>
       <div
         className={styles.rowLabel}
         title={EVENT_NAMES[span.eventId as JourneyEvent] || span.event}
@@ -63,6 +62,8 @@ const WaterfallRow: React.FC<{
           initial={{ opacity: 0, scaleX: 0 }}
           animate={{ opacity: 1, scaleX: 1 }}
           transition={{ duration: 0.3 }}
+          onMouseEnter={onMouseEnter}
+          onMouseLeave={onMouseLeave}
         >
           {width > 5 && (
             <span className={styles.spanDuration}>{span.duration}ms</span>
@@ -73,21 +74,20 @@ const WaterfallRow: React.FC<{
   );
 };
 
-import { SpanDetailsModal } from './SpanDetailsModal';
-
 export const WaterfallChart: React.FC<WaterfallChartProps> = ({
   traceId,
   onBack,
 }) => {
   const { spans, totalDuration, loading, error } = useTraceDetails(traceId);
-  const [selectedSpanId, setSelectedSpanId] = useState<string | null>(null);
+  const [hoveredSpanId, setHoveredSpanId] = useState<string | null>(null);
+  const [tooltipPos, setTooltipPos] = useState({ x: 0, y: 0 });
 
-  const selectedSpan = useMemo(() => {
-    if (selectedSpanId === null) return null;
-    return spans.find((s) => s.id === selectedSpanId) || null;
-  }, [spans, selectedSpanId]);
+  const hoveredSpan = useMemo(() => {
+    if (hoveredSpanId === null) return null;
+    return spans.find((s) => s.id === hoveredSpanId) || null;
+  }, [spans, hoveredSpanId]);
 
-  if (loading) {
+  if (loading && spans.length === 0) {
     return (
       <div className={styles.container}>
         <div className={styles.header}>
@@ -121,6 +121,11 @@ export const WaterfallChart: React.FC<WaterfallChartProps> = ({
       </div>
     );
   }
+
+  const handleMouseEnter = (e: React.MouseEvent, id: string) => {
+    setTooltipPos({ x: e.clientX, y: e.clientY });
+    setHoveredSpanId(id);
+  };
 
   return (
     <div className={styles.container}>
@@ -157,26 +162,19 @@ export const WaterfallChart: React.FC<WaterfallChartProps> = ({
           <TimelineHeader totalDuration={totalDuration} />
           <div className={styles.rowsContainer}>
             {spans.map((span) => (
-              <div key={span.id}>
-                <WaterfallRow
-                  span={span}
-                  totalDuration={totalDuration}
-                  isSelected={selectedSpanId === span.id}
-                  onClick={() => setSelectedSpanId(span.id)}
-                />
-              </div>
+              <WaterfallRow
+                key={span.id}
+                span={span}
+                totalDuration={totalDuration}
+                isHovered={hoveredSpanId === span.id}
+                onMouseEnter={(e) => handleMouseEnter(e, span.id)}
+                onMouseLeave={() => setHoveredSpanId(null)}
+              />
             ))}
           </div>
         </div>
 
-        <AnimatePresence>
-          {selectedSpan && (
-            <SpanDetailsModal
-              span={selectedSpan}
-              onClose={() => setSelectedSpanId(null)}
-            />
-          )}
-        </AnimatePresence>
+        <SpanTooltip span={hoveredSpan} position={tooltipPos} />
       </div>
     </div>
   );

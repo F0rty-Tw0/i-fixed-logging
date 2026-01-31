@@ -12,21 +12,8 @@
 .header {
   display: flex;
   justify-content: space-between;
-  align-items: flex-end;
-  padding-bottom: var(--space-6);
-  border-bottom: 1px solid var(--border-default);
+  align-items: center;
   position: relative;
-}
-
-.header::after {
-  content: '';
-  position: absolute;
-  bottom: -1px;
-  left: 0;
-  width: 100px;
-  height: 2px;
-  background: var(--accent-500);
-  box-shadow: 0 0 10px var(--accent-glow);
 }
 
 .titleSection {
@@ -175,8 +162,8 @@
 }
 
 .listRow:hover {
-  background-color: var(--bg-hover);
-  box-shadow: inset 4px 0 0 var(--accent-500);
+  background-color: rgba(var(--accent-rgb), 0.06);
+  box-shadow: inset 3px 0 0 var(--accent-500);
   z-index: 5;
 }
 

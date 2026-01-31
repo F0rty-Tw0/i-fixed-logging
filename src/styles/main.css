@@ -26,9 +26,11 @@
 /* Declarative color-scheme overrides for light-dark() context */
 :root[data-theme='light'] {
   color-scheme: light;
+  --accent-rgb: 139, 92, 246;
 }
 :root[data-theme='dark'] {
   color-scheme: dark;
+  --accent-rgb: 168, 85, 247;
 }
 
 /* Theme Tokens - Using light-dark() with manual fallbacks for compatibility */
