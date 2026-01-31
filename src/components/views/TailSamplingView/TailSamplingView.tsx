@@ -57,6 +57,54 @@ export const TailSamplingView = () => {
     getServerTailSamplingSnapshot,
   );
 
+  // Damping logic: progressively "fill" the grid as logs arrive
+  const [dampedSeveritiesLength, setDampedSeveritiesLength] = useState(
+    severities.length,
+  );
+  const targetLengthRef = useRef(severities.length);
+  const lastUpdateTimeRef = useRef(Date.now());
+
+  // Sync target ref whenever severities change
+  useEffect(() => {
+    if (targetLengthRef.current !== severities.length) {
+      targetLengthRef.current = severities.length;
+      lastUpdateTimeRef.current = Date.now();
+    }
+  }, [severities.length]);
+
+  // Animation loop for damping
+  useEffect(() => {
+    let frameId: number;
+
+    const animate = () => {
+      setDampedSeveritiesLength((prev) => {
+        const target = targetLengthRef.current;
+        if (prev === target) return prev;
+
+        const diff = target - prev;
+
+        // If RESET or catastrophically behind, catch up instantly
+        if (diff < 0 || diff > 20000) {
+          return target;
+        }
+
+        // Quiet detection: If the stream stops for >80ms, catch up instantly
+        if (Date.now() - lastUpdateTimeRef.current > 80) {
+          return target;
+        }
+
+        // Damping: 10 logs per frame for that "one by one" feeling
+        // 10 * 60 = 600 logs/sec. 2000 logs = ~3 seconds to fill.
+        const step = 10;
+        return Math.min(prev + step, target);
+      });
+      frameId = requestAnimationFrame(animate);
+    };
+
+    frameId = requestAnimationFrame(animate);
+    return () => cancelAnimationFrame(frameId);
+  }, []);
+
   // Helper to check visibility based on all filters
   const isLogVisible = useCallback(
     (sevId: number, physicalIdx: number) => {
@@ -107,10 +155,10 @@ export const TailSamplingView = () => {
     return logStore.getSnapshotByPhysicalIndex(physicalIdx);
   }, [hoveredIndex, severities, logIndices, isLogVisible]);
 
-  // Calculate column count
+  // Calculate column count based on damped length
   const columnCount = useMemo(
-    () => Math.ceil(severities.length / 15),
-    [severities.length],
+    () => Math.ceil(dampedSeveritiesLength / 15),
+    [dampedSeveritiesLength],
   );
 
   // eslint-disable-next-line react-hooks/incompatible-library
@@ -242,6 +290,7 @@ export const TailSamplingView = () => {
           isLogVisible={isLogVisible}
           onSquareEnter={handleSquareEnter}
           onSquareLeave={handleSquareLeave}
+          displayLength={dampedSeveritiesLength}
         />
       </div>
 

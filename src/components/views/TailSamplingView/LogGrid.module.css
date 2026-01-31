@@ -82,6 +82,11 @@
   transform: scale(0.9);
 }
 
+.sq-hidden {
+  visibility: hidden;
+  pointer-events: none;
+}
+
 /* Specific glows on hover based on type */
 .sq-info:hover {
   box-shadow: 0 0 25px var(--info);

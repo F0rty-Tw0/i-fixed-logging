@@ -14,6 +14,7 @@ interface LogGridProps {
   isLogVisible: (sevId: number, physicalIdx: number) => boolean;
   onSquareEnter: (e: React.MouseEvent, index: number) => void;
   onSquareLeave: () => void;
+  displayLength: number;
 }
 
 export const LogGrid: React.FC<LogGridProps> = ({
@@ -23,6 +24,7 @@ export const LogGrid: React.FC<LogGridProps> = ({
   isLogVisible,
   onSquareEnter,
   onSquareLeave,
+  displayLength,
 }) => {
   const getSquareClass = (sevId: number, physicalIdx: number) => {
     const isVisible = isLogVisible(sevId, physicalIdx);
@@ -73,6 +75,16 @@ export const LogGrid: React.FC<LogGridProps> = ({
             {columnSeverities.map((sevId, rowIdx) => {
               const actualIndex = startIdx + rowIdx;
               const physicalIdx = columnPhysicalIndices[rowIdx];
+
+              // Only render if within the damped display length
+              if (actualIndex >= displayLength) {
+                return (
+                  <div
+                    key={rowIdx}
+                    className={clsx(styles.square, styles['sq-hidden'])}
+                  />
+                );
+              }
 
               return (
                 <div
