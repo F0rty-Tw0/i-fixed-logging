@@ -1,11 +1,8 @@
-import React from 'react';
 import clsx from 'clsx';
 import { LogSeverityId, EVENT_NAMES } from '../../../core/types/domain';
 import { generateLogDetails, getLogSource } from '../../../utils/log-details';
-import styles from './TailSamplingView.module.css';
+import styles from './LogTooltip.module.css';
 
-// Type from LogStore logic, we can define a subset if we don't carry the full type,
-// but let's define an interface for the log snapshot as used here.
 export interface LogSnapshot {
   timestamp: number;
   journeyId: number;
@@ -16,10 +13,6 @@ export interface LogSnapshot {
   ip: number;
   waitingRoomId: number;
 }
-
-// Or better, import the type from log-store if exported (Wait, LogSnapshot is exported in log-store.ts but it is part of internal implementation details there, maybe I should duplicate or just use usage-based typing)
-// Checking log-store.ts: export type LogSnapshot = ...
-// So I can import it.
 
 const SEVERITY_NAMES = ['INFO', 'WARN', 'ERROR', 'CRITICAL'];
 
@@ -34,94 +27,133 @@ export const LogTooltip: React.FC<LogTooltipProps> = ({
 }) => {
   if (!hoveredLog) return null;
 
+  // Constants for safe layout assumptions
+  const TOOLTIP_WIDTH = 340;
+  const TOOLTIP_HEIGHT = 380; // Approximate max height
+  const PADDING = 20;
+
+  // Calculate smart position during render to avoid setState in effects
+  let x = tooltipPos.x;
+  let y = tooltipPos.y;
+
+  // Flip left if too close to right edge
+  if (x + TOOLTIP_WIDTH + PADDING > window.innerWidth) {
+    x = x - TOOLTIP_WIDTH - PADDING;
+  }
+
+  // Move up if too close to bottom edge
+  if (y + TOOLTIP_HEIGHT + PADDING > window.innerHeight) {
+    y = window.innerHeight - TOOLTIP_HEIGHT - PADDING;
+  }
+
+  // Ensure it doesn't go off top
+  y = Math.max(PADDING, y);
+
+  const isError =
+    hoveredLog.severity === LogSeverityId.ERROR ||
+    hoveredLog.severity === LogSeverityId.CRITICAL;
+  const isWarn = hoveredLog.severity === LogSeverityId.WARN;
+  const isInfo = hoveredLog.severity === LogSeverityId.INFO;
+
+  const details = generateLogDetails(
+    hoveredLog.journeyId,
+    hoveredLog.eventId,
+    hoveredLog.severity,
+    hoveredLog.waitingRoomId,
+    hoveredLog.customerId,
+    hoveredLog.metaIndex,
+    hoveredLog.ip,
+  );
+
+  const formattedIp = `${(hoveredLog.ip >>> 24) & 0xff}.${
+    (hoveredLog.ip >>> 16) & 0xff
+  }.${(hoveredLog.ip >>> 8) & 0xff}.${hoveredLog.ip & 0xff}`;
+
+  const eventName =
+    EVENT_NAMES[hoveredLog.eventId as keyof typeof EVENT_NAMES] ||
+    'UNKNOWN_EVENT';
+
   return (
     <div
       className={styles.tooltip}
       style={{
-        top: Math.min(tooltipPos.y, window.innerHeight - 320), // Adjusted for taller tooltip
-        left: Math.min(tooltipPos.x, window.innerWidth - 220),
+        top: y,
+        left: x,
       }}
     >
-      <div className={styles.tooltipHeader}>Log Details</div>
-      <div className={styles.tooltipBody}>
-        <div className={styles.tooltipRow}>
-          <span className={styles.tooltipLabel}>[ JID ]</span>
-          <span className={styles.tooltipValue}>#{hoveredLog.journeyId}</span>
+      <div
+        className={clsx(styles.severityBar, {
+          [styles.severityBarError]: isError,
+          [styles.severityBarWarn]: isWarn,
+          [styles.severityBarInfo]: isInfo,
+        })}
+      />
+
+      <div className={styles.header}>
+        <span className={styles.headerTitle}>Telemetry Probe</span>
+        <div className={styles.logType}>{eventName}</div>
+      </div>
+
+      <div className={styles.body}>
+        <div className={styles.grid}>
+          <div className={styles.item}>
+            <span className={styles.label}>Journey ID</span>
+            <span className={clsx(styles.value, styles.valueHighlight)}>
+              #{hoveredLog.journeyId}
+            </span>
+          </div>
+          <div className={styles.item}>
+            <span className={styles.label}>Severity</span>
+            <span
+              className={clsx(styles.value, {
+                'text-error': isError,
+                'text-warning': isWarn,
+                'text-info': isInfo,
+              })}
+            >
+              {SEVERITY_NAMES[hoveredLog.severity]}
+            </span>
+          </div>
+          <div className={styles.item}>
+            <span className={styles.label}>Source</span>
+            <span className={styles.value}>
+              {getLogSource(hoveredLog.eventId)}
+            </span>
+          </div>
+          <div className={styles.item}>
+            <span className={styles.label}>Room ID</span>
+            <span className={styles.value}>
+              WR-{hoveredLog.waitingRoomId.toString().padStart(2, '0')}
+            </span>
+          </div>
+          <div className={styles.item}>
+            <span className={styles.label}>Customer</span>
+            <span className={styles.value}>C-{hoveredLog.customerId}</span>
+          </div>
+          <div className={styles.item}>
+            <span className={styles.label}>Client IP</span>
+            <span className={styles.value}>{formattedIp}</span>
+          </div>
         </div>
-        <div className={styles.tooltipRow}>
-          <span className={styles.tooltipLabel}>[ TIME ]</span>
-          <span className={styles.tooltipValue}>
-            {new Date(hoveredLog.timestamp)
-              .toISOString()
-              .split('T')[1]
-              .replace('Z', '')}
-          </span>
+
+        <div className={styles.messageSection}>
+          <span className={styles.label}>Event Signature</span>
+          <div className={styles.messageBox}>
+            {details.message || 'NO_SIGNATURE_DETECTED'}
+          </div>
         </div>
-        <div className={styles.tooltipRow}>
-          <span className={styles.tooltipLabel}>[ SEV ]</span>
-          <span
-            className={clsx(styles.tooltipValue, {
-              [styles.tooltipValueError]:
-                hoveredLog.severity === LogSeverityId.ERROR ||
-                hoveredLog.severity === LogSeverityId.CRITICAL,
-              [styles.tooltipValueWarn]:
-                hoveredLog.severity === LogSeverityId.WARN,
-            })}
-          >
-            {SEVERITY_NAMES[hoveredLog.severity]}
-          </span>
-        </div>
-        <div className={styles.tooltipRow}>
-          <span className={styles.tooltipLabel}>[ SRC ]</span>
-          <span className={styles.tooltipValue}>
-            {getLogSource(hoveredLog.eventId)}
-          </span>
-        </div>
-        <div className={styles.tooltipRow}>
-          <span className={styles.tooltipLabel}>[ WR_ID ]</span>
-          <span className={styles.tooltipValue}>
-            WR-{hoveredLog.waitingRoomId.toString().padStart(2, '0')}
-          </span>
-        </div>
-        <div className={styles.tooltipRow}>
-          <span className={styles.tooltipLabel}>[ CUST ]</span>
-          <span className={styles.tooltipValue}>c-{hoveredLog.customerId}</span>
-        </div>
-        <div className={styles.tooltipRow}>
-          <span className={styles.tooltipLabel}>[ IP_V4 ]</span>
-          <span className={styles.tooltipValue}>
-            {(hoveredLog.ip >>> 24) & 0xff}.{(hoveredLog.ip >>> 16) & 0xff}.
-            {(hoveredLog.ip >>> 8) & 0xff}.{hoveredLog.ip & 0xff}
-          </span>
-        </div>
-        <div className={styles.tooltipRow}>
-          <span className={styles.tooltipLabel}>[ EVENT ]</span>
-          <span className={styles.tooltipValue}>
-            {EVENT_NAMES[hoveredLog.eventId as keyof typeof EVENT_NAMES]}
-          </span>
-        </div>
-        <div className={`${styles.tooltipRow} ${styles.tooltipRowFlexStart}`}>
-          <span className={styles.tooltipLabel}>[ MESSAGE ]</span>
-          <span
-            className={`${styles.tooltipValue} ${styles.tooltipValueMessage}`}
-          >
-            {generateLogDetails(
-              hoveredLog.journeyId,
-              hoveredLog.eventId,
-              hoveredLog.severity,
-              hoveredLog.waitingRoomId,
-              hoveredLog.customerId,
-              hoveredLog.metaIndex,
-              hoveredLog.ip,
-            ).message || '-'}
-          </span>
-        </div>
-        <div className={styles.tooltipRow}>
-          <span className={styles.tooltipLabel}>[ LATENCY ]</span>
-          <span className={styles.tooltipValue}>
-            {hoveredLog.metaIndex > 0 ? `+${hoveredLog.metaIndex}ms` : '-'}
-          </span>
-        </div>
+      </div>
+
+      <div className={styles.footer}>
+        <span className={styles.timestamp}>
+          {new Date(hoveredLog.timestamp)
+            .toISOString()
+            .replace('T', ' ')
+            .replace('Z', '')}
+        </span>
+        {hoveredLog.metaIndex > 0 && (
+          <span className={styles.latencyTag}>+{hoveredLog.metaIndex}ms</span>
+        )}
       </div>
     </div>
   );

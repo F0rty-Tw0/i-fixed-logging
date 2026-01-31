@@ -3,16 +3,20 @@
 .controls {
   display: flex;
   justify-content: space-between;
-  align-items: flex-end;
+  align-items: center;
   gap: var(--space-6);
   margin-bottom: var(--space-4);
+  background: var(--bg-base);
+  padding: var(--space-2) var(--space-4);
+  border-radius: 10px;
+  border: 1px solid var(--border-subtle);
 }
 
 .filterGroup {
   display: flex;
-  gap: var(--space-2);
+  gap: var(--space-1);
   align-items: center;
-  padding: 4px;
+  padding: 2px;
   background: var(--bg-void);
   border-radius: 8px;
   border: 1px solid var(--border-subtle);
@@ -28,7 +32,7 @@
   font-weight: 700;
   color: var(--text-muted);
   background: transparent;
-  padding: var(--space-1) var(--space-3);
+  padding: var(--space-2) var(--space-3);
   border-radius: 6px;
   border: 1px solid transparent;
   transition: all var(--transition-fast);
@@ -48,7 +52,6 @@
   background: var(--bg-raised);
   color: var(--text-primary);
   border-color: var(--border-default);
-  box-shadow: var(--shadow-sm);
 }
 
 /* Indicator (The LED) */
@@ -64,38 +67,38 @@
 
 /* Active Indicator / Severity Colors */
 .checkboxLabelActive.checkboxLabelError {
-  border-color: rgba(239, 68, 68, 0.4);
+  border-color: rgba(239, 68, 68, 0.3);
 }
 .checkboxLabelActive.checkboxLabelError .indicator {
   background: var(--error);
-  box-shadow: 0 0 8px var(--error);
+  box-shadow: 0 0 10px var(--error);
   border-color: var(--error);
 }
 
 .checkboxLabelActive.checkboxLabelWarn {
-  border-color: rgba(245, 158, 11, 0.4);
+  border-color: rgba(245, 158, 11, 0.3);
 }
 .checkboxLabelActive.checkboxLabelWarn .indicator {
   background: var(--warning);
-  box-shadow: 0 0 8px var(--warning);
+  box-shadow: 0 0 10px var(--warning);
   border-color: var(--warning);
 }
 
 .checkboxLabelActive.checkboxLabelInfo {
-  border-color: rgba(59, 130, 246, 0.4);
+  border-color: rgba(59, 130, 246, 0.3);
 }
 .checkboxLabelActive.checkboxLabelInfo .indicator {
   background: var(--info);
-  box-shadow: 0 0 8px var(--info);
+  box-shadow: 0 0 10px var(--info);
   border-color: var(--info);
 }
 
 .checkboxLabelActive.checkboxLabelSlow {
-  border-color: rgba(168, 85, 247, 0.4);
+  border-color: rgba(168, 85, 247, 0.3);
 }
 .checkboxLabelActive.checkboxLabelSlow .indicator {
   background: var(--accent-500);
-  box-shadow: 0 0 8px var(--accent-500);
+  box-shadow: 0 0 10px var(--accent-500);
   border-color: var(--accent-500);
 }
 
@@ -109,30 +112,35 @@
 .sliderContainer {
   display: flex;
   flex-direction: column;
-  gap: var(--space-2);
-  min-width: 200px;
+  gap: var(--space-1);
+  min-width: 240px; /* Bit wider for better control */
+  padding: var(--space-1) 0;
 }
 
 .sliderHeader {
   display: flex;
   justify-content: space-between;
   align-items: center;
+  margin-bottom: 2px;
 }
 
 .sliderLabel {
   font-family: var(--font-mono);
-  font-size: 0.7rem;
+  font-size: 0.65rem;
   font-weight: 700;
   color: var(--text-muted);
   text-transform: uppercase;
-  letter-spacing: 0.1em;
+  letter-spacing: 0.12em;
 }
 
 .sliderValue {
   font-family: var(--font-mono);
-  font-size: 0.75rem;
+  font-size: 0.8rem;
   font-weight: 700;
   color: var(--accent-500);
+  font-variant-numeric: tabular-nums;
+  min-width: 3.5ch;
+  text-align: right;
 }
 
 .slider {
@@ -140,30 +148,61 @@
   width: 100%;
   background: transparent;
   cursor: pointer;
+  height: 20px; /* Larger hit area */
+  display: flex;
+  align-items: center;
 }
 
+/* Track Styling */
 .slider::-webkit-slider-runnable-track {
   width: 100%;
-  height: 4px;
-  background: var(--bg-void);
-  border-radius: 2px;
-  border: 1px solid var(--border-subtle);
+  height: 6px;
+  background: var(--bg-elevated); /* More visible than bg-void */
+  border-radius: 3px;
+  border: 1px solid var(--border-default); /* Slightly sharper border */
+  box-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.4);
 }
 
+/* Thumb Styling */
 .slider::-webkit-slider-thumb {
   -webkit-appearance: none;
-  height: 14px;
-  width: 14px;
+  height: 16px;
+  width: 16px;
   background: var(--bg-raised);
   border: 2px solid var(--accent-500);
-  border-radius: 3px;
-  margin-top: -6px;
+  border-radius: 4px;
+  margin-top: -6px; /* Correctly centers on 6px track (including borders) */
   transition: all var(--transition-fast);
-  box-shadow: 0 0 5px rgba(0, 0, 0, 0.3);
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.5);
+  cursor: grab;
+}
+
+.slider::-webkit-slider-thumb:active {
+  cursor: grabbing;
+  transform: scale(0.95);
+  background: var(--accent-500);
 }
 
 .slider:hover::-webkit-slider-thumb {
-  background: var(--accent-500);
-  transform: scale(1.1);
-  box-shadow: 0 0 10px var(--accent-glow);
+  border-color: var(--accent-400);
+  box-shadow: 0 0 12px var(--accent-glow);
+}
+
+/* Firefox Support */
+.slider::-moz-range-track {
+  width: 100%;
+  height: 6px;
+  background: var(--bg-elevated);
+  border-radius: 3px;
+  border: 1px solid var(--border-default);
+}
+
+.slider::-moz-range-thumb {
+  height: 16px;
+  width: 16px;
+  background: var(--bg-raised);
+  border: 2px solid var(--accent-500);
+  border-radius: 4px;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.5);
+  cursor: grab;
 }
