@@ -30,14 +30,14 @@ export const InvestigationProgress: React.FC<InvestigationProgressProps> = ({
   return (
     <div className={styles.progressSection}>
       <div className={styles.progressHeader}>
-        <h3 className={styles.progressTitle}>🎯 Investigation Progress</h3>
+        <h3 className={styles.progressTitle}>Investigation Progress</h3>
         <div className={styles.clueCounter}>
           <span>
-            💡 Clues Found: {cluesFound}/{totalClues}
+            Clues Found: {cluesFound}/{totalClues}
           </span>
           {rootCauseUnlocked && (
             <button className={styles.selectAllButton} onClick={selectAll}>
-              ✨ Select All
+              Select All
             </button>
           )}
         </div>
@@ -63,9 +63,11 @@ export const InvestigationProgress: React.FC<InvestigationProgressProps> = ({
               title={`Highlight ${GAP_NAMES[gap as keyof typeof GAP_NAMES]} fields`}
             >
               <div className={`${styles.gapCircle} ${styles[status]}`}>
-                {status === 'empty' && '○'}
-                {status === 'partial' && '◐'}
-                {status === 'complete' && '●'}
+                <span>
+                  {status === 'empty' && '○'}
+                  {status === 'partial' && '◐'}
+                  {status === 'complete' && '●'}
+                </span>
               </div>
               <span className={styles.gapName}>
                 {GAP_NAMES[gap as keyof typeof GAP_NAMES]}

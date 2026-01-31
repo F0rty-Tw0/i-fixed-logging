@@ -27,9 +27,10 @@ export const SpanDetailsModal: React.FC<SpanDetailsModalProps> = ({
       >
         <div className={styles.modalHeader}>
           <div className={styles.flexCenter}>
-            <h2>Span Details</h2>
+            <h2>Event Details</h2>
             <div className={styles.badge}>{span.severity}</div>
           </div>
+
           <button className={styles.closeButton} onClick={onClose}>
             <svg
               width='20'

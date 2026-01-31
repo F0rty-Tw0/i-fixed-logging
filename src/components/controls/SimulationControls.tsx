@@ -44,6 +44,7 @@ export const SimulationControls: React.FC<SimulationControlsProps> = ({
         disabled={!targetVal}
         onClick={isRunning ? onStop : onStart}
       >
+        {isRunning && <div className={styles['btn-scan']} />}
         {isRunning ? 'STOP' : 'START'}
       </button>
 
@@ -73,6 +74,7 @@ export const SimulationControls: React.FC<SimulationControlsProps> = ({
           max={MAX_USERS}
           value={targetVal}
           onChange={handleSliderChange}
+          className={styles['slider']}
         />
       </div>
     </div>

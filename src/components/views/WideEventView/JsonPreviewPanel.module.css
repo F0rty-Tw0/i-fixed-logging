@@ -1,42 +1,99 @@
+/* Obsidian Json Preview Panel Styling */
+
 .previewPanel {
-  background: rgba(0, 0, 0, 0.3);
-  border-radius: 16px;
-  border: 1px solid rgba(255, 255, 255, 0.1);
+  background-color: var(--bg-void);
+  border-radius: 12px;
+  border: 1px solid var(--border-default);
   display: flex;
   flex-direction: column;
   overflow: hidden;
+  box-shadow:
+    var(--shadow-lg),
+    inset 0 0 40px rgba(0, 0, 0, 0.6);
+  position: relative;
+}
+
+.previewPanel::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: repeating-linear-gradient(
+    0deg,
+    rgba(255, 255, 255, 0.02) 0px,
+    rgba(255, 255, 255, 0.02) 1px,
+    transparent 1px,
+    transparent 2px
+  );
+  pointer-events: none;
+  z-index: 5;
+  opacity: 0.5;
 }
 
 .panelHeader {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding: 0.75rem 1.25rem;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
-  background: rgba(255, 255, 255, 0.02);
+  padding: var(--space-4) var(--space-6);
+  border-bottom: 1px solid var(--border-default);
+  background: linear-gradient(to bottom, var(--bg-hover), var(--bg-raised));
+  position: relative;
+  z-index: 10;
 }
 
 .panelTitle {
-  font-size: 0.9rem;
-  font-weight: 600;
-  color: rgba(255, 255, 255, 0.7);
+  font-family: var(--font-display);
+  font-size: 0.8rem;
+  font-weight: 800;
+  color: var(--text-primary);
   text-transform: uppercase;
-  letter-spacing: 0.1em;
+  letter-spacing: 0.15em;
   margin: 0;
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+}
+
+.panelTitle::before {
+  content: '';
+  width: 8px;
+  height: 8px;
+  background: var(--success);
+  border-radius: 50%;
+  box-shadow: 0 0 10px var(--success);
+  animation: pulse 2s infinite;
+}
+
+@keyframes pulse {
+  0% {
+    transform: scale(1);
+    opacity: 1;
+  }
+  50% {
+    transform: scale(1.3);
+    opacity: 0.6;
+  }
+  100% {
+    transform: scale(1);
+    opacity: 1;
+  }
 }
 
 .jsonContainer {
   flex: 1;
   overflow: auto;
-  padding: 1rem;
+  padding: var(--space-6);
+  background-color: rgba(0, 0, 0, 0.3);
+  position: relative;
+  z-index: 6;
 }
 
 .jsonPre {
   margin: 0;
-  font-family: 'SF Mono', 'Monaco', 'Consolas', monospace;
-  font-size: 0.8rem;
-  line-height: 1.6;
+  font-family: var(--font-mono);
+  font-size: 0.85rem;
+  line-height: 1.7;
   white-space: pre;
+  color: var(--text-secondary);
 }
 
 /* Scrollbar */
@@ -44,71 +101,79 @@
   width: 6px;
 }
 
-.jsonContainer::-webkit-scrollbar-track {
-  background: rgba(255, 255, 255, 0.05);
-  border-radius: 3px;
-}
-
 .jsonContainer::-webkit-scrollbar-thumb {
-  background: rgba(255, 255, 255, 0.2);
+  background: var(--border-default);
   border-radius: 3px;
 }
 
-.jsonContainer::-webkit-scrollbar-thumb:hover {
-  background: rgba(255, 255, 255, 0.3);
-}
-
-/* Syntax Highlighting */
+/* Syntax Highlighting - Obsidian Theme */
 .jsonLine {
   display: block;
+  transition: background var(--transition-fast);
+  padding: 0 8px;
+  border-radius: 4px;
+}
+
+.jsonLine:hover {
+  background: rgba(255, 255, 255, 0.03);
 }
 
 .jsonLineIndent1 {
-  padding-left: 16px;
+  padding-left: 28px;
 }
-
 .jsonLineIndent2 {
-  padding-left: 32px;
+  padding-left: 52px;
 }
 
 .jsonColorWhite {
-  color: #fff;
+  color: var(--text-primary);
 }
-
 .jsonColorKey {
-  color: #9cdcfe;
+  color: var(--accent-400);
+  font-weight: 700;
 }
-
 .jsonColorString {
   color: #ce9178;
 }
-
 .jsonColorError {
-  color: #f44747;
+  color: var(--error);
+  font-weight: 800;
+  text-shadow: 0 0 10px var(--error-bg);
 }
-
 .jsonColorComment {
-  color: #6a9955;
+  color: var(--text-muted);
+  font-style: italic;
+  font-size: 0.8rem;
 }
-
 .jsonColorClue {
-  color: #ffd700;
+  color: var(--accent-50);
+  background: var(--accent-600);
+  padding: 1px 4px;
+  border-radius: 2px;
+  font-weight: 800;
+  box-shadow: 0 0 10px var(--accent-glow);
 }
-
 .jsonColorNumber {
-  color: #b5cea8;
+  color: var(--info);
+  font-weight: 700;
 }
-
 .jsonColorStepName {
-  color: var(--step-color, #888);
+  color: var(--step-color, var(--accent-400));
+  font-weight: 800;
+  text-transform: uppercase;
+  font-size: 0.75rem;
+  letter-spacing: 0.05em;
 }
 
 .jsonClueAnnotation {
-  color: #ffd700;
-  margin-left: 8px;
+  color: var(--accent-400);
+  margin-left: 12px;
+  font-size: 0.7rem;
+  font-weight: 800;
+  letter-spacing: 0.05em;
 }
 
-/* Reported Problem & Tooltip */
+/* Reported Problem Tooltip */
 .reportedProblemWrapper {
   position: relative;
   display: flex;
@@ -116,84 +181,95 @@
 }
 
 .reportedProblemIcon {
-  background: rgba(255, 215, 0, 0.1);
-  border: 1px solid rgba(255, 215, 0, 0.2);
-  color: #ffd700;
-  width: 28px;
-  height: 28px;
-  border-radius: 50%;
+  background: var(--bg-elevated);
+  border: 1px solid var(--border-default);
+  color: var(--text-muted);
+  width: 32px;
+  height: 32px;
+  border-radius: 8px;
   cursor: pointer;
   display: flex;
   align-items: center;
   justify-content: center;
-  transition: all 0.2s ease;
+  transition: all var(--transition-normal);
   padding: 0;
   z-index: 2;
+  box-shadow: var(--shadow-sm);
 }
 
 .reportedProblemIcon:hover {
-  background: rgba(255, 215, 0, 0.2);
-  transform: scale(1.1);
-  box-shadow: 0 0 15px rgba(255, 215, 0, 0.3);
+  background: var(--bg-hover);
+  color: var(--text-primary);
+  border-color: var(--text-muted);
+  transform: translateY(-1px);
 }
 
 .problemTooltip {
   position: absolute;
-  top: calc(100% + 12px);
+  top: calc(100% + 15px);
   right: 0;
-  width: 240px;
-  background: rgba(20, 25, 45, 0.98);
-  backdrop-filter: blur(12px);
-  border: 1px solid rgba(255, 215, 0, 0.3);
-  border-radius: 12px;
-  padding: 1rem;
-  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.6);
+  width: 300px;
+  background: var(--bg-elevated);
+  backdrop-filter: blur(20px);
+  border: 1px solid var(--accent-500);
+  border-radius: 4px;
+  padding: var(--space-6);
+  box-shadow:
+    var(--shadow-lg),
+    0 0 30px var(--accent-glow);
   z-index: 1000;
+  animation: tooltip-in 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+  border-right: 4px solid var(--accent-500);
+}
+
+@keyframes tooltip-in {
+  from {
+    opacity: 0;
+    transform: translateY(15px) scale(0.98);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
 }
 
 .tooltipArrow {
   position: absolute;
-  top: -6px;
-  right: 10px;
-  width: 12px;
-  height: 12px;
-  background: rgba(20, 25, 45, 0.98);
-  border-left: 1px solid rgba(255, 215, 0, 0.3);
-  border-top: 1px solid rgba(255, 215, 0, 0.3);
+  top: -7px;
+  right: 12px;
+  width: 14px;
+  height: 14px;
+  background: var(--bg-elevated);
+  border-left: 1px solid var(--accent-500);
+  border-top: 1px solid var(--accent-500);
   transform: rotate(45deg);
 }
 
 .tooltipContent {
-  color: #fff;
-  font-size: 0.85rem;
-  line-height: 1.4;
-  font-weight: 500;
-  text-align: left;
+  color: var(--text-primary);
+  font-size: 0.875rem;
+  line-height: 1.6;
 }
 
 .tooltipOverlay {
   position: fixed;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
+  inset: 0;
   z-index: 1;
 }
 
-.tooltipSection {
-  margin-bottom: 12px;
-}
-
 .tooltipSectionTitle {
-  color: #ffd700;
+  color: var(--accent-400);
   display: block;
+  font-family: var(--font-display);
   font-size: 0.7rem;
+  font-weight: 800;
   text-transform: uppercase;
-  letter-spacing: 0.05em;
-  margin-bottom: 4px;
+  letter-spacing: 0.15em;
+  margin-bottom: var(--space-3);
 }
 
 .tooltipSectionText {
+  color: var(--text-secondary);
   font-style: italic;
-  font-size: 0.85rem;
+  font-weight: 500;
 }

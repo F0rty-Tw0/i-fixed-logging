@@ -1,67 +1,78 @@
+/* Obsidian Wide Event View Styling */
+
 .container {
   display: flex;
   flex-direction: column;
   height: 100%;
-  padding: 1.5rem;
-  gap: 1.5rem;
-  background: linear-gradient(
-    135deg,
-    rgba(15, 15, 25, 0.95) 0%,
-    rgba(25, 20, 40, 0.95) 100%
-  );
-  border-radius: 24px;
+  gap: var(--space-6);
   overflow: hidden;
+  position: relative;
 }
-
-/* ─────────────────────────────────────────────────────────────────────────────
-   HEADER
-   ───────────────────────────────────────────────────────────────────────────── */
 
 .header {
   display: flex;
   justify-content: space-between;
-  align-items: flex-start;
-  padding-bottom: 1rem;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
-  gap: 2rem;
+  align-items: flex-end;
+  padding-bottom: var(--space-6);
+  border-bottom: 1px solid var(--border-default);
+  position: relative;
+}
+
+.header::after {
+  content: '';
+  position: absolute;
+  bottom: -1px;
+  left: 0;
+  width: 100px;
+  height: 2px;
+  background: var(--accent-500);
+  box-shadow: 0 0 10px var(--accent-glow);
 }
 
 .headerLeft {
-  text-align: left;
-  flex-shrink: 0;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1);
 }
 
 .title {
-  font-size: 1.75rem;
+  font-family: var(--font-display);
+  font-size: 1.875rem;
   font-weight: 700;
-  color: #fff;
+  color: var(--text-primary);
   margin: 0;
   display: flex;
   align-items: center;
-  gap: 0.75rem;
+  gap: var(--space-3);
+  letter-spacing: -0.02em;
 }
 
 .icon {
-  font-size: 2.5rem;
-  filter: drop-shadow(0 0 20px rgba(255, 215, 0, 0.5));
+  font-size: 1.75rem;
+  color: var(--accent-500);
+  filter: drop-shadow(0 0 15px var(--accent-glow));
 }
 
 .subtitle {
-  margin: 0.5rem 0 0;
-  color: rgba(255, 255, 255, 0.5);
-  font-size: 1rem;
-  font-style: italic;
+  font-family: var(--font-sans);
+  font-size: 0.875rem;
+  color: var(--text-muted);
+  margin: 0;
+  padding-left: 2px;
 }
-
-/* ─────────────────────────────────────────────────────────────────────────────
-   MAIN CONTENT (Split Panel)
-   ───────────────────────────────────────────────────────────────────────────── */
 
 .mainContent {
   display: grid;
   grid-template-columns: 1fr 1fr;
-  gap: 1.5rem;
+  gap: var(--space-8);
   flex: 1;
   min-height: 0;
   overflow: hidden;
+}
+
+@media (max-width: 1200px) {
+  .mainContent {
+    grid-template-columns: 1fr;
+    overflow-y: auto;
+  }
 }

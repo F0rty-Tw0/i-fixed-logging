@@ -1,6 +1,7 @@
 'use client';
 
 import React from 'react';
+import clsx from 'clsx';
 import styles from './FilterPanel.module.css';
 
 interface FilterPanelProps {
@@ -26,7 +27,13 @@ export const FilterPanel: React.FC<FilterPanelProps> = ({
   return (
     <div className={styles.controls}>
       <div className={styles.filterGroup}>
-        <label className={styles.checkboxLabel}>
+        <label
+          className={clsx(
+            styles.checkboxLabel,
+            filters.errors && styles.checkboxLabelActive,
+            filters.errors && styles.checkboxLabelError,
+          )}
+        >
           <input
             type='checkbox'
             className={styles.checkbox}
@@ -36,9 +43,16 @@ export const FilterPanel: React.FC<FilterPanelProps> = ({
           <span
             className={`${styles.legendSquare} ${styles.legendSquareError}`}
           />
-          Errors
+          ERRORS
         </label>
-        <label className={styles.checkboxLabel}>
+
+        <label
+          className={clsx(
+            styles.checkboxLabel,
+            filters.warnings && styles.checkboxLabelActive,
+            filters.warnings && styles.checkboxLabelWarn,
+          )}
+        >
           <input
             type='checkbox'
             className={styles.checkbox}
@@ -48,18 +62,32 @@ export const FilterPanel: React.FC<FilterPanelProps> = ({
           <span
             className={`${styles.legendSquare} ${styles.legendSquareWarn}`}
           />
-          Warnings
+          WARNINGS
         </label>
-        <label className={styles.checkboxLabel}>
+
+        <label
+          className={clsx(
+            styles.checkboxLabel,
+            filters.slow && styles.checkboxLabelActive,
+          )}
+        >
           <input
             type='checkbox'
             className={styles.checkbox}
             checked={filters.slow}
             onChange={() => toggleFilter('slow')}
           />
-          Slow (&gt;1s)
+          <span>🐢</span>
+          LATENCY &gt; 1s
         </label>
-        <label className={styles.checkboxLabel}>
+
+        <label
+          className={clsx(
+            styles.checkboxLabel,
+            filters.sampleInfo && styles.checkboxLabelActive,
+            filters.sampleInfo && styles.checkboxLabelInfo,
+          )}
+        >
           <input
             type='checkbox'
             className={styles.checkbox}
@@ -69,9 +97,10 @@ export const FilterPanel: React.FC<FilterPanelProps> = ({
           <span
             className={`${styles.legendSquare} ${styles.legendSquareInfo}`}
           />
-          Sample Info (5%)
+          INFO (5%)
         </label>
       </div>
+
       <div className={styles.sliderContainer}>
         <label className={styles.sliderLabel}>Sampling: {samplingRate}%</label>
         <input

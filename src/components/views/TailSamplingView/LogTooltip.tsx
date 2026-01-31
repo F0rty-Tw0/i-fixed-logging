@@ -45,11 +45,11 @@ export const LogTooltip: React.FC<LogTooltipProps> = ({
       <div className={styles.tooltipHeader}>Log Details</div>
       <div className={styles.tooltipBody}>
         <div className={styles.tooltipRow}>
-          <span className={styles.tooltipLabel}>JID</span>
+          <span className={styles.tooltipLabel}>[ JID ]</span>
           <span className={styles.tooltipValue}>#{hoveredLog.journeyId}</span>
         </div>
         <div className={styles.tooltipRow}>
-          <span className={styles.tooltipLabel}>Time</span>
+          <span className={styles.tooltipLabel}>[ TIME ]</span>
           <span className={styles.tooltipValue}>
             {new Date(hoveredLog.timestamp)
               .toISOString()
@@ -58,7 +58,7 @@ export const LogTooltip: React.FC<LogTooltipProps> = ({
           </span>
         </div>
         <div className={styles.tooltipRow}>
-          <span className={styles.tooltipLabel}>Type</span>
+          <span className={styles.tooltipLabel}>[ SEV ]</span>
           <span
             className={clsx(styles.tooltipValue, {
               [styles.tooltipValueError]:
@@ -72,36 +72,36 @@ export const LogTooltip: React.FC<LogTooltipProps> = ({
           </span>
         </div>
         <div className={styles.tooltipRow}>
-          <span className={styles.tooltipLabel}>Service</span>
+          <span className={styles.tooltipLabel}>[ SRC ]</span>
           <span className={styles.tooltipValue}>
             {getLogSource(hoveredLog.eventId)}
           </span>
         </div>
         <div className={styles.tooltipRow}>
-          <span className={styles.tooltipLabel}>WR ID</span>
+          <span className={styles.tooltipLabel}>[ WR_ID ]</span>
           <span className={styles.tooltipValue}>
             WR-{hoveredLog.waitingRoomId.toString().padStart(2, '0')}
           </span>
         </div>
         <div className={styles.tooltipRow}>
-          <span className={styles.tooltipLabel}>Cust ID</span>
+          <span className={styles.tooltipLabel}>[ CUST ]</span>
           <span className={styles.tooltipValue}>c-{hoveredLog.customerId}</span>
         </div>
         <div className={styles.tooltipRow}>
-          <span className={styles.tooltipLabel}>IP</span>
+          <span className={styles.tooltipLabel}>[ IP_V4 ]</span>
           <span className={styles.tooltipValue}>
             {(hoveredLog.ip >>> 24) & 0xff}.{(hoveredLog.ip >>> 16) & 0xff}.
             {(hoveredLog.ip >>> 8) & 0xff}.{hoveredLog.ip & 0xff}
           </span>
         </div>
         <div className={styles.tooltipRow}>
-          <span className={styles.tooltipLabel}>Event</span>
+          <span className={styles.tooltipLabel}>[ EVENT ]</span>
           <span className={styles.tooltipValue}>
             {EVENT_NAMES[hoveredLog.eventId as keyof typeof EVENT_NAMES]}
           </span>
         </div>
         <div className={`${styles.tooltipRow} ${styles.tooltipRowFlexStart}`}>
-          <span className={styles.tooltipLabel}>Message</span>
+          <span className={styles.tooltipLabel}>[ MESSAGE ]</span>
           <span
             className={`${styles.tooltipValue} ${styles.tooltipValueMessage}`}
           >
@@ -117,7 +117,7 @@ export const LogTooltip: React.FC<LogTooltipProps> = ({
           </span>
         </div>
         <div className={styles.tooltipRow}>
-          <span className={styles.tooltipLabel}>Latency</span>
+          <span className={styles.tooltipLabel}>[ LATENCY ]</span>
           <span className={styles.tooltipValue}>
             {hoveredLog.metaIndex > 0 ? `+${hoveredLog.metaIndex}ms` : '-'}
           </span>

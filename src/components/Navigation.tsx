@@ -1,42 +1,119 @@
 'use client';
 
-import React, { useState, useRef, useEffect } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
+import React from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import clsx from 'clsx';
+
 import { ViewMode } from '../core/types/domain';
 import styles from './Navigation.module.css';
 
 const TABS = [
-  { id: ViewMode.QUEUE_SIMULATOR, label: 'Queue Simulator', icon: '🚦' },
-  { id: ViewMode.TAIL_SAMPLING, label: 'Tail Sampling', icon: '🐕' },
-  { id: ViewMode.WIDE_EVENT, label: 'Wide Events', icon: '↔️' },
-  { id: ViewMode.STRUCTURED_LOGS, label: 'Structured Logs', icon: '📝' },
+  {
+    id: ViewMode.QUEUE_SIMULATOR,
+    label: 'Simulator',
+    icon: (
+      <svg
+        width='20'
+        height='20'
+        viewBox='0 0 24 24'
+        fill='none'
+        stroke='currentColor'
+        strokeWidth='2'
+        strokeLinecap='round'
+        strokeLinejoin='round'
+      >
+        <polyline points='22 12 18 12 15 21 9 3 6 12 2 12'></polyline>
+      </svg>
+    ),
+  },
+  {
+    id: ViewMode.TAIL_SAMPLING,
+    label: 'Traffic',
+    icon: (
+      <svg
+        width='20'
+        height='20'
+        viewBox='0 0 24 24'
+        fill='none'
+        stroke='currentColor'
+        strokeWidth='2'
+        strokeLinecap='round'
+        strokeLinejoin='round'
+      >
+        <rect x='3' y='3' width='7' height='7'></rect>
+        <rect x='14' y='3' width='7' height='7'></rect>
+        <rect x='14' y='14' width='7' height='7'></rect>
+        <rect x='3' y='14' width='7' height='7'></rect>
+      </svg>
+    ),
+  },
+  {
+    id: ViewMode.WIDE_EVENT,
+    label: 'Journeys',
+    icon: (
+      <svg
+        width='20'
+        height='20'
+        viewBox='0 0 24 24'
+        fill='none'
+        stroke='currentColor'
+        strokeWidth='2'
+        strokeLinecap='round'
+        strokeLinejoin='round'
+      >
+        <path d='M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z'></path>
+        <path d='M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z'></path>
+      </svg>
+    ),
+  },
+  {
+    id: ViewMode.STRUCTURED_LOGS,
+    label: 'Logs',
+    icon: (
+      <svg
+        width='20'
+        height='20'
+        viewBox='0 0 24 24'
+        fill='none'
+        stroke='currentColor'
+        strokeWidth='2'
+        strokeLinecap='round'
+        strokeLinejoin='round'
+      >
+        <line x1='4' y1='9' x2='20' y2='9'></line>
+        <line x1='4' y1='15' x2='20' y2='15'></line>
+        <line x1='10' y1='3' x2='8' y2='21'></line>
+        <line x1='16' y1='3' x2='14' y2='21'></line>
+      </svg>
+    ),
+  },
   {
     id: ViewMode.DISTRIBUTED_TRACING,
-    label: 'Distributed Tracing',
-    icon: '📉',
+    label: 'Traces',
+    icon: (
+      <svg
+        width='20'
+        height='20'
+        viewBox='0 0 24 24'
+        fill='none'
+        stroke='currentColor'
+        strokeWidth='2'
+        strokeLinecap='round'
+        strokeLinejoin='round'
+      >
+        <path d='M6 3v12'></path>
+        <circle cx='18' cy='6' r='3'></circle>
+        <circle cx='6' cy='18' r='3'></circle>
+        <path d='M18 9a9 9 0 0 1-9 9'></path>
+      </svg>
+    ),
   },
 ];
 
 export const Navigation: React.FC = () => {
-  const [isOpen, setIsOpen] = useState(false);
-  const menuRef = useRef<HTMLDivElement>(null);
   const pathname = usePathname();
-
-  // Close menu when clicking outside
-  useEffect(() => {
-    const handleClickOutside = (event: MouseEvent) => {
-      if (menuRef.current && !menuRef.current.contains(event.target as Node)) {
-        setIsOpen(false);
-      }
-    };
-    document.addEventListener('mousedown', handleClickOutside);
-    return () => document.removeEventListener('mousedown', handleClickOutside);
-  }, []);
-
-  const handleToggle = () => setIsOpen(!isOpen);
+  const [isExpanded, setIsExpanded] = React.useState(false);
 
   const isActive = (tabId: string) => {
     if (tabId === ViewMode.QUEUE_SIMULATOR && pathname === '/') return true;
@@ -44,68 +121,43 @@ export const Navigation: React.FC = () => {
   };
 
   return (
-    <div className={styles.navContainer} ref={menuRef}>
-      <motion.button
-        className={styles.burgerButton}
-        onClick={handleToggle}
-        whileHover={{ scale: 1.05 }}
-        whileTap={{ scale: 0.95 }}
-        aria-label='Toggle Menu'
-      >
-        <motion.div
-          className={styles.burgerLine}
-          animate={isOpen ? { rotate: 45, y: 6 } : { rotate: 0, y: 0 }}
-        />
-        <motion.div
-          className={styles.burgerLine}
-          animate={isOpen ? { opacity: 0 } : { opacity: 1 }}
-        />
-        <motion.div
-          className={styles.burgerLine}
-          animate={isOpen ? { rotate: -45, y: -6 } : { rotate: 0, y: 0 }}
-        />
-      </motion.button>
+    <nav
+      className={clsx(styles.rail, isExpanded && styles['rail-expanded'])}
+      onMouseEnter={() => setIsExpanded(true)}
+      onMouseLeave={() => setIsExpanded(false)}
+    >
+      <div className={styles['rail-inner']}>
+        <div className={styles.logo}>
+          <div className={styles['logo-inner']} />
+        </div>
 
-      <AnimatePresence>
-        {isOpen && (
-          <motion.div
-            className={styles.dropdownMenu}
-            initial={{ opacity: 0, scale: 0.9, y: -10 }}
-            animate={{ opacity: 1, scale: 1, y: 0 }}
-            exit={{ opacity: 0, scale: 0.9, y: -10 }}
-            transition={{ type: 'spring', damping: 20, stiffness: 300 }}
-          >
-            {TABS.map((tab) => {
-              const active = isActive(tab.id);
-              const href =
-                tab.id === ViewMode.QUEUE_SIMULATOR ? '/' : `/${tab.id}`;
+        <div className={styles['nav-list']}>
+          {TABS.map((tab, index) => {
+            const active = isActive(tab.id);
+            const href =
+              tab.id === ViewMode.QUEUE_SIMULATOR ? '/' : `/${tab.id}`;
 
-              return (
-                <Link
-                  key={tab.id}
-                  href={href}
-                  className={clsx(
-                    styles.menuItem,
-                    active && styles.menuItemActive,
-                  )}
-                  onClick={() => setIsOpen(false)}
-                >
-                  <div className={styles.menuLabel}>
-                    <span>{tab.icon}</span>
-                    {tab.label}
-                  </div>
-                  {active && (
-                    <motion.div
-                      className={styles.activeIndicator}
-                      layoutId='active-nav-pill'
-                    />
-                  )}
-                </Link>
-              );
-            })}
-          </motion.div>
-        )}
-      </AnimatePresence>
-    </div>
+            return (
+              <Link
+                key={tab.id}
+                href={href}
+                className={clsx(
+                  styles['nav-item'],
+                  active && styles['nav-item-active'],
+                  isExpanded && styles['nav-item-expanded'],
+                )}
+                style={{ '--index': index } as React.CSSProperties}
+              >
+                <span className={styles.icon}>{tab.icon}</span>
+                <span className={styles.label}>{tab.label}</span>
+                {!isExpanded && (
+                  <span className={styles.tooltip}>{tab.label}</span>
+                )}
+              </Link>
+            );
+          })}
+        </div>
+      </div>
+    </nav>
   );
 };

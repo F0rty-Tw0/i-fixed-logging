@@ -144,7 +144,12 @@ export const WideEventView: React.FC = () => {
       animate={{ opacity: 1 }}
     >
       <div className={styles.header}>
-        <div className={styles.headerLeft}>
+        <motion.div
+          className={styles.headerLeft}
+          initial={{ opacity: 0, x: -20 }}
+          animate={{ opacity: 1, x: 0 }}
+          transition={{ delay: 0.1 }}
+        >
           <h1 className={styles.title}>
             <span className={styles.icon}>🔍</span>
             Wide Event Builder
@@ -152,35 +157,55 @@ export const WideEventView: React.FC = () => {
           <p className={styles.subtitle}>
             Connect the clues to reveal the full story
           </p>
-        </div>
+        </motion.div>
 
-        <InvestigationProgress
-          cluesFound={cluesFound}
-          totalClues={totalClues}
-          rootCauseUnlocked={rootCauseUnlocked}
-          selectAll={selectAll}
-          gapCoverage={gapCoverage}
-          activeHighlightCategory={activeHighlightCategory}
-          setActiveHighlightCategory={setActiveHighlightCategory}
-        />
+        <motion.div
+          initial={{ opacity: 0, y: -10 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.2 }}
+        >
+          <InvestigationProgress
+            cluesFound={cluesFound}
+            totalClues={totalClues}
+            rootCauseUnlocked={rootCauseUnlocked}
+            selectAll={selectAll}
+            gapCoverage={gapCoverage}
+            activeHighlightCategory={activeHighlightCategory}
+            setActiveHighlightCategory={setActiveHighlightCategory}
+          />
+        </motion.div>
       </div>
 
       <div className={styles.mainContent}>
-        <JourneyTimeline
-          expandedStep={expandedStep}
-          setExpandedStep={setExpandedStep}
-          selectedFields={selectedFields}
-          toggleField={toggleField}
-          showClues={showClues}
-          setShowClues={setShowClues}
-          activeHighlightCategory={activeHighlightCategory}
-        />
+        <motion.div
+          initial={{ opacity: 0, x: -20 }}
+          animate={{ opacity: 1, x: 0 }}
+          transition={{ delay: 0.3 }}
+          style={{ display: 'flex', minHeight: 0 }}
+        >
+          <JourneyTimeline
+            expandedStep={expandedStep}
+            setExpandedStep={setExpandedStep}
+            selectedFields={selectedFields}
+            toggleField={toggleField}
+            showClues={showClues}
+            setShowClues={setShowClues}
+            activeHighlightCategory={activeHighlightCategory}
+          />
+        </motion.div>
 
-        <JsonPreviewPanel
-          jsonPreview={jsonPreview}
-          showProblemTooltip={showProblemTooltip}
-          setShowProblemTooltip={setShowProblemTooltip}
-        />
+        <motion.div
+          initial={{ opacity: 0, x: 20 }}
+          animate={{ opacity: 1, x: 0 }}
+          transition={{ delay: 0.4 }}
+          style={{ display: 'flex', minHeight: 0 }}
+        >
+          <JsonPreviewPanel
+            jsonPreview={jsonPreview}
+            showProblemTooltip={showProblemTooltip}
+            setShowProblemTooltip={setShowProblemTooltip}
+          />
+        </motion.div>
       </div>
     </motion.div>
   );

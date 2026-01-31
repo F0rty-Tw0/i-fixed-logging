@@ -186,19 +186,29 @@ export const TailSamplingView = () => {
       className={styles.container}
     >
       <div className={styles.header}>
-        <h2 className={styles.title}>
-          Live Traffic Matrix:{' '}
+        <motion.h2
+          initial={{ opacity: 0, x: -20 }}
+          animate={{ opacity: 1, x: 0 }}
+          transition={{ delay: 0.2 }}
+          className={styles.title}
+        >
+          Live Traffic Matrix
           <span className={styles.stats}>
             {filteredTotalCount === -1
               ? 'Searching...'
               : `${filteredTotalCount.toLocaleString()} logs`}
           </span>
-        </h2>
+        </motion.h2>
 
-        <p className={styles.subtitle}>
+        <motion.p
+          initial={{ opacity: 0, x: -20 }}
+          animate={{ opacity: 1, x: 0 }}
+          transition={{ delay: 0.3 }}
+          className={styles.subtitle}
+        >
           Each square represents a single log. The grid fills 15x down, then
           moves to the next column. Hover for details.
-        </p>
+        </motion.p>
       </div>
 
       <FilterPanel

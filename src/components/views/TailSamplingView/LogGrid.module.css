@@ -1,6 +1,10 @@
+/* Obsidian Log Grid Styling */
+
 .virtualTrack {
   position: relative;
-  min-height: 240px;
+  min-height: 270px; /* 15 rows * (14px + 4px gap) */
+  transform-style: preserve-3d;
+  perspective: 1000px;
 }
 
 .virtualColumn {
@@ -8,6 +12,9 @@
   top: 0;
   left: 0;
   width: 14px;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
 }
 
 .square {
@@ -15,37 +22,98 @@
   height: 14px;
   min-width: 14px;
   border-radius: 2px;
-  border: 1px solid rgba(255, 255, 255, 0.02);
-  cursor: default;
-  transition: transform 0.1s ease;
+  cursor: crosshair;
+  transition: all var(--transition-normal);
   position: relative;
+  border: 1px solid rgba(255, 255, 255, 0.03);
+  background-clip: padding-box;
+}
+
+.square::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(135deg, rgba(255, 255, 255, 0.1), transparent);
+  pointer-events: none;
+  opacity: 0.5;
 }
 
 .square:hover {
-  transform: scale(1.4);
-  z-index: 10;
-  box-shadow: 0 0 10px rgba(255, 255, 255, 0.5);
-  border-radius: 4px;
+  transform: scale(1.8) translateZ(20px);
+  z-index: 50;
+  border-radius: 3px;
+  border-color: var(--text-primary);
+  box-shadow:
+    0 10px 20px rgba(0, 0, 0, 0.5),
+    0 0 15px var(--accent-glow);
 }
-
-/* Color variables copied from root if needed, but better to use variables */
 
 .sq-info {
-  background-color: #1e90ff;
+  background-color: var(--info-bg);
+  border-color: rgba(59, 130, 246, 0.2);
+  box-shadow: inset 0 0 4px var(--info-bg);
 }
+
 .sq-warn {
-  background-color: #ffa502;
+  background-color: var(--warning-bg);
+  border-color: rgba(245, 158, 11, 0.2);
+  box-shadow: inset 0 0 4px var(--warning-bg);
 }
+
 .sq-error {
-  background-color: #ff4757;
+  background-color: var(--error-bg);
+  border-color: rgba(239, 68, 68, 0.3);
+  animation: tactical-pulse 2s infinite ease-in-out;
+  box-shadow: inset 0 0 6px var(--error-bg);
 }
+
 .sq-default {
-  background-color: rgba(255, 255, 255, 0.05);
+  background-color: rgba(255, 255, 255, 0.02);
 }
 
 .sq-visible {
-  opacity: 0.9;
+  opacity: 1;
 }
+
 .sq-dimmed {
-  opacity: 0.1;
+  opacity: 0.05;
+  filter: grayscale(1) blur(0.5px);
+}
+
+/* Specific glows on hover based on type */
+.sq-info:hover {
+  box-shadow: 0 0 25px var(--info);
+  background-color: var(--info);
+}
+.sq-warn:hover {
+  box-shadow: 0 0 25px var(--warning);
+  background-color: var(--warning);
+}
+.sq-error:hover {
+  box-shadow: 0 0 35px var(--error);
+  background-color: var(--error);
+}
+
+@keyframes tactical-pulse {
+  0% {
+    box-shadow:
+      inset 0 0 4px var(--error-bg),
+      0 0 2px var(--error-bg);
+    filter: brightness(1);
+    border-color: rgba(239, 68, 68, 0.3);
+  }
+  50% {
+    box-shadow:
+      inset 0 0 8px var(--error),
+      0 0 12px var(--error-bg);
+    filter: brightness(1.4);
+    border-color: var(--error);
+  }
+  100% {
+    box-shadow:
+      inset 0 0 4px var(--error-bg),
+      0 0 2px var(--error-bg);
+    filter: brightness(1);
+    border-color: rgba(239, 68, 68, 0.3);
+  }
 }

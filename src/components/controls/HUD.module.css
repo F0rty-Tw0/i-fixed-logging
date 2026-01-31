@@ -1,25 +1,64 @@
+/* Obsidian HUD Styling */
+
 .container {
   display: flex;
+  gap: var(--space-6);
   align-items: center;
-  gap: 20px;
 }
 
 .hud-stat {
   display: flex;
   flex-direction: column;
-  align-items: flex-end;
+  gap: 2px;
 }
 
-.hud-stat .label {
-  font-size: 0.75rem;
-  color: var(--text-secondary);
+.label {
+  font-family: var(--font-mono);
+  font-size: 0.65rem;
+  font-weight: 500;
+  color: var(--text-muted);
   text-transform: uppercase;
   letter-spacing: 0.05em;
+  white-space: nowrap;
 }
 
-.hud-stat .value {
-  font-family: var(--font-mono);
-  font-size: 1.25rem;
-  font-weight: 700;
-  color: var(--color-info);
+.value {
+  font-family: var(--font-display);
+  font-size: 1.125rem;
+  font-weight: 600;
+  color: var(--text-primary);
+  line-height: 1;
+}
+
+/* Add a subtle pulsing indicator to active journeys */
+.hud-stat:first-child .value {
+  color: var(--accent-400);
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.hud-stat:first-child .value::before {
+  content: '';
+  width: 6px;
+  height: 6px;
+  background-color: var(--accent-500);
+  border-radius: 50%;
+  box-shadow: 0 0 10px var(--accent-glow);
+  animation: pulse 2s infinite;
+}
+
+@keyframes pulse {
+  0% {
+    transform: scale(0.95);
+    opacity: 0.7;
+  }
+  50% {
+    transform: scale(1.1);
+    opacity: 1;
+  }
+  100% {
+    transform: scale(0.95);
+    opacity: 0.7;
+  }
 }

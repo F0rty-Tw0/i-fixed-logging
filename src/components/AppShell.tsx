@@ -13,18 +13,26 @@ export const AppShell: React.FC<{ children: React.ReactNode }> = ({
     useSimulationContext();
 
   return (
-    <main className='layout-container'>
-      <Controls
-        isRunning={isRunning}
-        activeCount={stats.activeCount}
-        onStart={start}
-        onStop={stop}
-        onReset={reset}
-        onUsersChange={setUsers}
-        navigation={<Navigation />}
-      />
+    <div className={styles.shell}>
+      <div className={styles['noise-overlay']} />
+      <Navigation />
 
-      <div className={styles['main-content']}>{children}</div>
-    </main>
+      <main className={styles['main-wrapper']}>
+        <div className={styles['ambient-glow']} />
+        <div className={styles['vignette']} />
+        <div className={styles.scanlines} />
+
+        <Controls
+          isRunning={isRunning}
+          activeCount={stats.activeCount}
+          onStart={start}
+          onStop={stop}
+          onReset={reset}
+          onUsersChange={setUsers}
+        />
+
+        <div className={styles['main-content']}>{children}</div>
+      </main>
+    </div>
   );
 };

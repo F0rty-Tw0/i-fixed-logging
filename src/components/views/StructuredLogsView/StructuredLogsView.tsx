@@ -64,11 +64,6 @@ export const StructuredLogsView: React.FC = () => {
       return (
         <a
           href={`/distributed-tracing?traceId=${val}`}
-          style={{
-            color: '#3b82f6',
-            textDecoration: 'none',
-            cursor: 'pointer',
-          }}
           onClick={(e) => {
             e.stopPropagation();
           }}
@@ -168,17 +163,29 @@ export const StructuredLogsView: React.FC = () => {
   };
 
   return (
-    <div className={styles.container}>
+    <motion.div
+      className={styles.container}
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
+    >
       <div className={styles.header}>
-        <div className={styles.titleSection}>
+        <motion.div
+          className={styles.titleSection}
+          initial={{ opacity: 0, x: -20 }}
+          animate={{ opacity: 1, x: 0 }}
+          transition={{ delay: 0.1 }}
+        >
           <h1>Advanced Query Engine</h1>
-        </div>
+        </motion.div>
 
-        <div
+        <motion.div
           className={clsx(
             styles.queryEditor,
             isValid ? styles.valid : styles.invalid,
           )}
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.2 }}
         >
           <div
             className={clsx(
@@ -230,9 +237,14 @@ export const StructuredLogsView: React.FC = () => {
             </button>
           </div>
           {loading && <div className={styles.loader} />}
-        </div>
+        </motion.div>
 
-        <div className={styles.chipsContainer}>
+        <motion.div
+          className={styles.chipsContainer}
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ delay: 0.3 }}
+        >
           {PREDEFINED_FILTERS.map((filter) => (
             <motion.button
               key={filter.label}
@@ -247,7 +259,7 @@ export const StructuredLogsView: React.FC = () => {
               {filter.label}
             </motion.button>
           ))}
-        </div>
+        </motion.div>
       </div>
 
       <AnimatePresence>
@@ -277,7 +289,12 @@ export const StructuredLogsView: React.FC = () => {
         )}
       </AnimatePresence>
 
-      <div className={styles.resultsContainer}>
+      <motion.div
+        className={styles.resultsContainer}
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ delay: 0.4 }}
+      >
         {results.length > 0 ? (
           <div className={styles.tableWrapper} ref={parentRef}>
             <div
@@ -348,7 +365,7 @@ export const StructuredLogsView: React.FC = () => {
             </div>
           )
         )}
-      </div>
-    </div>
+      </motion.div>
+    </motion.div>
   );
 };

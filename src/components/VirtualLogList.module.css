@@ -1,20 +1,46 @@
-/* VirtualLogList.module.css */
+/* Obsidian Virtual Log List Styling */
 
 .log-container {
   flex: 1;
-  background-color: var(--bg-panel);
+  background-color: var(--bg-void);
   color: var(--text-primary);
   font-family: var(--font-mono);
   overflow: hidden;
   position: relative;
   display: flex;
   flex-direction: column;
+  border: 1px solid var(--border-default);
+  border-radius: 12px;
+}
+
+.header-row {
+  display: flex;
+  align-items: center;
+  padding: var(--space-2) var(--space-3);
+  font-family: var(--font-display);
+  font-size: 0.65rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  color: var(--text-muted);
+  border-bottom: 2px solid var(--border-default);
+  background-color: var(--bg-raised);
+  flex-shrink: 0;
+  letter-spacing: 0.1em;
 }
 
 .virtual-scroller {
   flex: 1;
   overflow-y: auto;
   contain: strict;
+}
+
+.virtual-scroller::-webkit-scrollbar {
+  width: 4px;
+}
+
+.virtual-scroller::-webkit-scrollbar-thumb {
+  background: var(--border-default);
+  border-radius: 2px;
 }
 
 .log-row-wrapper {
@@ -26,59 +52,35 @@
 .log-row {
   display: flex;
   align-items: center;
-  padding: 2px 8px;
-  font-size: 13px;
+  padding: 4px var(--space-3);
+  font-size: 0.8125rem;
   line-height: 1.4;
   white-space: pre;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+  border-bottom: 1px solid var(--border-subtle);
   cursor: pointer;
-  transition: background-color 0.1s;
+  transition: background-color var(--transition-fast);
 }
 
 .log-row:hover {
-  background-color: rgba(255, 255, 255, 0.05);
+  background-color: var(--bg-hover);
 }
 
 .expanded .log-row {
-  background-color: rgba(255, 255, 255, 0.1);
+  background-color: var(--bg-elevated);
   border-bottom: none;
 }
 
 .details-panel {
-  background-color: rgba(0, 0, 0, 0.3);
-  padding: 8px 12px;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
-  animation: slideDown 0.1s ease-out;
+  background-color: rgba(0, 0, 0, 0.2);
+  padding: var(--space-3) var(--space-4);
+  border-bottom: 1px solid var(--border-default);
+  animation: details-in 0.2s ease-out;
 }
 
-.details-header {
-  font-size: 10px;
-  font-weight: bold;
-  color: var(--text-secondary);
-  margin-bottom: 4px;
-  opacity: 0.7;
-}
-
-.col-service {
-  width: 160px;
-  color: var(--text-secondary);
-  opacity: 0.9;
-  padding-right: 8px;
-}
-
-.json-view {
-  margin: 0;
-  font-family: 'Fira Code', var(--font-mono);
-  font-size: 12px;
-  color: #a5d6ff;
-  white-space: pre-wrap;
-  word-break: break-word;
-}
-
-@keyframes slideDown {
+@keyframes details-in {
   from {
     opacity: 0;
-    transform: translateY(-5px);
+    transform: translateY(-4px);
   }
   to {
     opacity: 1;
@@ -86,128 +88,96 @@
   }
 }
 
-.header-row {
-  display: flex;
-  align-items: center;
-  padding: 8px 8px; /* Slightly taller */
-  font-size: 11px;
-  font-weight: bold;
+.details-header {
+  font-family: var(--font-display);
+  font-size: 0.65rem;
+  font-weight: 700;
+  color: var(--accent-400);
+  margin-bottom: var(--space-2);
   text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.json-view {
+  margin: 0;
+  font-family: var(--font-mono);
+  font-size: 0.75rem;
   color: var(--text-secondary);
-  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
-  background-color: rgba(0, 0, 0, 0.2);
-  flex-shrink: 0;
-  user-select: none;
+  white-space: pre-wrap;
+  word-break: break-word;
 }
 
-.col-type {
-  width: 55px;
-  font-weight: bold;
-}
-
-.col-ts {
-  width: 120px;
-  color: var(--text-secondary);
-}
-
+/* Column Widths */
 .col-id {
   width: 60px;
-  color: var(--accent-color);
+  color: var(--accent-400);
+  font-weight: 700;
 }
-
+.col-ts {
+  width: 100px;
+  color: var(--text-muted);
+}
+.col-type {
+  width: 60px;
+  font-weight: 700;
+}
+.col-service {
+  width: 140px;
+  color: var(--text-secondary);
+}
 .col-wrid {
-  width: 70px;
-  color: #8b949e;
-}
-
-.col-cid {
   width: 80px;
-  color: #ff9b67;
+  color: var(--text-muted);
 }
-
+.col-cid {
+  width: 90px;
+  color: var(--text-secondary);
+}
 .col-ip {
   width: 130px;
-  color: #79c0ff;
+  color: var(--text-muted);
 }
-
+.col-event {
+  width: 160px;
+  font-weight: 700;
+  color: var(--text-primary);
+}
 .col-msg {
   flex: 2;
   min-width: 200px;
-  color: var(--text-primary);
+  color: var(--text-secondary);
   overflow: hidden;
   text-overflow: ellipsis;
-  white-space: nowrap;
 }
-
-.col-event {
-  width: 150px;
-  font-weight: bold;
-}
-
 .col-meta {
   width: 80px;
-  color: var(--text-secondary);
-  opacity: 0.8;
+  color: var(--info);
   text-align: right;
-  padding-right: 4px;
 }
 
 /* Severities */
 .sev-INFO {
-  color: var(--color-info);
+  color: var(--info);
 }
 .sev-WARN {
-  color: var(--color-warn);
+  color: var(--warning);
 }
-.sev-ERROR {
-  color: var(--color-error);
-}
+.sev-ERROR,
 .sev-CRIT {
-  color: #ff4d4d;
+  color: var(--error);
   font-weight: 800;
-  text-transform: uppercase;
-  letter-spacing: 0.5px;
 }
 
-/* Row Highlighting & Borders */
+/* Row Accents */
 .row-sev-INFO {
-  border-left: 3px solid var(--color-info);
+  border-left: 3px solid var(--info);
 }
-
 .row-sev-WARN {
-  background-color: rgba(255, 171, 0, 0.08);
-  border-left: 3px solid var(--color-warn);
+  border-left: 3px solid var(--warning);
+  background-color: rgba(245, 158, 11, 0.05);
 }
-.row-sev-WARN:hover {
-  background-color: rgba(255, 171, 0, 0.15) !important;
-}
-
-.row-sev-ERROR {
-  background-color: rgba(255, 82, 82, 0.1);
-  border-left: 3px solid var(--color-error);
-}
-.row-sev-ERROR:hover {
-  background-color: rgba(255, 82, 82, 0.2) !important;
-}
-
+.row-sev-ERROR,
 .row-sev-CRIT {
-  background-color: rgba(255, 0, 0, 0.15);
-  border-left: 3px solid #ff4d4d;
-}
-.row-sev-CRIT:hover {
-  background-color: rgba(255, 0, 0, 0.25) !important;
-}
-
-/* Virtual Scrolling */
-.virtual-container {
-  height: 100%;
-  width: 100%;
-  position: relative;
-}
-
-.virtual-item {
-  position: absolute;
-  top: 0;
-  left: 0;
-  width: 100%;
+  border-left: 3px solid var(--error);
+  background-color: rgba(239, 68, 68, 0.05);
 }

@@ -8,6 +8,8 @@ const subscribeToStore = (cb: () => void) => logStore.subscribe(cb);
 const getTotalLogsSnapshot = () => logStore.getTotalIngested();
 const getServerTotalLogsSnapshot = () => 0;
 
+import { AnimatedCounter } from './AnimatedCounter';
+
 interface HUDProps {
   activeCount: number;
 }
@@ -23,11 +25,15 @@ export const HUD: React.FC<HUDProps> = ({ activeCount }) => {
     <div className={styles['container']}>
       <div className={styles['hud-stat']}>
         <span className={styles['label']}>Active Journeys</span>
-        <span className={styles['value']}>{activeCount.toLocaleString()}</span>
+        <span className={styles['value']}>
+          <AnimatedCounter value={activeCount} />
+        </span>
       </div>
       <div className={styles['hud-stat']}>
         <span className={styles['label']}>Total Logs</span>
-        <span className={styles['value']}>{totalLogs.toLocaleString()}</span>
+        <span className={styles['value']}>
+          <AnimatedCounter value={totalLogs} />
+        </span>
       </div>
     </div>
   );

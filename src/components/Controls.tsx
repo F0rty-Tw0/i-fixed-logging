@@ -7,6 +7,8 @@ import { SimulationControls } from './controls/SimulationControls';
 import { HUD } from './controls/HUD';
 import { PageHeader } from './controls/PageHeader';
 
+import { ThemeToggle } from './ThemeToggle';
+
 interface ControlsProps {
   isRunning: boolean;
   activeCount: number;
@@ -14,7 +16,6 @@ interface ControlsProps {
   onStop: () => void;
   onReset: () => void;
   onUsersChange: (val: number) => void;
-  navigation?: React.ReactNode;
 }
 
 export const Controls: React.FC<ControlsProps> = ({
@@ -24,13 +25,13 @@ export const Controls: React.FC<ControlsProps> = ({
   onStop,
   onReset,
   onUsersChange,
-  navigation,
 }) => {
   return (
-    <div className={styles['controls-container']}>
+    <header className={styles['controls-container']}>
       <div className={styles['left-panel']}>
-        {navigation}
         <PageHeader />
+
+        <div className={styles.divider} />
 
         <SimulationControls
           isRunning={isRunning}
@@ -39,11 +40,14 @@ export const Controls: React.FC<ControlsProps> = ({
           onReset={onReset}
           onUsersChange={onUsersChange}
         />
-
-        <SearchBar />
       </div>
 
-      <HUD activeCount={activeCount} />
-    </div>
+      <div className={styles['right-panel']}>
+        <SearchBar />
+        <HUD activeCount={activeCount} />
+        <div className={styles.divider} />
+        <ThemeToggle />
+      </div>
+    </header>
   );
 };

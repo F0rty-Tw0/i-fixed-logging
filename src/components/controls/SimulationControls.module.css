@@ -1,101 +1,159 @@
+/* Obsidian Simulation Controls Styling */
+
 .container {
   display: flex;
   align-items: center;
-  gap: 12px;
+  gap: var(--space-4);
 }
 
 .button {
-  background-color: rgba(255, 255, 255, 0.1);
-  color: white;
-  border: none;
-  min-width: 80px;
-  padding: 8px 16px;
-  border-radius: 4px;
+  height: 36px;
+  padding: 0 var(--space-4);
+  border-radius: 8px;
+  font-family: var(--font-display);
+  font-size: 0.75rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
   cursor: pointer;
-  font-weight: 600;
-  transition: background 0.2s;
+  transition: all var(--transition-fast);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid transparent;
 }
 
-.button:hover {
-  background-color: rgba(255, 255, 255, 0.2);
+.primary {
+  background-color: var(--accent-500);
+  color: white;
+  box-shadow: 0 0 15px var(--accent-glow);
+  position: relative;
+  overflow: hidden;
+}
+
+.primary:hover:not(:disabled) {
+  background-color: var(--accent-600);
+  transform: translateY(-1px);
+  box-shadow: 0 0 25px var(--accent-glow);
+}
+
+.danger {
+  background-color: var(--error);
+  color: white;
+  box-shadow: 0 0 15px var(--error-bg);
+  position: relative;
+  overflow: hidden;
+}
+
+.danger:hover:not(:disabled) {
+  filter: brightness(1.1);
+  transform: translateY(-1px);
+  box-shadow: 0 0 25px var(--error-bg);
+}
+
+.btn-scan {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 2px;
+  background: white;
+  opacity: 0.5;
+  box-shadow: 0 0 10px white;
+  animation: btnScan 2s infinite linear;
+}
+
+@keyframes btnScan {
+  0% {
+    top: 0;
+  }
+  100% {
+    top: 100%;
+  }
+}
+
+.secondary {
+  background-color: var(--bg-hover);
+  color: var(--text-primary);
+  border-color: var(--border-default);
+}
+
+.secondary:hover:not(:disabled) {
+  background-color: var(--bg-elevated);
 }
 
 .button:disabled {
   opacity: 0.5;
   cursor: not-allowed;
-  pointer-events: none;
-}
-
-.primary {
-  background-color: var(--accent-color);
-}
-.primary:hover {
-  opacity: 0.9;
-}
-
-.danger {
-  background-color: var(--color-error);
-}
-.danger:hover {
-  opacity: 0.9;
-}
-
-.secondary {
-  background-color: #546e7a;
-}
-.secondary:hover {
-  opacity: 0.9;
+  box-shadow: none;
 }
 
 .slider-group {
   display: flex;
-  flex-direction: column;
-  gap: 4px;
-}
-
-.slider-group label {
-  font-size: 0.8rem;
-  color: var(--text-secondary);
-}
-
-.slider-group input[type='range'] {
-  width: 200px;
+  align-items: center;
+  gap: var(--space-3);
+  background-color: var(--bg-hover);
+  padding: 0 var(--space-3);
+  height: 36px;
+  border-radius: 8px;
+  border: 1px solid var(--border-default);
 }
 
 .users-header {
   display: flex;
   align-items: center;
-  justify-content: space-between;
-  gap: 8px;
+  gap: var(--space-2);
+  color: var(--text-muted);
+  font-family: var(--font-mono);
+  font-size: 0.65rem;
+  font-weight: 600;
 }
 
 .number-input {
-  background: rgba(255, 255, 255, 0.05);
-  border: 1px solid rgba(255, 255, 255, 0.1);
-  border-radius: 4px;
-  color: var(--accent-color);
+  background: none;
+  border: none;
+  color: var(--text-primary);
   font-family: var(--font-mono);
-  font-size: 0.9rem;
-  font-weight: 700;
-  padding: 2px 6px;
-  width: 80px;
+  font-size: 0.875rem;
+  font-weight: 600;
+  width: 40px;
   outline: none;
-  transition: all 0.2s;
 }
 
-.number-input:focus {
-  border-color: var(--accent-color);
-  background: rgba(255, 255, 255, 0.1);
-}
-
-/* Hide arrows in Chrome, Safari, Edge, Opera */
-.number-input::-webkit-inner-spin-button,
-.number-input::-webkit-outer-spin-button {
+/* Custom Range Input */
+.slider {
   -webkit-appearance: none;
-  margin: 0;
+  width: 100px;
+  background: transparent;
 }
 
-/* Hide arrows in Firefox */
-.number-input[type='number'] {
-  -moz-appearance: textfield;
+.slider::-webkit-slider-runnable-track {
+  width: 100%;
+  height: 2px;
+  background: var(--border-default);
+  border-radius: 1px;
+  transition: all var(--transition-fast);
+}
+
+.slider:hover::-webkit-slider-runnable-track {
+  background: var(--border-focus);
+}
+
+.slider::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  height: 8px;
+  width: 16px;
+  background: var(--text-primary);
+  border-radius: 2px;
+  cursor: pointer;
+  margin-top: -3px;
+  box-shadow: 0 0 10px rgba(255, 255, 255, 0.2);
+  transition: all var(--transition-fast);
+  border: 1px solid var(--border-default);
+}
+
+.slider:hover::-webkit-slider-thumb {
+  background: var(--accent-400);
+  box-shadow: 0 0 15px var(--accent-glow);
+  transform: scaleY(1.2);
 }

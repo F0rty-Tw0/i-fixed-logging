@@ -1,88 +1,168 @@
+/* Obsidian Filter Panel Styling */
+
 .controls {
   display: flex;
-  gap: 1.5rem;
-  padding: 1rem;
-  gap: 16px;
-  margin-bottom: 16px;
-  align-items: center;
   justify-content: space-between;
-  font-size: 0.9rem;
-  color: #ccc;
+  align-items: center;
+  gap: var(--space-6);
+}
+
+.filterGroup {
+  display: flex;
+  gap: var(--space-4);
+  align-items: center;
+  padding: var(--space-2);
+  background: var(--bg-void);
+  border-radius: 10px;
+  border: 1px solid var(--border-subtle);
 }
 
 .checkboxLabel {
   display: flex;
   align-items: center;
-  gap: 6px;
+  gap: var(--space-2);
   cursor: pointer;
+  font-family: var(--font-mono);
+  font-size: 0.7rem;
+  font-weight: 700;
+  color: var(--text-muted);
+  background: linear-gradient(to bottom, var(--bg-elevated), var(--bg-raised));
+  padding: var(--space-2) var(--space-4);
+  border-radius: 4px;
+  border: 1px solid var(--border-default);
+  transition: all var(--transition-normal);
   user-select: none;
-  transition: color 0.2s;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  position: relative;
+  overflow: hidden;
+}
+
+.checkboxLabel::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 2px;
+  height: 100%;
+  background: transparent;
+  transition: all var(--transition-fast);
 }
 
 .checkboxLabel:hover {
-  color: #fff;
+  background: var(--bg-hover);
+  color: var(--text-primary);
+  border-color: var(--text-muted);
+  transform: translateY(-1px);
 }
 
-.legendSquare {
-  width: 14px;
-  height: 14px;
-  border-radius: 3px;
-  border: 1px solid rgba(255, 255, 255, 0.1);
+/* Specific colors for labeled chips */
+.checkboxLabelActive {
+  background: var(--bg-elevated);
+  border-color: var(--accent-500);
+  color: var(--text-primary);
+  box-shadow:
+    0 4px 12px rgba(0, 0, 0, 0.3),
+    0 0 10px var(--accent-glow);
+}
+
+.checkboxLabelActive::before {
+  background: var(--accent-500);
+  box-shadow: 0 0 10px var(--accent-500);
+}
+
+.checkboxLabelError.checkboxLabelActive {
+  border-color: var(--error);
+  box-shadow: 0 0 15px var(--error-bg);
+}
+.checkboxLabelError.checkboxLabelActive::before {
+  background: var(--error);
+}
+
+.checkboxLabelWarn.checkboxLabelActive {
+  border-color: var(--warning);
+  box-shadow: 0 0 15px var(--warning-bg);
+}
+.checkboxLabelWarn.checkboxLabelActive::before {
+  background: var(--warning);
+}
+
+.checkboxLabelInfo.checkboxLabelActive {
+  border-color: var(--info);
+  box-shadow: 0 0 15px var(--info-bg);
+}
+.checkboxLabelInfo.checkboxLabelActive::before {
+  background: var(--info);
 }
 
 .checkbox {
-  appearance: none;
-  width: 16px;
-  height: 16px;
-  border: 1px solid #444;
-  border-radius: 3px;
-  background: #222;
-  cursor: pointer;
-  display: grid;
-  place-content: center;
-  position: relative;
-  transition: all 0.2s;
+  display: none;
 }
 
-.checkbox:checked::after {
-  content: '✓';
-  position: absolute;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%);
-  color: #fff;
-  font-size: 0.8rem;
-  font-weight: bold;
+.legendSquare {
+  width: 8px;
+  height: 8px;
+  border-radius: 2px;
 }
 
-.filterGroup {
-  display: flex;
-  align-items: center;
-  gap: 1rem;
+.legendSquareError {
+  background-color: var(--error);
+  box-shadow: 0 0 8px var(--error);
+}
+.legendSquareWarn {
+  background-color: var(--warning);
+  box-shadow: 0 0 8px var(--warning);
+}
+.legendSquareInfo {
+  background-color: var(--info);
+  box-shadow: 0 0 8px var(--info);
 }
 
 .sliderContainer {
   display: flex;
-}
-
-.slider {
-  /* Add slider styles if needed, or copy from TailSamplingView.module.css */
-}
-
-/* Color variables or hardcoded for now to match LogGrid */
-.legendSquareError {
-  background-color: #ff4757;
-}
-
-.legendSquareWarn {
-  background-color: #ffa502;
-}
-
-.legendSquareInfo {
-  background-color: #1e90ff;
+  align-items: center;
+  gap: var(--space-4);
+  background-color: var(--bg-hover);
+  padding: 0 var(--space-4);
+  height: 36px;
+  border-radius: 12px;
+  border: 1px solid var(--border-default);
 }
 
 .sliderLabel {
-  /* Add sliderLabel style */
-  margin-right: 8px;
+  font-family: var(--font-mono);
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: var(--text-muted);
+  white-space: nowrap;
+}
+
+.slider {
+  -webkit-appearance: none;
+  width: 120px;
+  background: transparent;
+}
+
+.slider::-webkit-slider-runnable-track {
+  width: 100%;
+  height: 4px;
+  background: var(--border-subtle);
+  border-radius: 2px;
+}
+
+.slider::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  height: 14px;
+  width: 14px;
+  background: var(--accent-500);
+  border-radius: 50%;
+  cursor: pointer;
+  margin-top: -5px;
+  box-shadow: 0 0 10px var(--accent-glow);
+  transition: all var(--transition-fast);
+}
+
+.slider:hover::-webkit-slider-thumb {
+  transform: scale(1.2);
+  background: var(--accent-400);
 }

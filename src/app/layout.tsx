@@ -1,22 +1,25 @@
 import type { Metadata } from 'next';
-import { Inter, JetBrains_Mono } from 'next/font/google';
-import '../styles/main.css';
+import { Outfit, JetBrains_Mono } from 'next/font/google';
 import { SimulationProvider } from '../core/context/SimulationContext';
+import { ThemeProvider } from '../core/context/ThemeContext';
+import '../styles/main.css';
 import { AppShell } from '../components/AppShell';
 
-const inter = Inter({
-  variable: '--font-inter',
+const outfit = Outfit({
+  variable: '--font-outfit',
   subsets: ['latin'],
+  display: 'swap',
 });
 
 const jetbrainsMono = JetBrains_Mono({
   variable: '--font-jetbrains-mono',
   subsets: ['latin'],
+  display: 'swap',
 });
 
 export const metadata: Metadata = {
-  title: 'I FIXED LOGGING',
-  description: 'High-performance log simulation demo',
+  title: 'Obsidian Command Center',
+  description: 'Next-gen observability platform demo',
 };
 
 export default function RootLayout({
@@ -25,11 +28,13 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang='en'>
-      <body className={`${inter.variable} ${jetbrainsMono.variable}`}>
-        <SimulationProvider>
-          <AppShell>{children}</AppShell>
-        </SimulationProvider>
+    <html lang='en' className={`${outfit.variable} ${jetbrainsMono.variable}`}>
+      <body>
+        <ThemeProvider>
+          <SimulationProvider>
+            <AppShell>{children}</AppShell>
+          </SimulationProvider>
+        </ThemeProvider>
       </body>
     </html>
   );
