@@ -25,7 +25,7 @@
   cursor: crosshair;
   transition: all var(--transition-normal);
   position: relative;
-  border: 1px solid rgba(255, 255, 255, 0.03);
+  border: 1px solid light-dark(rgba(0, 0, 0, 0.05), rgba(255, 255, 255, 0.03));
   background-clip: padding-box;
 }
 
@@ -33,7 +33,11 @@
   content: '';
   position: absolute;
   inset: 0;
-  background: linear-gradient(135deg, rgba(255, 255, 255, 0.1), transparent);
+  background: linear-gradient(
+    135deg,
+    light-dark(rgba(255, 255, 255, 0.5), rgba(255, 255, 255, 0.1)),
+    transparent
+  );
   pointer-events: none;
   opacity: 0.5;
 }
@@ -44,7 +48,7 @@
   border-radius: 3px;
   border-color: var(--text-primary);
   box-shadow:
-    0 10px 20px rgba(0, 0, 0, 0.5),
+    0 10px 20px light-dark(rgba(0, 0, 0, 0.2), rgba(0, 0, 0, 0.5)),
     0 0 15px var(--accent-glow);
 }
 
@@ -68,7 +72,7 @@
 }
 
 .sq-default {
-  background-color: rgba(255, 255, 255, 0.02);
+  background-color: light-dark(rgba(0, 0, 0, 0.02), rgba(255, 255, 255, 0.02));
 }
 
 .sq-visible {

@@ -9,7 +9,7 @@
   overflow: hidden;
   box-shadow:
     var(--shadow-md),
-    inset 0 0 40px rgba(0, 0, 0, 0.5);
+    inset 0 0 40px light-dark(rgba(0, 0, 0, 0.05), rgba(0, 0, 0, 0.5));
   position: relative;
 }
 
@@ -19,7 +19,7 @@
   inset: 0;
   background: radial-gradient(
     circle at 100% 0%,
-    rgba(139, 92, 246, 0.05) 0%,
+    light-dark(rgba(139, 92, 246, 0.02), rgba(139, 92, 246, 0.05)) 0%,
     transparent 40%
   );
   pointer-events: none;
@@ -235,7 +235,7 @@
   border-radius: 6px;
   transition: all var(--transition-fast);
   border: 1px solid transparent;
-  background: rgba(255, 255, 255, 0.01);
+  background: light-dark(rgba(0, 0, 0, 0.01), rgba(255, 255, 255, 0.01));
 }
 
 .fieldLabel:hover {

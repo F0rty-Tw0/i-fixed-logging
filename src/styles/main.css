@@ -1,5 +1,6 @@
-/* Variables */
+/* Variables and Theme Engine */
 :root {
+  /* Default to supporting both, allowing system preference by default */
   color-scheme: light dark;
 
   /* Typography */
@@ -8,29 +9,56 @@
   --font-mono: var(--font-jetbrains-mono), monospace;
   --font-stack: var(--font-outfit), system-ui, sans-serif;
 
-  /* Surfaces - Obsidian Command Center */
+  /* Spacing (4px base) */
+  --space-1: 0.25rem;
+  --space-2: 0.5rem;
+  --space-3: 0.75rem;
+  --space-4: 1rem;
+  --space-6: 1.5rem;
+  --space-8: 2rem;
+
+  /* Animation Tokens */
+  --transition-fast: 150ms cubic-bezier(0.4, 0, 0.2, 1);
+  --transition-normal: 250ms cubic-bezier(0.4, 0, 0.2, 1);
+  --transition-slow: 400ms cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* Declarative color-scheme overrides for light-dark() context */
+:root[data-theme='light'] {
+  color-scheme: light;
+}
+:root[data-theme='dark'] {
+  color-scheme: dark;
+}
+
+/* Theme Tokens - Using light-dark() with manual fallbacks for compatibility */
+:root {
+  /* Surfaces */
   --bg-void: light-dark(#ffffff, #09090b);
   --bg-base: light-dark(#fafafa, #0f0f12);
   --bg-raised: light-dark(#ffffff, #18181b);
   --bg-elevated: light-dark(#f4f4f5, #27272a);
   --bg-hover: light-dark(#e4e4e7, #3f3f46);
 
-  /* Electric Violet (Primary Accent) */
-  --accent-50: #f5f3ff;
-  --accent-400: #a78bfa;
-  --accent-500: #8b5cf6;
-  --accent-600: #7c3aed;
-  --accent-glow: rgba(139, 92, 246, 0.4);
+  /* Accents */
+  --accent-50: light-dark(#f5f3ff, #1e1b4b);
+  --accent-400: light-dark(#a78bfa, #c084fc);
+  --accent-500: light-dark(#8b5cf6, #a855f7);
+  --accent-600: light-dark(#7c3aed, #9333ea);
+  --accent-glow: light-dark(rgba(139, 92, 246, 0.15), rgba(168, 85, 247, 0.4));
 
-  /* Semantic Colors (Meaning Driven) */
-  --success: #22c55e;
-  --success-bg: light-dark(rgba(34, 197, 94, 0.1), rgba(34, 197, 94, 0.15));
-  --error: #ef4444;
-  --error-bg: light-dark(rgba(239, 68, 68, 0.1), rgba(239, 68, 68, 0.15));
-  --warning: #f59e0b;
-  --warning-bg: light-dark(rgba(245, 158, 11, 0.1), rgba(245, 158, 11, 0.15));
-  --info: #3b82f6;
-  --info-bg: light-dark(rgba(59, 130, 246, 0.1), rgba(59, 130, 246, 0.15));
+  /* Semantic Colors */
+  --success: light-dark(#16a34a, #22c55e);
+  --success-bg: light-dark(rgba(22, 163, 74, 0.1), rgba(34, 197, 94, 0.15));
+  --error: light-dark(#dc2626, #ef4444);
+  --error-bg: light-dark(rgba(220, 38, 38, 0.1), rgba(239, 68, 68, 0.15));
+  --error-secondary: light-dark(#b91c1c, #f87171);
+  --warning: light-dark(#ca8a04, #f59e0b);
+  --warning-bg: light-dark(rgba(202, 138, 4, 0.1), rgba(245, 158, 11, 0.15));
+  --warning-secondary: light-dark(#d97706, #fbbf24);
+  --info: light-dark(#2563eb, #3b82f6);
+  --info-bg: light-dark(rgba(37, 99, 235, 0.1), rgba(59, 130, 246, 0.15));
+  --info-secondary: light-dark(#0ea5e9, #38bdf8);
 
   /* Text Hierarchy */
   --text-primary: light-dark(#18181b, #fafafa);
@@ -43,28 +71,24 @@
   --border-default: light-dark(rgba(0, 0, 0, 0.1), rgba(255, 255, 255, 0.1));
   --border-focus: var(--accent-500);
 
-  /* Spacing (4px base) */
-  --space-1: 0.25rem;
-  --space-2: 0.5rem;
-  --space-3: 0.75rem;
-  --space-4: 1rem;
-  --space-6: 1.5rem;
-  --space-8: 2rem;
-
   /* Shadows & Depth */
-  --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.1);
-  --shadow-md: 0 4px 12px rgba(0, 0, 0, 0.1);
-  --shadow-lg: 0 12px 40px rgba(0, 0, 0, 0.15);
+  --shadow-sm: light-dark(
+    0 1px 2px rgba(0, 0, 0, 0.1),
+    0 1px 2px rgba(0, 0, 0, 0.4)
+  );
+  --shadow-md: light-dark(
+    0 4px 12px rgba(0, 0, 0, 0.1),
+    0 4px 12px rgba(0, 0, 0, 0.5)
+  );
+  --shadow-lg: light-dark(
+    0 12px 40px rgba(0, 0, 0, 0.15),
+    0 12px 40px rgba(0, 0, 0, 0.6)
+  );
   --shadow-glow: 0 0 20px var(--accent-glow);
 
   /* Defaults */
   --background: var(--bg-base);
   --foreground: var(--text-primary);
-
-  /* Animation Tokens */
-  --transition-fast: 150ms cubic-bezier(0.4, 0, 0.2, 1);
-  --transition-normal: 250ms cubic-bezier(0.4, 0, 0.2, 1);
-  --transition-slow: 400ms cubic-bezier(0.4, 0, 0.2, 1);
 }
 
 /* Custom Scrollbar */
@@ -91,14 +115,6 @@
 ::selection {
   background: var(--accent-glow);
   color: var(--text-primary);
-}
-
-@media (prefers-color-scheme: dark) {
-  :root {
-    --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.4);
-    --shadow-md: 0 4px 12px rgba(0, 0, 0, 0.5);
-    --shadow-lg: 0 12px 40px rgba(0, 0, 0, 0.6);
-  }
 }
 
 html,

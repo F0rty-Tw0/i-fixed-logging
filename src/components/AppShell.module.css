@@ -60,7 +60,7 @@
   background: radial-gradient(
     circle at 50% 50%,
     transparent 40%,
-    rgba(0, 0, 0, 0.4) 100%
+    light-dark(rgba(0, 0, 0, 0.1), rgba(0, 0, 0, 0.4)) 100%
   );
   pointer-events: none;
   z-index: 3;

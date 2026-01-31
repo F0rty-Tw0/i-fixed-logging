@@ -39,7 +39,7 @@ export const ThemeProvider: React.FC<{ children: React.ReactNode }> = ({
       }
 
       setResolvedTheme(activeTheme);
-      document.body.setAttribute('data-theme', activeTheme);
+      root.setAttribute('data-theme', activeTheme);
     };
 
     updateTheme();
@@ -49,7 +49,11 @@ export const ThemeProvider: React.FC<{ children: React.ReactNode }> = ({
 
   const setTheme = (newTheme: Theme) => {
     setThemeState(newTheme);
-    localStorage.setItem('theme', newTheme);
+    try {
+      localStorage.setItem('theme', newTheme);
+    } catch {
+      console.error('Could not set the theme');
+    }
   };
 
   return (

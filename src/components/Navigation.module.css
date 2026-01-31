@@ -30,7 +30,10 @@
 
 .rail-expanded .rail-inner {
   width: 200px;
-  box-shadow: 20px 0 50px rgba(0, 0, 0, 0.6);
+  box-shadow: light-dark(
+    20px 0 50px rgba(0, 0, 0, 0.1),
+    20px 0 50px rgba(0, 0, 0, 0.6)
+  );
 }
 
 .logo {

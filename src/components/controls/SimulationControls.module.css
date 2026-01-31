@@ -157,7 +157,10 @@
   border-radius: 2px;
   cursor: pointer;
   margin-top: -4px;
-  box-shadow: 0 0 10px rgba(255, 255, 255, 0.2);
+  box-shadow: light-dark(
+    0 0 10px rgba(0, 0, 0, 0.1),
+    0 0 10px rgba(255, 255, 255, 0.2)
+  );
   transition: all var(--transition-fast);
   border: 1px solid var(--border-default);
 }

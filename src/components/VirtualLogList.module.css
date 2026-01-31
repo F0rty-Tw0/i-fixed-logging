@@ -71,7 +71,7 @@
 }
 
 .details-panel {
-  background-color: rgba(0, 0, 0, 0.2);
+  background-color: light-dark(rgba(0, 0, 0, 0.05), rgba(0, 0, 0, 0.2));
   padding: var(--space-3) var(--space-4);
   border-bottom: 1px solid var(--border-default);
   animation: details-in 0.2s ease-out;
@@ -174,10 +174,10 @@
 }
 .row-sev-WARN {
   border-left: 3px solid var(--warning);
-  background-color: rgba(245, 158, 11, 0.05);
+  background-color: var(--warning-bg);
 }
 .row-sev-ERROR,
 .row-sev-CRIT {
   border-left: 3px solid var(--error);
-  background-color: rgba(239, 68, 68, 0.05);
+  background-color: var(--error-bg);
 }
