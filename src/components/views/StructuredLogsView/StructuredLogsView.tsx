@@ -90,9 +90,16 @@ export const StructuredLogsView: React.FC = () => {
 
     if (
       typeof val === 'number' &&
-      (colLower.includes('latency') || col.toUpperCase().includes('AVG'))
+      (colLower.includes('latency') ||
+        col.toUpperCase().includes('AVG') ||
+        colLower.includes('p99'))
     ) {
-      return <span className={styles.latencyCell}>{val.toFixed(2)}ms</span>;
+      const isSlow = val > 200;
+      return (
+        <span className={isSlow ? styles.latencySlow : styles.latencyCell}>
+          {val.toFixed(0)}ms
+        </span>
+      );
     }
 
     if (typeof val === 'number') {
@@ -100,6 +107,36 @@ export const StructuredLogsView: React.FC = () => {
     }
 
     return String(val);
+  };
+
+  const getColumnWidth = (col: string): string => {
+    const colLower = col.toLowerCase();
+    if (colLower === 'journey_id') return '55px';
+    if (colLower === 'timestamp') return '100px';
+    if (colLower === 'severity') return '70px';
+    if (colLower === 'customer_segment') return '90px';
+    if (colLower === 'event') return '165px';
+    if (colLower === 'waiting_room_id') return '65px';
+    if (colLower === 'user_agent') return '450px';
+    if (colLower === 'ip') return '150px';
+    if (
+      colLower.includes('latency') ||
+      colLower.includes('p99') ||
+      colLower.includes('avg')
+    )
+      return '140px';
+    return '120px';
+  };
+
+  const getColumnLabel = (col: string): string => {
+    console.log(col);
+    const colLower = col.toLowerCase();
+    if (colLower === 'journey_id') return 'ID';
+    if (colLower === 'waiting_room_id') return 'WR ID';
+    if (colLower === 'customer_segment') return 'SEGMENT';
+    if (colLower === 'event') return 'SERVICE';
+    if (colLower === 'ip') return 'IP';
+    return col.replace(/_/g, ' ').toUpperCase();
   };
 
   const getHighlightedSql = (input: string) => {
@@ -305,12 +342,14 @@ export const StructuredLogsView: React.FC = () => {
             <div
               className={styles.headerRow}
               style={{
-                gridTemplateColumns: `repeat(${columns.length || 1}, minmax(120px, 300px))`,
+                gridTemplateColumns: columns
+                  .map((col) => getColumnWidth(col))
+                  .join(' '),
               }}
             >
               {columns.map((col) => (
                 <div key={col} className={styles.headerCell} title={col}>
-                  {col.replace(/_/g, ' ').toUpperCase()}
+                  {getColumnLabel(col)}
                 </div>
               ))}
             </div>
@@ -334,7 +373,9 @@ export const StructuredLogsView: React.FC = () => {
                       left: 0,
                       height: `${vRow.size}px`,
                       transform: `translateY(${vRow.start}px)`,
-                      gridTemplateColumns: `repeat(${columns.length || 1}, minmax(120px, 300px))`,
+                      gridTemplateColumns: columns
+                        .map((col) => getColumnWidth(col))
+                        .join(' '),
                     }}
                   >
                     {columns.map((col) => (
