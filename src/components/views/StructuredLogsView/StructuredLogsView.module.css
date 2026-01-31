@@ -281,6 +281,11 @@
   border-radius: 3px;
 }
 
+.tableBody {
+  position: relative;
+  width: 100%;
+}
+
 .headerRow {
   display: grid;
   position: sticky;
@@ -328,7 +333,7 @@
 }
 
 .cell {
-  padding: var(--space-3);
+  padding: var(--space-2) var(--space-3);
   color: var(--text-secondary);
   font-family: var(--font-mono);
   font-size: 0.875rem;

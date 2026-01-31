@@ -65,6 +65,18 @@
   background-color: var(--bg-hover);
 }
 
+.virtual-container {
+  position: relative;
+  width: 100%;
+}
+
+.virtual-item {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+}
+
 .expanded .log-row {
   background-color: var(--bg-elevated);
   border-bottom: none;

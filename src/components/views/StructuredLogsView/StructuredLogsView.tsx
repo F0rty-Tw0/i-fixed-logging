@@ -21,7 +21,7 @@ export const StructuredLogsView: React.FC = () => {
   const virtualizer = useVirtualizer({
     count: results.length,
     getScrollElement: () => parentRef.current,
-    estimateSize: () => 40,
+    estimateSize: () => 31,
     overscan: 10,
   });
 

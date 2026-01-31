@@ -40,6 +40,7 @@ export class SimulationEngine {
   private globalJourneyIdCounter = 1;
   private totalOccupiedCount = 0;
   private totalRunningCount = 0;
+  private totalStartedCount = 0;
 
   constructor(private pushLog: (log: LogData) => void) {}
 
@@ -52,7 +53,7 @@ export class SimulationEngine {
 
       if (state === STATE_INACTIVE) {
         if (
-          this.totalOccupiedCount < targetUsers &&
+          this.totalStartedCount < targetUsers &&
           spawnsThisTick < MAX_SPAWNS_PER_TICK
         ) {
           if (Math.random() < 0.1) {
@@ -62,7 +63,9 @@ export class SimulationEngine {
           }
         }
       } else if (state === STATE_COMPLETED) {
-        // Do nothing
+        // Recycle slots to allow more journeys than the MAX_USERS pool size
+        this.journeyStates[i] = STATE_INACTIVE;
+        this.totalOccupiedCount--;
       } else {
         if (Math.random() < this.journeyAdvanceProbs[i]) {
           const jitter = Math.random() * 50;
@@ -74,7 +77,7 @@ export class SimulationEngine {
     return {
       activeCount: this.totalRunningCount,
       isFinished:
-        this.totalOccupiedCount >= targetUsers && this.totalRunningCount === 0,
+        this.totalStartedCount >= targetUsers && this.totalRunningCount === 0,
     };
   }
 
@@ -85,6 +88,7 @@ export class SimulationEngine {
     this.journeyLastUpdateTimes[id] = time;
     this.totalOccupiedCount++;
     this.totalRunningCount++;
+    this.totalStartedCount++;
 
     const isSlow = Math.random() < 0.01;
     this.journeyAdvanceProbs[id] = isSlow ? 0.025 : 0.25;
@@ -195,5 +199,6 @@ export class SimulationEngine {
     this.globalJourneyIdCounter = 1;
     this.totalOccupiedCount = 0;
     this.totalRunningCount = 0;
+    this.totalStartedCount = 0;
   }
 }

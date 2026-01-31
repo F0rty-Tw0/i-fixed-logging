@@ -19,16 +19,28 @@ export const SimulationControls: React.FC<SimulationControlsProps> = ({
   onReset,
   onUsersChange,
 }) => {
-  const [targetVal, setTargetVal] = useState(1);
+  const [targetVal, setTargetVal] = useState<number | string>(1);
 
   const handleSliderChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const val = parseInt(e.target.value);
-    setTargetVal(val);
-    onUsersChange(val);
+    if (!isNaN(val)) {
+      setTargetVal(val);
+      onUsersChange(val);
+    }
   };
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const val = parseInt(e.target.value);
+    const rawValue = e.target.value;
+
+    if (rawValue === '') {
+      setTargetVal('');
+      onUsersChange(0);
+      return;
+    }
+
+    const val = parseInt(rawValue);
+    if (isNaN(val)) return;
+
     const clamped = Math.min(Math.max(0, val), MAX_USERS);
     setTargetVal(clamped);
     onUsersChange(clamped);

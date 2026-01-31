@@ -10,7 +10,18 @@ import { VirtualLogRow } from './VirtualLogRow';
 // Stable function references for useSyncExternalStore
 const subscribeToStore = (cb: () => void) => logStore.subscribe(cb);
 const getLogCountSnapshot = () => logStore.getLength();
+const getTotalIngestedSnapshot = () => logStore.getTotalIngested();
+const getSearchStatusSnapshot = () => logStore.getSearchStatus();
 const getServerLogCountSnapshot = () => 0;
+const INITIAL_SEARCH_STATUS = {
+  isSearching: false,
+  progress: 0,
+  query: '',
+  matchCount: 0,
+  isFiltered: false,
+  disabled: false,
+};
+const getServerSearchStatusSnapshot = () => INITIAL_SEARCH_STATUS;
 
 export const VirtualLogList = () => {
   const parentRef = useRef<HTMLDivElement>(null);
@@ -23,30 +34,48 @@ export const VirtualLogList = () => {
     getServerLogCountSnapshot,
   );
 
+  const totalIngested = useSyncExternalStore(
+    subscribeToStore,
+    getTotalIngestedSnapshot,
+    getServerLogCountSnapshot,
+  );
+
+  const searchStatus = useSyncExternalStore(
+    subscribeToStore,
+    getSearchStatusSnapshot,
+    getServerSearchStatusSnapshot,
+  );
+
+  const isFiltered = searchStatus.isFiltered;
+  // Use absolute count if not filtered to prevent flashing on buffer shifts
+  const effectiveCount = isFiltered ? logCount : totalIngested;
+
   // eslint-disable-next-line react-hooks/incompatible-library
   const virtualizer = useVirtualizer({
-    count: logCount,
+    count: effectiveCount,
     getScrollElement: () => parentRef.current,
-    estimateSize: () => 24, // 24px per row
-    overscan: 10,
+    estimateSize: () => 28, // Matched to actual CSS height (line-height + padding) + border
+    overscan: 12, // Reduced overscan for better performance during bursts
+    getItemKey: (index) => index, // Stable keys using indices
   });
 
   // Auto-scroll logic
-  // If user scrolls up, we stop auto-scrolling
   const [isAutoScroll, setIsAutoScroll] = useState(true);
   const [expandedIndex, setExpandedIndex] = useState<number | null>(null);
 
+  // Use a layout effect or just a regular effect to scroll when count changes
   useEffect(() => {
-    // Only auto-scroll if NOT inspecting a row (expandedIndex is null) AND auto-scroll is enabled
     if (
       isAutoScroll &&
-      parentRef.current &&
       expandedIndex === null &&
-      logCount > 0
+      effectiveCount > 0 &&
+      parentRef.current
     ) {
-      virtualizer.scrollToIndex(logCount - 1, { align: 'end' });
+      virtualizer.scrollToIndex(effectiveCount - 1, {
+        align: 'end',
+      });
     }
-  }, [logCount, isAutoScroll, virtualizer, expandedIndex]);
+  }, [effectiveCount, isAutoScroll, expandedIndex, virtualizer]);
 
   const toggleExpand = (index: number) => {
     setExpandedIndex((prev) => (prev === index ? null : index));
@@ -55,6 +84,8 @@ export const VirtualLogList = () => {
       setIsAutoScroll(false);
     }
   };
+
+  const lastScrollTopRef = useRef(0);
 
   return (
     <div className={styles['log-container']}>
@@ -74,17 +105,23 @@ export const VirtualLogList = () => {
         ref={parentRef}
         className={styles['virtual-scroller']}
         onScroll={(e) => {
-          // Detect if user scrolled up?
-          // Simple: if scrollHeight - scrollTop - clientHeight > 50, disable autoscroll
           const target = e.currentTarget;
-          if (
-            target.scrollHeight - target.scrollTop - target.clientHeight >
-            50
-          ) {
+          const currentScrollTop = target.scrollTop;
+          const scrollDiff = lastScrollTopRef.current - currentScrollTop;
+          const isScrollingUp = scrollDiff > 2; // Threshold to avoid jitter
+
+          const distanceFromBottom =
+            target.scrollHeight - currentScrollTop - target.clientHeight;
+
+          // If we're near the bottom, re-enable auto-scroll
+          if (distanceFromBottom < 30) {
+            if (!isAutoScroll) setIsAutoScroll(true);
+          } else if (isScrollingUp && isAutoScroll) {
+            // Only disable auto-scroll if the user explicitly scrolls UP
             setIsAutoScroll(false);
-          } else {
-            setIsAutoScroll(true);
           }
+
+          lastScrollTopRef.current = currentScrollTop;
         }}
       >
         <div
@@ -94,8 +131,25 @@ export const VirtualLogList = () => {
           }}
         >
           {virtualizer.getVirtualItems().map((virtualItem) => {
-            const log = logStore.getSnapshot(virtualItem.index);
-            if (!log) return null;
+            const log = isFiltered
+              ? logStore.getSnapshot(virtualItem.index)
+              : logStore.getSnapshotByAbsoluteIndex(virtualItem.index);
+
+            if (!log) {
+              return (
+                <div
+                  key={virtualItem.key}
+                  style={{
+                    position: 'absolute',
+                    top: 0,
+                    left: 0,
+                    width: '100%',
+                    height: `${virtualItem.size}px`,
+                    transform: `translateY(${virtualItem.start}px)`,
+                  }}
+                />
+              );
+            }
 
             const isExpanded = expandedIndex === virtualItem.index;
 

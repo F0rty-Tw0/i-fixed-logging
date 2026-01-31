@@ -1,4 +1,4 @@
-import { useEffect, useState, useCallback } from 'react';
+import { useEffect, useState, useCallback, useRef } from 'react';
 import { logStore } from '../store';
 import { workerManager } from '../worker/worker-manager';
 import { BatchPayload } from '../types/domain';
@@ -21,7 +21,17 @@ export const useSimulation = (): SimulationControls => {
   const [isFinished, setIsFinished] = useState(false);
   const [stats, setStats] = useState<SimulationStats>({ activeCount: 0 });
 
+  const lastStatsUpdateTimeRef = useRef(0);
+  const pendingActiveCountRef = useRef(0);
+  const statsTimeoutRef = useRef<NodeJS.Timeout | null>(null);
+
   useEffect(() => {
+    const flushStats = () => {
+      setStats({ activeCount: pendingActiveCountRef.current });
+      lastStatsUpdateTimeRef.current = Date.now();
+      statsTimeoutRef.current = null;
+    };
+
     // Subscribe to BATCH messages via workerManager
     const unsubscribe = workerManager.subscribe<BatchPayload>(
       'BATCH',
@@ -52,7 +62,17 @@ export const useSimulation = (): SimulationControls => {
           waitingRoomIds,
         );
 
-        setStats({ activeCount });
+        // Throttle the stats state update
+        pendingActiveCountRef.current = activeCount;
+        const now = Date.now();
+        const throttleMs = 150;
+
+        if (now - lastStatsUpdateTimeRef.current > throttleMs) {
+          if (statsTimeoutRef.current) clearTimeout(statsTimeoutRef.current);
+          flushStats();
+        } else if (!statsTimeoutRef.current) {
+          statsTimeoutRef.current = setTimeout(flushStats, throttleMs);
+        }
       },
     );
 
@@ -64,6 +84,7 @@ export const useSimulation = (): SimulationControls => {
     return () => {
       unsubscribe();
       unsubscribeFinished();
+      if (statsTimeoutRef.current) clearTimeout(statsTimeoutRef.current);
     };
   }, []);
 

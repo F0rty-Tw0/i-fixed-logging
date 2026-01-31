@@ -40,6 +40,8 @@ export class LogStore {
   private length: number = 0; // Current total items (capped at MAX_LOGS)
   private totalIngested: number = 0; // Total all time
   private listeners: (() => void)[] = [];
+  private notifyTimeout: NodeJS.Timeout | null = null;
+  private lastNotifyTime: number = 0;
 
   // Modules
   private searchEngine = new SearchEngine();
@@ -180,6 +182,29 @@ export class LogStore {
     };
   }
 
+  public getSnapshotByAbsoluteIndex(absIndex: number): LogSnapshot | null {
+    if (absIndex < 0 || absIndex >= this.totalIngested) return null;
+
+    // Check if it has been pruned (overwritten)
+    if (absIndex < this.totalIngested - this.length) {
+      return null;
+    }
+
+    const physicalIdx = absIndex % MAX_LOGS;
+
+    return {
+      timestamp: this.timestamps[physicalIdx],
+      journeyId: this.journeyIds[physicalIdx] as JourneyId,
+      eventId: this.eventIds[physicalIdx] as JourneyEvent,
+      severity: this.severities[physicalIdx] as LogSeverityId,
+      metaIndex: this.metaIndices[physicalIdx],
+      customerId: this.customerIds[physicalIdx] as CustomerId,
+      customerSegment: this.customerSegments[physicalIdx],
+      ip: this.ips[physicalIdx],
+      waitingRoomId: this.waitingRoomIds[physicalIdx],
+    };
+  }
+
   public getSnapshotByPhysicalIndex(physicalIdx: number): LogSnapshot | null {
     if (physicalIdx < 0 || physicalIdx >= MAX_LOGS) return null;
 
@@ -229,6 +254,25 @@ export class LogStore {
   }
 
   private notify() {
+    const now = Date.now();
+    const throttleMs = 150; // Max ~6-7 UI updates per second
+
+    if (now - this.lastNotifyTime > throttleMs) {
+      if (this.notifyTimeout) {
+        clearTimeout(this.notifyTimeout);
+        this.notifyTimeout = null;
+      }
+      this.executeNotify();
+    } else if (!this.notifyTimeout) {
+      this.notifyTimeout = setTimeout(() => {
+        this.notifyTimeout = null;
+        this.executeNotify();
+      }, throttleMs);
+    }
+  }
+
+  private executeNotify() {
+    this.lastNotifyTime = Date.now();
     for (const cb of this.listeners) cb();
   }
 
