@@ -110,11 +110,13 @@ export const WaterfallChart: React.FC<WaterfallChartProps> = ({
             ← Back
           </button>
           <div className={styles.titleSection}>
-            <h1>Error or No Data</h1>
+            <h1>Trace #{traceId}</h1>
           </div>
         </div>
         <div className={styles.padding2}>
-          {error ? error : 'No spans found for this trace.'}
+          {error
+            ? error
+            : 'No events found for this trace. The trace may have been cleared when the simulation was reset.'}
         </div>
       </div>
     );

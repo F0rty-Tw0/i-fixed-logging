@@ -6,3 +6,4 @@ export {
   type TailSamplingData,
 } from './tail-sampling-store';
 export { LogCacheManager } from './log-cache-manager';
+export { TraceStore, traceStore } from './trace-store';

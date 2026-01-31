@@ -8,6 +8,7 @@ import { Parser } from '../../../core/query/parser';
 import styles from './StructuredLogsView.module.css';
 import { motion, AnimatePresence } from 'framer-motion';
 import { clsx } from 'clsx';
+import Link from 'next/link';
 
 import { PREDEFINED_FILTERS } from '../../../core/constants';
 
@@ -62,14 +63,15 @@ export const StructuredLogsView: React.FC = () => {
 
     if (colLower === 'journey_id') {
       return (
-        <a
+        <Link
           href={`/distributed-tracing?traceId=${val}`}
           onClick={(e) => {
             e.stopPropagation();
           }}
+          className={styles.traceLink}
         >
           {String(val)}
-        </a>
+        </Link>
       );
     }
 
