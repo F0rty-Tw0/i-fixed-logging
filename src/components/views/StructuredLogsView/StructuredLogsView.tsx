@@ -111,19 +111,42 @@ export const StructuredLogsView: React.FC = () => {
         .replace(/>/g, '&gt;')
         .replace(/"/g, '&quot;');
 
-      // Highlight logic applied to escaped string
-      // Keywords (\b won't work on escaped chars, but keywords don't have symbols)
-      const keywords =
-        /\b(SELECT|FROM|WHERE|GROUP|ORDER|BY|LIMIT|AND|OR|NOT|IN|LIKE|ASC|DESC|AVG|COUNT|SUM)\b/gi;
-      const strings = /('.*?')/g; // Match regular quotes
+      // Categorized Keywords
+      const categories = [
+        {
+          // High-level commands
+          regex:
+            /\b(SELECT|FROM|WHERE|JOIN|LEFT|RIGHT|INNER|OUTER|UNION|ALL|INSERT|INTO|UPDATE|DELETE|CREATE|DROP|ALTER|TRUNCATE)\b/gi,
+          className: styles.word_command,
+        },
+        {
+          // Logical operators
+          regex:
+            /\b(AND|OR|NOT|IN|LIKE|IS|NULL|BETWEEN|EXISTS|ANY|ALL|SOME)\b/gi,
+          className: styles.word_logical,
+        },
+        {
+          // Functions
+          regex:
+            /\b(AVG|COUNT|SUM|MIN|MAX|ROUND|COALESCE|IFNULL|CONCAT|SUBSTR|SUBSTRING|LENGTH|UPPER|LOWER|NOW|TRIM)\b/gi,
+          className: styles.word_function,
+        },
+        {
+          // Control / Sorting / Constraints
+          regex:
+            /\b(GROUP|ORDER|BY|LIMIT|OFFSET|HAVING|ASC|DESC|DISTINCT|AS|ON|SET|VALUES)\b/gi,
+          className: styles.word_control,
+        },
+      ];
+
+      const strings = /('.*?')/g;
       const numbers = /\b\d+(\.\d+)?\b/g;
 
       let html = escaped;
-
-      // Use placeholders to avoid double-wrapping
       const parts: { key: string; val: string }[] = [];
       let i = 0;
 
+      // 1. Handle Strings first (to avoid internal keyword matches)
       html = html.replace(strings, (m) => {
         const key = `__STR${i++}__`;
         parts.push({
@@ -133,15 +156,19 @@ export const StructuredLogsView: React.FC = () => {
         return key;
       });
 
-      html = html.replace(keywords, (m) => {
-        const key = `__KEY${i++}__`;
-        parts.push({
-          key,
-          val: `<span class="${styles.word_keyword}">${m}</span>`,
+      // 2. Handle Categorized Keywords
+      categories.forEach((cat) => {
+        html = html.replace(cat.regex, (m) => {
+          const key = `__CAT${i++}__`;
+          parts.push({
+            key,
+            val: `<span class="${cat.className}">${m}</span>`,
+          });
+          return key;
         });
-        return key;
       });
 
+      // 3. Handle Numbers
       html = html.replace(numbers, (m) => {
         const key = `__NUM${i++}__`;
         parts.push({

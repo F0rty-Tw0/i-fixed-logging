@@ -117,10 +117,22 @@
 /* Removed blinking cursor animation */
 
 /* SQL Highlighting */
-.word_keyword {
+.word_command {
   color: var(--accent-400);
   font-weight: 800;
   text-shadow: 0 0 8px var(--accent-glow);
+}
+.word_logical {
+  color: #ff79c6; /* Vibrant Pink/Purple */
+  font-weight: 700;
+}
+.word_function {
+  color: #f1fa8c; /* Yellow */
+  font-weight: 600;
+}
+.word_control {
+  color: #8be9fd; /* Cyan */
+  font-weight: 700;
 }
 .word_string {
   color: #ce9178;
