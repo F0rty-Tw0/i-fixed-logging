@@ -9,7 +9,6 @@ import {
   useState,
   useCallback,
 } from 'react';
-import { motion } from 'framer-motion';
 import { useVirtualizer } from '@tanstack/react-virtual';
 import { logStore } from '../../../core/store';
 import { LogSeverityId } from '../../../core/types/domain';
@@ -232,35 +231,21 @@ export const TailSamplingView = () => {
   };
 
   return (
-    <motion.div
-      initial={{ opacity: 0, y: 20 }}
-      animate={{ opacity: 1, y: 0 }}
-      className={styles.container}
-    >
+    <div className={styles.container}>
       <div className={styles.header}>
-        <motion.h2
-          initial={{ opacity: 0, x: -20 }}
-          animate={{ opacity: 1, x: 0 }}
-          transition={{ delay: 0.2 }}
-          className={styles.title}
-        >
+        <h2 className={styles.title}>
           Live Traffic Matrix
           <span className={styles.stats}>
             {filteredTotalCount === -1
               ? 'Searching...'
               : `${filteredTotalCount.toLocaleString()} logs`}
           </span>
-        </motion.h2>
+        </h2>
 
-        <motion.p
-          initial={{ opacity: 0, x: -20 }}
-          animate={{ opacity: 1, x: 0 }}
-          transition={{ delay: 0.3 }}
-          className={styles.subtitle}
-        >
+        <p className={styles.subtitle}>
           High-density telemetry stream. Each cell maps a discrete event across
           the sampling dimension. Standby for signature detection.
-        </motion.p>
+        </p>
       </div>
 
       <FilterPanel
@@ -309,6 +294,6 @@ export const TailSamplingView = () => {
       </div>
 
       <LogTooltip hoveredLog={hoveredLog} tooltipPos={tooltipPos} />
-    </motion.div>
+    </div>
   );
 };

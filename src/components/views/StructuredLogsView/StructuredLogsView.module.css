@@ -4,7 +4,7 @@
   display: flex;
   flex-direction: column;
   height: 100%;
-  gap: var(--space-6);
+  gap: var(--space-3);
   overflow: hidden;
   position: relative;
 }
@@ -12,61 +12,41 @@
 .header {
   display: flex;
   flex-direction: column;
-  gap: var(--space-6);
-  padding-bottom: var(--space-2);
+  gap: var(--space-2);
 }
 
-.titleSection {
+.titleRow {
   display: flex;
+  align-items: center;
   justify-content: space-between;
-  align-items: flex-end;
-  border-bottom: 1px solid var(--border-default);
-  padding-bottom: var(--space-4);
-  position: relative;
+  margin-bottom: var(--space-2);
 }
 
-.titleSection::after {
-  content: '';
-  position: absolute;
-  bottom: -1px;
-  left: 0;
-  width: 100px;
-  height: 2px;
-  background: var(--accent-500);
-  box-shadow: 0 0 10px var(--accent-glow);
-}
-
-.titleSection h1 {
+.title {
   font-family: var(--font-display);
-  font-size: 1.875rem;
+  font-size: 1rem;
   font-weight: 700;
   color: var(--text-primary);
   margin: 0;
-  letter-spacing: -0.02em;
+  letter-spacing: -0.01em;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
 }
 
 .queryEditor {
   position: relative;
   background-color: var(--bg-void);
   border: 1px solid var(--border-default);
-  border-radius: 12px;
-  padding: var(--space-6);
+  border-radius: 8px;
+  padding: var(--space-3) var(--space-4);
   display: flex;
   flex-direction: column;
-  gap: var(--space-4);
-  box-shadow:
-    var(--shadow-md),
-    inset 0 0 30px rgba(0, 0, 0, 0.5);
-  transition: all var(--transition-normal);
-  background:
-    linear-gradient(135deg, rgba(0, 0, 0, 0.4), transparent), var(--bg-void);
+  gap: var(--space-2);
+  transition: border-color var(--transition-fast);
 }
 
 .queryEditor:focus-within {
   border-color: var(--accent-500);
-  box-shadow:
-    0 0 30px var(--accent-glow),
-    inset 0 0 15px rgba(139, 92, 246, 0.1);
 }
 
 .queryEditor.valid {
@@ -83,26 +63,27 @@
 
 .inputWrapper {
   display: flex;
-  gap: var(--space-6);
-  align-items: flex-start;
-  position: relative;
+  gap: var(--space-3);
+  align-items: center;
 }
 
 .editorContainer {
   flex: 1;
   position: relative;
-  min-height: 48px;
-  background: rgba(0, 0, 0, 0.2);
-  padding: var(--space-4);
-  border-radius: 8px;
+  min-height: 36px;
+  background: rgba(0, 0, 0, 0.3);
+  padding: var(--space-2) var(--space-3);
+  border-radius: 6px;
   border: 1px solid var(--border-subtle);
+  display: flex;
+  align-items: center;
 }
 
 .queryInput,
 .highlightOverlay {
   font-family: var(--font-mono);
-  font-size: 1rem;
-  line-height: 1.6;
+  font-size: 0.875rem;
+  line-height: 1.5;
   padding: 0;
   margin: 0;
   white-space: pre-wrap;
@@ -111,7 +92,6 @@
   border: none;
   outline: none;
   background: transparent;
-  letter-spacing: -0.01em;
 }
 
 .queryInput {
@@ -125,32 +105,16 @@
 
 .highlightOverlay {
   position: absolute;
-  top: var(--space-4);
-  left: var(--space-4);
-  width: calc(100% - var(--space-8));
+  top: 50%;
+  left: var(--space-3);
+  transform: translateY(-50%);
+  width: calc(100% - var(--space-6));
   z-index: 1;
   pointer-events: none;
   color: var(--text-secondary);
 }
 
-/* Blinking terminal cursor */
-.queryEditor:focus-within .editorContainer::after {
-  content: '';
-  position: absolute;
-  bottom: var(--space-4);
-  right: var(--space-4);
-  width: 12px;
-  height: 2px;
-  background-color: var(--accent-500);
-  box-shadow: 0 0 10px var(--accent-glow);
-  animation: blink 0.8s step-end infinite;
-}
-
-@keyframes blink {
-  50% {
-    opacity: 0;
-  }
-}
+/* Removed blinking cursor animation */
 
 /* SQL Highlighting */
 .word_keyword {
@@ -168,86 +132,76 @@
 }
 
 .validationBadge {
-  position: absolute;
-  right: var(--space-6);
-  top: -14px;
-  font-family: var(--font-display);
-  font-size: 0.7rem;
-  font-weight: 800;
+  font-family: var(--font-mono);
+  font-size: 0.65rem;
+  font-weight: 600;
   text-transform: uppercase;
-  letter-spacing: 0.15em;
-  padding: 4px 12px;
+  letter-spacing: 0.1em;
+  padding: 2px 8px;
   border-radius: 4px;
-  box-shadow: var(--shadow-sm);
 }
 
 .badge_valid {
   color: var(--success);
-  background: var(--bg-void);
+  background: rgba(34, 197, 94, 0.15);
   border: 1px solid var(--success);
-  box-shadow: 0 0 10px var(--success-bg);
 }
 .badge_invalid {
   color: var(--error);
-  background: var(--bg-void);
+  background: rgba(239, 68, 68, 0.15);
   border: 1px solid var(--error);
-  box-shadow: 0 0 10px var(--error-bg);
 }
 
 .runButton {
   background: linear-gradient(135deg, var(--accent-500), var(--accent-600));
   color: white;
   border: none;
-  padding: var(--space-3) var(--space-6);
-  border-radius: 8px;
-  font-weight: 800;
-  font-family: var(--font-display);
-  font-size: 0.875rem;
+  padding: var(--space-2) var(--space-4);
+  border-radius: 6px;
+  font-weight: 600;
+  font-family: var(--font-sans);
+  font-size: 0.8rem;
   cursor: pointer;
-  transition: all var(--transition-normal);
+  transition: all var(--transition-fast);
   display: flex;
   align-items: center;
-  gap: var(--space-3);
-  box-shadow: 0 0 20px var(--accent-glow);
-  text-transform: uppercase;
-  letter-spacing: 0.05em;
+  gap: var(--space-2);
+  white-space: nowrap;
 }
 
 .runButton:hover:not(:disabled) {
-  transform: translateY(-2px);
-  box-shadow: 0 0 30px var(--accent-glow);
   filter: brightness(1.1);
 }
 
 .runButton:disabled {
   opacity: 0.4;
   cursor: not-allowed;
-  filter: grayscale(1);
-  box-shadow: none;
+  filter: grayscale(0.5);
 }
 
 .chipsContainer {
   display: flex;
   gap: var(--space-2);
   flex-wrap: wrap;
+  padding-bottom: var(--space-2);
 }
 
 .chip {
   background: var(--bg-hover);
-  border: 1px solid var(--border-default);
-  color: var(--text-secondary);
-  padding: 4px 12px;
-  border-radius: 20px;
-  font-family: var(--font-sans);
-  font-size: 0.75rem;
+  border: 1px solid var(--border-subtle);
+  color: var(--text-muted);
+  padding: 3px 10px;
+  border-radius: 14px;
+  font-family: var(--font-mono);
+  font-size: 0.7rem;
   cursor: pointer;
   transition: all var(--transition-fast);
 }
 
 .chip:hover {
   background: var(--bg-elevated);
-  border-color: var(--text-muted);
-  color: var(--text-primary);
+  border-color: var(--border-default);
+  color: var(--text-secondary);
 }
 
 .resultsContainer {

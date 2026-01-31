@@ -121,20 +121,10 @@ export const WaterfallChart: React.FC<WaterfallChartProps> = ({
   }
 
   return (
-    <motion.div
-      className={styles.container}
-      initial={{ opacity: 0 }}
-      animate={{ opacity: 1 }}
-    >
+    <div className={styles.container}>
       <div className={styles.header}>
         <div className={styles.flexCenterGap1}>
-          <motion.button
-            onClick={onBack}
-            className={styles.backButton}
-            initial={{ opacity: 0, x: -10 }}
-            animate={{ opacity: 1, x: 0 }}
-            transition={{ delay: 0.1 }}
-          >
+          <button onClick={onBack} className={styles.backButton}>
             <svg
               width='14'
               height='14'
@@ -149,19 +139,14 @@ export const WaterfallChart: React.FC<WaterfallChartProps> = ({
               <polyline points='12 19 5 12 12 5'></polyline>
             </svg>
             BACK
-          </motion.button>
-          <motion.div
-            className={styles.titleSection}
-            initial={{ opacity: 0, x: -20 }}
-            animate={{ opacity: 1, x: 0 }}
-            transition={{ delay: 0.2 }}
-          >
+          </button>
+          <div className={styles.titleSection}>
             <h1>Trace #{traceId}</h1>
 
             <span className={styles.statsText}>
               {spans.length} events • {totalDuration}ms
             </span>
-          </motion.div>
+          </div>
         </div>
       </div>
 
@@ -169,20 +154,15 @@ export const WaterfallChart: React.FC<WaterfallChartProps> = ({
         <div className={styles.chartArea}>
           <TimelineHeader totalDuration={totalDuration} />
           <div className={styles.rowsContainer}>
-            {spans.map((span, index) => (
-              <motion.div
-                key={span.id}
-                initial={{ x: -10, opacity: 0 }}
-                animate={{ x: 0, opacity: 1 }}
-                transition={{ delay: index * 0.05, duration: 0.2 }}
-              >
+            {spans.map((span) => (
+              <div key={span.id}>
                 <WaterfallRow
                   span={span}
                   totalDuration={totalDuration}
                   isSelected={selectedSpanId === span.id}
                   onClick={() => setSelectedSpanId(span.id)}
                 />
-              </motion.div>
+              </div>
             ))}
           </div>
         </div>
@@ -196,6 +176,6 @@ export const WaterfallChart: React.FC<WaterfallChartProps> = ({
           )}
         </AnimatePresence>
       </div>
-    </motion.div>
+    </div>
   );
 };

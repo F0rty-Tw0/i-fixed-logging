@@ -1,7 +1,6 @@
 'use client';
 
 import React, { useState, useMemo, useEffect } from 'react';
-import { motion } from 'framer-motion';
 import { JourneyEvent, EVENT_NAMES } from '../../../core/types/domain';
 import styles from './WideEventView.module.css';
 import { JourneyTimeline } from './JourneyTimeline';
@@ -138,18 +137,9 @@ export const WideEventView: React.FC = () => {
   }, [selectedFields]);
 
   return (
-    <motion.div
-      className={styles.container}
-      initial={{ opacity: 0 }}
-      animate={{ opacity: 1 }}
-    >
+    <div className={styles.container}>
       <div className={styles.header}>
-        <motion.div
-          className={styles.headerLeft}
-          initial={{ opacity: 0, x: -20 }}
-          animate={{ opacity: 1, x: 0 }}
-          transition={{ delay: 0.1 }}
-        >
+        <div className={styles.headerLeft}>
           <h1 className={styles.title}>
             <span className={styles.icon}>🔍</span>
             Wide Event Builder
@@ -157,13 +147,9 @@ export const WideEventView: React.FC = () => {
           <p className={styles.subtitle}>
             Connect the clues to reveal the full story
           </p>
-        </motion.div>
+        </div>
 
-        <motion.div
-          initial={{ opacity: 0, y: -10 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.2 }}
-        >
+        <div>
           <InvestigationProgress
             cluesFound={cluesFound}
             totalClues={totalClues}
@@ -173,16 +159,11 @@ export const WideEventView: React.FC = () => {
             activeHighlightCategory={activeHighlightCategory}
             setActiveHighlightCategory={setActiveHighlightCategory}
           />
-        </motion.div>
+        </div>
       </div>
 
       <div className={styles.mainContent}>
-        <motion.div
-          initial={{ opacity: 0, x: -20 }}
-          animate={{ opacity: 1, x: 0 }}
-          transition={{ delay: 0.3 }}
-          style={{ display: 'flex', minHeight: 0 }}
-        >
+        <div style={{ display: 'flex', minHeight: 0 }}>
           <JourneyTimeline
             expandedStep={expandedStep}
             setExpandedStep={setExpandedStep}
@@ -192,21 +173,16 @@ export const WideEventView: React.FC = () => {
             setShowClues={setShowClues}
             activeHighlightCategory={activeHighlightCategory}
           />
-        </motion.div>
+        </div>
 
-        <motion.div
-          initial={{ opacity: 0, x: 20 }}
-          animate={{ opacity: 1, x: 0 }}
-          transition={{ delay: 0.4 }}
-          style={{ display: 'flex', minHeight: 0 }}
-        >
+        <div style={{ display: 'flex', minHeight: 0 }}>
           <JsonPreviewPanel
             jsonPreview={jsonPreview}
             showProblemTooltip={showProblemTooltip}
             setShowProblemTooltip={setShowProblemTooltip}
           />
-        </motion.div>
+        </div>
       </div>
-    </motion.div>
+    </div>
   );
 };

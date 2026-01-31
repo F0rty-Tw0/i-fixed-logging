@@ -82,18 +82,9 @@ export const TraceList: React.FC<{ onSelectTrace?: (id: number) => void }> = ({
   }, [traces]);
 
   return (
-    <motion.div
-      className={styles.container}
-      initial={{ opacity: 0 }}
-      animate={{ opacity: 1 }}
-    >
+    <div className={styles.container}>
       <div className={styles.header}>
-        <motion.div
-          className={styles.titleSection}
-          initial={{ opacity: 0, x: -20 }}
-          animate={{ opacity: 1, x: 0 }}
-          transition={{ delay: 0.1 }}
-        >
+        <div className={styles.titleSection}>
           <svg
             width='20'
             height='20'
@@ -118,14 +109,9 @@ export const TraceList: React.FC<{ onSelectTrace?: (id: number) => void }> = ({
             onChange={(e) => setFilter(e.target.value)}
             className={styles.filterInput}
           />
-        </motion.div>
+        </div>
 
-        <motion.div
-          className={styles.statsBar}
-          initial={{ opacity: 0, scale: 0.9 }}
-          animate={{ opacity: 1, scale: 1 }}
-          transition={{ delay: 0.2 }}
-        >
+        <div className={styles.statsBar}>
           <div className={styles.statItem}>
             <span className={styles.statLabel}>Active Traces</span>
             <span className={styles.statValue}>{traces.length}</span>
@@ -140,16 +126,10 @@ export const TraceList: React.FC<{ onSelectTrace?: (id: number) => void }> = ({
               ms
             </span>
           </div>
-        </motion.div>
+        </div>
       </div>
 
-      <motion.div
-        className={styles.listContainer}
-        ref={parentRef}
-        initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ delay: 0.3 }}
-      >
+      <div className={styles.listContainer} ref={parentRef}>
         <div className={styles.listHeader}>
           <div
             className={styles.sortableHeader}
@@ -210,12 +190,9 @@ export const TraceList: React.FC<{ onSelectTrace?: (id: number) => void }> = ({
           {virtualizer.getVirtualItems().map((virtualRow) => {
             const trace = filteredTraces[virtualRow.index];
             return (
-              <motion.div
+              <div
                 key={virtualRow.key}
                 className={styles.listRow}
-                initial={{ opacity: 0, x: -10 }}
-                animate={{ opacity: 1, x: 0 }}
-                transition={{ delay: 0.4 + virtualRow.index * 0.02 }}
                 style={{
                   position: 'absolute',
                   top: 0,
@@ -253,7 +230,7 @@ export const TraceList: React.FC<{ onSelectTrace?: (id: number) => void }> = ({
                   </span>
                 </div>
                 <div className={styles.cell}>{trace.eventCount}</div>
-              </motion.div>
+              </div>
             );
           })}
         </div>
@@ -283,7 +260,7 @@ export const TraceList: React.FC<{ onSelectTrace?: (id: number) => void }> = ({
             </motion.div>
           )}
         </AnimatePresence>
-      </motion.div>
-    </motion.div>
+      </div>
+    </div>
   );
 };

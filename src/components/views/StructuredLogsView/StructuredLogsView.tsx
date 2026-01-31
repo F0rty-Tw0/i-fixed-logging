@@ -163,37 +163,24 @@ export const StructuredLogsView: React.FC = () => {
   };
 
   return (
-    <motion.div
-      className={styles.container}
-      initial={{ opacity: 0 }}
-      animate={{ opacity: 1 }}
-    >
+    <div className={styles.container}>
       <div className={styles.header}>
-        <motion.div
-          className={styles.titleSection}
-          initial={{ opacity: 0, x: -20 }}
-          animate={{ opacity: 1, x: 0 }}
-          transition={{ delay: 0.1 }}
-        >
-          <h1>Advanced Query Engine</h1>
-        </motion.div>
-
-        <motion.div
+        <div
           className={clsx(
             styles.queryEditor,
             isValid ? styles.valid : styles.invalid,
           )}
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.2 }}
         >
-          <div
-            className={clsx(
-              styles.validationBadge,
-              isValid ? styles.badge_valid : styles.badge_invalid,
-            )}
-          >
-            {isValid ? 'Ready to run' : 'Syntax Error'}
+          <div className={styles.titleRow}>
+            <h1 className={styles.title}>Advanced Query Engine</h1>
+            <div
+              className={clsx(
+                styles.validationBadge,
+                isValid ? styles.badge_valid : styles.badge_invalid,
+              )}
+            >
+              {isValid ? 'Ready' : 'Error'}
+            </div>
           </div>
 
           <div className={styles.inputWrapper}>
@@ -222,8 +209,8 @@ export const StructuredLogsView: React.FC = () => {
               disabled={loading || !isValid}
             >
               <svg
-                width='16'
-                height='16'
+                width='14'
+                height='14'
                 viewBox='0 0 24 24'
                 fill='none'
                 stroke='currentColor'
@@ -233,23 +220,16 @@ export const StructuredLogsView: React.FC = () => {
               >
                 <polygon points='5 3 19 12 5 21 5 3'></polygon>
               </svg>
-              Run Query
+              Run
             </button>
           </div>
           {loading && <div className={styles.loader} />}
-        </motion.div>
+        </div>
 
-        <motion.div
-          className={styles.chipsContainer}
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          transition={{ delay: 0.3 }}
-        >
+        <div className={styles.chipsContainer}>
           {PREDEFINED_FILTERS.map((filter) => (
-            <motion.button
+            <button
               key={filter.label}
-              whileHover={{ scale: 1.02 }}
-              whileTap={{ scale: 0.98 }}
               className={styles.chip}
               onClick={() => {
                 setSql(filter.sql);
@@ -257,9 +237,9 @@ export const StructuredLogsView: React.FC = () => {
               }}
             >
               {filter.label}
-            </motion.button>
+            </button>
           ))}
-        </motion.div>
+        </div>
       </div>
 
       <AnimatePresence>
@@ -289,12 +269,7 @@ export const StructuredLogsView: React.FC = () => {
         )}
       </AnimatePresence>
 
-      <motion.div
-        className={styles.resultsContainer}
-        initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ delay: 0.4 }}
-      >
+      <div className={styles.resultsContainer}>
         {results.length > 0 ? (
           <div className={styles.tableWrapper} ref={parentRef}>
             <div
@@ -365,7 +340,7 @@ export const StructuredLogsView: React.FC = () => {
             </div>
           )
         )}
-      </motion.div>
-    </motion.div>
+      </div>
+    </div>
   );
 };
