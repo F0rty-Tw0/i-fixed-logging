@@ -55,10 +55,8 @@ export const LogGrid: React.FC<LogGridProps> = ({
     >
       {virtualizer.getVirtualItems().map((virtualColumn) => {
         const startIdx = virtualColumn.index * 15;
-        const columnSeverities = Array.from(
-          severities.subarray(startIdx, startIdx + 15),
-        );
-
+        // Calculate how many items to render in this column
+        const columnEndIdx = Math.min(startIdx + 15, displayLength);
         const columnPhysicalIndices = logIndices.subarray(
           startIdx,
           startIdx + 15,
@@ -72,12 +70,12 @@ export const LogGrid: React.FC<LogGridProps> = ({
               transform: `translateX(${virtualColumn.start}px)`,
             }}
           >
-            {columnSeverities.map((sevId, rowIdx) => {
+            {Array.from({ length: 15 }, (_, rowIdx) => {
               const actualIndex = startIdx + rowIdx;
               const physicalIdx = columnPhysicalIndices[rowIdx];
 
               // Only render if within the damped display length
-              if (actualIndex >= displayLength) {
+              if (actualIndex >= columnEndIdx) {
                 return (
                   <div
                     key={rowIdx}
@@ -86,6 +84,7 @@ export const LogGrid: React.FC<LogGridProps> = ({
                 );
               }
 
+              const sevId = severities[actualIndex];
               return (
                 <div
                   key={rowIdx}

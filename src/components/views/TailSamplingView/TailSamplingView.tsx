@@ -84,7 +84,7 @@ export const TailSamplingView = () => {
         const diff = target - prev;
 
         // If RESET or catastrophically behind, catch up instantly
-        if (diff < 0 || diff > 20000) {
+        if (diff < 0 || diff > 50000) {
           return target;
         }
 
@@ -93,9 +93,23 @@ export const TailSamplingView = () => {
           return target;
         }
 
-        // Damping: 10 logs per frame for that "one by one" feeling
-        // 10 * 60 = 600 logs/sec. 2000 logs = ~3 seconds to fill.
-        const step = 10;
+        // ADAPTIVE DAMPING:
+        // At low backlog (<60), step 1 per frame for fine-grained appearance
+        // As backlog grows, increase step to prevent falling behind
+        // This ensures we never fall more than ~1 second behind at any rate
+        let step: number;
+        if (diff < 60) {
+          step = 1; // Fine-grained for low velocity
+        } else if (diff < 300) {
+          step = 5; // ~300/sec
+        } else if (diff < 1000) {
+          step = 15; // ~900/sec
+        } else if (diff < 3000) {
+          step = 50; // ~3000/sec
+        } else {
+          step = 150; // High-velocity catch-up
+        }
+
         return Math.min(prev + step, target);
       });
       frameId = requestAnimationFrame(animate);
