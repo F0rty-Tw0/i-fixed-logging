@@ -58,4 +58,7 @@ export const LOG_COLUMNS = [
   'event',
   'message',
   'latency',
+  'ip_numeric',
+  'event_id',
+  'severity_id',
 ] as const;

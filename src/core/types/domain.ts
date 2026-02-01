@@ -79,9 +79,12 @@ export type LogColumn =
   | 'customer_id'
   | 'customer_segment'
   | 'ip'
+  | 'ip_numeric'
   | 'waiting_room_id'
   | 'region'
-  | 'user_agent';
+  | 'user_agent'
+  | 'event_id'
+  | 'severity_id';
 
 export interface TraceSummary {
   traceId: JourneyId;

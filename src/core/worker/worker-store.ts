@@ -107,6 +107,12 @@ export class WorkerLogStore {
           (ip & 0xff)
         );
       }
+      case 'ip_numeric':
+        return this.ips[pIdx];
+      case 'event_id':
+        return this.eventIds[pIdx];
+      case 'severity_id':
+        return this.severities[pIdx];
       case 'waiting_room_id':
         return this.waitingRoomIds[pIdx];
       case 'region':
@@ -174,11 +180,14 @@ export class WorkerLogStore {
         (ip >>> 8) & 0xff,
         ip & 0xff,
       ].join('.'),
+      ip_numeric: ip,
       waiting_room_id: this.waitingRoomIds[pIdx],
       region: REGIONS[this.regions[pIdx]] || 'unknown',
       user_agent: USER_AGENTS[this.userAgents[pIdx]] || 'unknown',
       message: details.message,
       service: getLogSource(this.eventIds[pIdx] as JourneyEvent),
+      event_id: this.eventIds[pIdx],
+      severity_id: this.severities[pIdx],
     };
   }
 

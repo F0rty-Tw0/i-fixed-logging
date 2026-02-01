@@ -38,7 +38,7 @@ export const LogTooltip: React.FC<LogTooltipProps> = ({
 
   // Calculate smart position during render to avoid setState in effects
   let x = tooltipPos.x;
-  let y = tooltipPos.y;
+  let y = tooltipPos.y - 335; // Shift up slightly to avoid cursor overlap
 
   // Flip left if too close to right edge
   if (x + TOOLTIP_WIDTH + PADDING > window.innerWidth) {
@@ -203,6 +203,11 @@ export const LogTooltip: React.FC<LogTooltipProps> = ({
                         'message',
                         'timestamp',
                         'years_with_us',
+                        'stack_trace',
+                        'error_code',
+                        'warn_code',
+                        'cause',
+                        'details',
                       ].includes(key),
                   )
                   .map(([key, value]) => (
@@ -234,9 +239,18 @@ export const LogTooltip: React.FC<LogTooltipProps> = ({
                 <span className={styles.warnCode}>{details.warn_code}</span>
               )}
             </div>
+            {details.cause && details.cause !== details.message && (
+              <div className={styles.stackTrace}>
+                <strong>Cause:</strong> {details.cause}
+              </div>
+            )}
             {details.stack_trace && (
               <div className={styles.stackTrace}>{details.stack_trace}</div>
             )}
+            {details.details &&
+              details.details !== 'Standard event processing' && (
+                <div className={styles.stackTrace}>{details.details}</div>
+              )}
           </div>
         </div>
       </div>

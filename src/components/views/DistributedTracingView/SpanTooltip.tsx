@@ -31,7 +31,7 @@ export const SpanTooltip: React.FC<SpanTooltipProps> = ({
 
   // Calculate smart position
   let x = position.x;
-  let y = position.y;
+  let y = position.y - 15; // Shift up slightly to avoid cursor overlap
 
   // Flip left if too close to right edge
   const windowWidth = typeof window !== 'undefined' ? window.innerWidth : 1200;
@@ -60,17 +60,31 @@ export const SpanTooltip: React.FC<SpanTooltipProps> = ({
     CRITICAL: LogSeverityId.CRITICAL,
   };
 
+  const rawData = span.raw || {};
+  const journeyId = (rawData.journey_id as number) ?? 0;
+  const waitingRoomId = (rawData.waiting_room_id as number) ?? 0;
+  const customerId = (rawData.customer_id as number) ?? 0;
+
+  // Robust IP retrieval: prioritize numeric, fallback to parsing the formatted string
+  let ip = (rawData.ip_numeric as number) ?? 0;
+  if (ip === 0) {
+    if (typeof rawData.ip === 'number') {
+      ip = rawData.ip;
+    } else if (typeof rawData.ip === 'string') {
+      const parts = rawData.ip.split('.').map(Number);
+      if (parts.length === 4) {
+        ip =
+          ((parts[0] << 24) | (parts[1] << 16) | (parts[2] << 8) | parts[3]) >>>
+          0;
+      }
+    }
+  }
+
   const sevId = severityIdMap[span.severity] ?? LogSeverityId.INFO;
   const isError =
     sevId === LogSeverityId.ERROR || sevId === LogSeverityId.CRITICAL;
   const isWarn = sevId === LogSeverityId.WARN;
   const isInfo = sevId === LogSeverityId.INFO;
-
-  const rawData = span.raw || {};
-  const journeyId = (rawData.journey_id as number) ?? 0;
-  const waitingRoomId = (rawData.waiting_room_id as number) ?? 0;
-  const customerId = (rawData.customer_id as number) ?? 0;
-  const ip = (rawData.ip_numeric as number) ?? 0;
 
   const details = generateLogDetails(
     journeyId,
@@ -208,6 +222,11 @@ export const SpanTooltip: React.FC<SpanTooltipProps> = ({
                         'message',
                         'timestamp',
                         'years_with_us',
+                        'stack_trace',
+                        'error_code',
+                        'warn_code',
+                        'cause',
+                        'details',
                       ].includes(key),
                   )
                   .map(([key, value]) => (
@@ -239,9 +258,18 @@ export const SpanTooltip: React.FC<SpanTooltipProps> = ({
                 <span className={styles.warnCode}>{details.warn_code}</span>
               )}
             </div>
+            {details.cause && details.cause !== details.message && (
+              <div className={styles.stackTrace}>
+                <strong>Cause:</strong> {details.cause}
+              </div>
+            )}
             {details.stack_trace && (
               <div className={styles.stackTrace}>{details.stack_trace}</div>
             )}
+            {details.details &&
+              details.details !== 'Standard event processing' && (
+                <div className={styles.stackTrace}>{details.details}</div>
+              )}
           </div>
         </div>
       </div>
