@@ -9,6 +9,7 @@ import { VirtualLogRow } from './VirtualLogRow';
 import { EVENT_NAMES } from '../../core/types/domain';
 import { REGIONS } from '../../core/constants';
 import { getLogSource, generateLogDetails } from '../../utils/log-details';
+import { LOG_COLUMN_METADATA } from '../../core/constants/ui';
 
 // Stable function references for useSyncExternalStore
 const subscribeToStore = (cb: () => void) => logStore.subscribe(cb);
@@ -26,24 +27,11 @@ const INITIAL_SEARCH_STATUS = {
 };
 const getServerSearchStatusSnapshot = () => INITIAL_SEARCH_STATUS;
 
-// Added REGION (80px) after SEGMENT (90px)
-const COLUMNS_CONFIG =
-  '45px 100px 70px 120px 65px 90px 90px 80px 150px 165px 1fr 100px';
-
-const COLUMNS_KEYS = [
-  'journey_id',
-  'timestamp',
-  'severity',
-  'service',
-  'waiting_room_id',
-  'customer_segment',
-  'customer_id',
-  'region',
-  'ip',
-  'event',
-  'message',
-  'latency',
-];
+// derive columns from metadata
+const COLUMNS_KEYS = Object.keys(LOG_COLUMN_METADATA);
+const COLUMNS_CONFIG = Object.values(LOG_COLUMN_METADATA)
+  .map((m) => m.width)
+  .join(' ');
 
 export const VirtualLogList = () => {
   const parentRef = useRef<HTMLDivElement>(null);
@@ -159,19 +147,11 @@ export const VirtualLogList = () => {
         className={styles['header-row']}
         style={{ gridTemplateColumns: COLUMNS_CONFIG }}
       >
-        <div className={styles['header-cell']}>ID</div>
-        <div className={styles['header-cell']}>TIME</div>
-        <div className={styles['header-cell']}>TYPE</div>
-        <div className={styles['header-cell']}>SERVICE</div>
-        <div className={styles['header-cell']}>WR ID</div>
-        <div className={styles['header-cell']}>SEGMENT</div>
-        {/* Added CUST ID column */}
-        <div className={styles['header-cell']}>CUST ID</div>
-        <div className={styles['header-cell']}>REGION</div>
-        <div className={styles['header-cell']}>IP</div>
-        <div className={styles['header-cell']}>EVENT</div>
-        <div className={styles['header-cell']}>MESSAGE</div>
-        <div className={styles['header-cell']}>LATENCY</div>
+        {COLUMNS_KEYS.map((key) => (
+          <div key={key} className={styles['header-cell']}>
+            {LOG_COLUMN_METADATA[key].label}
+          </div>
+        ))}
       </div>
       <div
         ref={parentRef}
@@ -261,6 +241,7 @@ export const VirtualLogList = () => {
                         logStore.getMetaIndex(absIndex),
                         logStore.getIp(absIndex),
                         absIndex,
+                        logStore.getTimestamp(absIndex),
                       ).message;
                     }
                     case 'latency':
@@ -279,6 +260,7 @@ export const VirtualLogList = () => {
                     logStore.getMetaIndex(absIndex),
                     logStore.getIp(absIndex),
                     absIndex,
+                    logStore.getTimestamp(absIndex),
                   );
                 }}
               />

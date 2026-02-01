@@ -53,3 +53,21 @@ export const PREDEFINED_FILTERS = [
     sql: 'SELECT region, COUNT(*) FROM logs GROUP BY region ORDER BY COUNT(*) DESC',
   },
 ];
+
+export const LOG_COLUMN_METADATA: Record<
+  string,
+  { width: string; label: string }
+> = {
+  journey_id: { width: '40px', label: 'ID' },
+  timestamp: { width: '90px', label: 'TIME' },
+  severity: { width: '75px', label: 'TYPE' },
+  service: { width: '165px', label: 'SERVICE' },
+  waiting_room_id: { width: '60px', label: 'WR ID' },
+  customer_segment: { width: '90px', label: 'SEGMENT' },
+  customer_id: { width: '80px', label: 'CUST ID' },
+  region: { width: '85px', label: 'REGION' },
+  ip: { width: '140px', label: 'IP' },
+  event: { width: '165px', label: 'EVENT' },
+  message: { width: '1fr', label: 'MESSAGE' },
+  latency: { width: '90px', label: 'LATENCY' },
+};

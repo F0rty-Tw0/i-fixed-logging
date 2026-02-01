@@ -9,7 +9,10 @@ import styles from './StructuredLogsView.module.css';
 import { motion, AnimatePresence } from 'framer-motion';
 import { clsx } from 'clsx';
 import { VirtualLogRow } from '../../VirtualLogList/VirtualLogRow';
-import { PREDEFINED_FILTERS } from '../../../core/constants';
+import {
+  PREDEFINED_FILTERS,
+  LOG_COLUMN_METADATA,
+} from '../../../core/constants/ui';
 
 export const StructuredLogsView: React.FC = () => {
   const [sql, setSql] = useState(PREDEFINED_FILTERS[0].sql);
@@ -61,40 +64,23 @@ export const StructuredLogsView: React.FC = () => {
 
   const getColumnWidth = (col: string): string => {
     const colLower = col.toLowerCase();
-    if (colLower === 'journey_id') return '55px';
-    if (colLower === 'timestamp') return '100px';
-    if (colLower === 'severity') return '70px';
-    if (colLower === 'customer_segment') return '90px';
-    if (colLower === 'customer_id') return '90px';
-    if (colLower === 'service') return '120px';
-    if (colLower === 'region') return '80px';
-    if (colLower === 'event') return '165px';
-    if (colLower === 'waiting_room_id') return '65px';
-    if (colLower === 'ip') return '150px';
-    if (colLower === 'message') return '1fr';
+    const meta = LOG_COLUMN_METADATA[colLower];
+    if (meta) return meta.width;
+
     if (
       colLower.includes('latency') ||
       colLower.includes('p99') ||
       colLower.includes('avg')
     )
-      return '100px';
+      return '90px';
     return '120px';
   };
 
   const getColumnLabel = (col: string): string => {
     const colLower = col.toLowerCase();
-    if (colLower === 'journey_id') return 'ID';
-    if (colLower === 'waiting_room_id') return 'WR ID';
-    if (colLower === 'customer_segment') return 'SEGMENT';
-    if (colLower === 'customer_id') return 'CUST ID';
-    if (colLower === 'event') return 'EVENT';
-    if (colLower === 'ip') return 'IP';
-    if (colLower === 'latency') return 'LATENCY';
-    if (colLower === 'service') return 'SERVICE';
-    if (colLower === 'message') return 'MESSAGE';
-    if (colLower === 'region') return 'REGION';
-    if (colLower === 'timestamp') return 'TIME';
-    if (colLower === 'severity') return 'TYPE';
+    const meta = LOG_COLUMN_METADATA[colLower];
+    if (meta) return meta.label;
+
     return col.replace(/_/g, ' ').toUpperCase();
   };
 

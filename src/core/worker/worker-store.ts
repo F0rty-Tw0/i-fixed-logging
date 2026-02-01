@@ -128,6 +128,7 @@ export class WorkerLogStore {
           this.metaIndices[pIdx],
           this.ips[pIdx],
           absIndex,
+          this.timestamps[pIdx],
         ).message;
       }
       case 'service':
@@ -155,6 +156,7 @@ export class WorkerLogStore {
       this.metaIndices[pIdx],
       this.ips[pIdx],
       absIndex,
+      this.timestamps[pIdx],
     );
 
     return {

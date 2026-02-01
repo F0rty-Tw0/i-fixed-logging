@@ -76,12 +76,13 @@ export function generateLogDetails(
   latency?: number,
   ip?: number,
   absIndex?: number, // Optional stable key for better caching
+  timestamp?: number,
 ) {
   // Use absIndex as cache key if available, otherwise hash the critical inputs
   const cacheKey =
     absIndex !== undefined
       ? `idx-${absIndex}`
-      : `${journeyId}-${eventId}-${severity}-${latency}-${ip}`;
+      : `${journeyId}-${eventId}-${severity}-${latency}-${ip}-${timestamp}`;
 
   const cached = DETAILS_CACHE.get(cacheKey);
   if (cached) return cached;
@@ -126,6 +127,7 @@ export function generateLogDetails(
     customer_segment: customerId === CUSTOMER_ID_VIP ? 'VIP' : 'Standard',
     waiting_room: `WR-${(waitingRoomId || 0).toString().padStart(2, '0')}`,
     message: `${EVENT_NAMES[eventId].replace(/_/g, ' ')} processing`,
+    timestamp: timestamp ? new Date(timestamp).toISOString() : undefined,
   };
 
   if (customerId === CUSTOMER_ID_VIP) {

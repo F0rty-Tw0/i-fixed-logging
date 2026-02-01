@@ -63,6 +63,8 @@ export const LogTooltip: React.FC<LogTooltipProps> = ({
     hoveredLog.customerId,
     hoveredLog.metaIndex,
     hoveredLog.ip,
+    undefined, // absIndex
+    hoveredLog.timestamp,
   );
 
   const formattedIp = `${(hoveredLog.ip >>> 24) & 0xff}.${

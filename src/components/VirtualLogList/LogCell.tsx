@@ -39,9 +39,10 @@ export const LogCell: React.FC<LogCellProps> = React.memo(({ col, value }) => {
         timeStr = date.toLocaleTimeString('en-GB', {
           hour12: false,
           hour: '2-digit',
+          minute: '2-digit',
           second: '2-digit',
         });
-        fullTime = date.toLocaleTimeString();
+        fullTime = date.toISOString();
       } catch {
         timeStr = String(value);
       }
