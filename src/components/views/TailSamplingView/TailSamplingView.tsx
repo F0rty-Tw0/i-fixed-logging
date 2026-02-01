@@ -208,7 +208,14 @@ export const TailSamplingView = () => {
     getServerFilteredCountSnapshot,
   );
 
+  const hideTimeoutRef = useRef<NodeJS.Timeout | null>(null);
+
   const handleSquareEnter = (e: React.MouseEvent, index: number) => {
+    if (hideTimeoutRef.current) {
+      clearTimeout(hideTimeoutRef.current);
+      hideTimeoutRef.current = null;
+    }
+
     // Check if visible before showing tooltip
     const sevId = severities[index];
     const physicalIdx = logIndices[index];
@@ -223,6 +230,19 @@ export const TailSamplingView = () => {
   };
 
   const handleSquareLeave = () => {
+    hideTimeoutRef.current = setTimeout(() => {
+      setHoveredIndex(null);
+    }, 200);
+  };
+
+  const handleTooltipEnter = () => {
+    if (hideTimeoutRef.current) {
+      clearTimeout(hideTimeoutRef.current);
+      hideTimeoutRef.current = null;
+    }
+  };
+
+  const handleTooltipLeave = () => {
     setHoveredIndex(null);
   };
 
@@ -293,7 +313,12 @@ export const TailSamplingView = () => {
         />
       </div>
 
-      <LogTooltip hoveredLog={hoveredLog} tooltipPos={tooltipPos} />
+      <LogTooltip
+        hoveredLog={hoveredLog}
+        tooltipPos={tooltipPos}
+        onMouseEnter={handleTooltipEnter}
+        onMouseLeave={handleTooltipLeave}
+      />
     </div>
   );
 };

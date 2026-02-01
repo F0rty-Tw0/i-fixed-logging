@@ -2,7 +2,7 @@
 
 .tooltip {
   position: fixed;
-  width: 340px;
+  width: 640px;
   background-color: var(--bg-elevated);
   border: 1px solid var(--border-default);
   border-radius: 8px;
@@ -11,7 +11,7 @@
     inset 0 0 20px rgba(255, 255, 255, 0.02),
     0 10px 40px rgba(0, 0, 0, 0.6);
   z-index: 1000;
-  pointer-events: none;
+  pointer-events: auto;
   overflow: hidden;
   backdrop-filter: blur(16px);
   animation: tooltip-in 0.2s cubic-bezier(0.16, 1, 0.3, 1);
@@ -81,6 +81,13 @@
 
 .body {
   padding: var(--space-4);
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: var(--space-6);
+  min-width: 600px;
+}
+
+.column {
   display: flex;
   flex-direction: column;
   gap: var(--space-4);
@@ -122,6 +129,58 @@
   color: var(--accent-400);
 }
 
+.idSection {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  padding-top: var(--space-2);
+}
+
+.idValue {
+  font-family: var(--font-mono);
+  font-size: 0.75rem;
+  color: var(--text-secondary);
+  background: rgba(255, 255, 255, 0.03);
+  padding: 4px 8px;
+  border-radius: 4px;
+  border: 1px solid var(--border-subtle);
+}
+
+.metadataSection {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding-top: var(--space-3);
+  border-top: 1px solid var(--border-subtle);
+}
+
+.metadataGrid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
+}
+
+.metadataItem {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.metadataLabel {
+  font-family: var(--font-mono);
+  font-size: 0.55rem;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  font-weight: 700;
+}
+
+.metadataValue {
+  font-family: var(--font-mono);
+  font-size: 0.7rem;
+  color: var(--text-primary);
+  word-break: break-all;
+}
+
 .messageSection {
   display: flex;
   flex-direction: column;
@@ -135,13 +194,52 @@
   background: rgba(0, 0, 0, 0.3);
   border-radius: 6px;
   border: 1px solid var(--border-subtle);
-  color: var(--text-secondary);
-  font-size: 0.75rem;
-  line-height: 1.5;
   font-family: var(--font-mono);
   position: relative;
   overflow: hidden;
   min-height: 50px;
+}
+
+.messageHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 12px;
+}
+
+.errorCode,
+.warnCode {
+  font-size: 0.6rem;
+  padding: 2px 6px;
+  border-radius: 4px;
+  background: rgba(255, 0, 0, 0.1);
+  border: 1px solid rgba(255, 0, 0, 0.2);
+  color: var(--error);
+  font-weight: 800;
+  white-space: nowrap;
+}
+
+.warnCode {
+  background: rgba(255, 165, 0, 0.1);
+  border: 1px solid rgba(255, 165, 0, 0.2);
+  color: var(--warning);
+}
+
+.messageText {
+  color: var(--text-secondary);
+  font-size: 0.75rem;
+  line-height: 1.5;
+}
+
+.stackTrace {
+  margin-top: 10px;
+  padding-top: 10px;
+  border-top: 1px dashed rgba(255, 255, 255, 0.1);
+  color: var(--text-muted);
+  font-size: 0.65rem;
+  line-height: 1.4;
+  white-space: pre-wrap;
+  word-break: break-all;
 }
 
 .messageBox::after {

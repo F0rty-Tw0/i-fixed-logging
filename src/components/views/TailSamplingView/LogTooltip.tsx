@@ -19,17 +19,21 @@ const SEVERITY_NAMES = ['INFO', 'WARN', 'ERROR', 'CRITICAL'];
 interface LogTooltipProps {
   hoveredLog: LogSnapshot | null;
   tooltipPos: { x: number; y: number };
+  onMouseEnter?: () => void;
+  onMouseLeave?: () => void;
 }
 
 export const LogTooltip: React.FC<LogTooltipProps> = ({
   hoveredLog,
   tooltipPos,
+  onMouseEnter,
+  onMouseLeave,
 }) => {
   if (!hoveredLog) return null;
 
   // Constants for safe layout assumptions
-  const TOOLTIP_WIDTH = 340;
-  const TOOLTIP_HEIGHT = 380; // Approximate max height
+  const TOOLTIP_WIDTH = 640;
+  const TOOLTIP_HEIGHT = 420; // Reduced height as it grows horizontally
   const PADDING = 20;
 
   // Calculate smart position during render to avoid setState in effects
@@ -82,6 +86,8 @@ export const LogTooltip: React.FC<LogTooltipProps> = ({
         top: y,
         left: x,
       }}
+      onMouseEnter={onMouseEnter}
+      onMouseLeave={onMouseLeave}
     >
       <div
         className={clsx(styles.severityBar, {
@@ -97,47 +103,140 @@ export const LogTooltip: React.FC<LogTooltipProps> = ({
       </div>
 
       <div className={styles.body}>
-        <div className={styles.grid}>
-          <div className={styles.item}>
-            <span className={styles.label}>Trace ID</span>
-            <span className={clsx(styles.value, styles.valueHighlight)}>
-              #{hoveredLog.journeyId}
-            </span>
-          </div>
-          <div className={styles.item}>
-            <span className={styles.label}>Status</span>
-            <span className={styles.value}>{eventName}</span>
-          </div>
-          <div className={styles.item}>
-            <span className={styles.label}>Duration</span>
-            <span className={styles.value}>{hoveredLog.metaIndex}ms</span>
-          </div>
-          <div className={styles.item}>
-            <span className={styles.label}>Segment</span>
-            <span className={styles.value}>{details.customer_segment}</span>
-          </div>
-          <div className={styles.item}>
-            <span className={styles.label}>Severity</span>
-            <span
-              className={clsx(styles.value, {
-                'text-error': isError,
-                'text-warning': isWarn,
-                'text-info': isInfo,
-              })}
-            >
-              {SEVERITY_NAMES[hoveredLog.severity]}
-            </span>
-          </div>
-          <div className={styles.item}>
-            <span className={styles.label}>IP</span>
-            <span className={styles.value}>{formattedIp}</span>
+        <div className={styles.column}>
+          <div className={styles.grid}>
+            <div className={styles.item}>
+              <span className={styles.label}>Trace ID</span>
+              <span className={clsx(styles.value, styles.valueHighlight)}>
+                {details.trace_id}
+              </span>
+            </div>
+            <div className={styles.item}>
+              <span className={styles.label}>Status</span>
+              <span className={styles.value}>{eventName}</span>
+            </div>
+            <div className={styles.item}>
+              <span className={styles.label}>Duration</span>
+              <span className={styles.value}>{hoveredLog.metaIndex}ms</span>
+            </div>
+            <div className={styles.item}>
+              <span className={styles.label}>Segment</span>
+              <span className={styles.value}>{details.customer_segment}</span>
+            </div>
+            <div className={styles.item}>
+              <span className={styles.label}>Severity</span>
+              <span
+                className={clsx(styles.value, {
+                  'text-error': isError,
+                  'text-warning': isWarn,
+                  'text-info': isInfo,
+                })}
+              >
+                {SEVERITY_NAMES[hoveredLog.severity]}
+              </span>
+            </div>
+            <div className={styles.item}>
+              <span className={styles.label}>IP</span>
+              <span className={styles.value}>{formattedIp}</span>
+            </div>
+            <div className={styles.item}>
+              <span className={styles.label}>Node</span>
+              <span className={styles.value}>{details.node}</span>
+            </div>
+            <div className={styles.item}>
+              <span className={styles.label}>Waiting Room</span>
+              <span className={styles.value}>{details.waiting_room}</span>
+            </div>
           </div>
         </div>
 
+        <div className={styles.column}>
+          <div className={styles.idSection} style={{ paddingTop: 0 }}>
+            <span className={styles.label}>Request ID</span>
+            <span className={styles.idValue}>{details.request_id}</span>
+          </div>
+
+          {details.customer && (
+            <div className={styles.idSection}>
+              <span className={styles.label}>Customer</span>
+              <span className={styles.idValue}>
+                {details.customer}{' '}
+                {details.years_with_us ? `(${details.years_with_us}y)` : ''}
+              </span>
+            </div>
+          )}
+
+          {Object.entries(details).filter(
+            ([key]) =>
+              ![
+                'trace_id',
+                'request_id',
+                'client_ip',
+                'node',
+                'customer',
+                'customer_segment',
+                'waiting_room',
+                'message',
+                'timestamp',
+                'years_with_us',
+                'stack_trace',
+                'error_code',
+                'warn_code',
+                'cause',
+                'details',
+              ].includes(key),
+          ).length > 0 && (
+            <div className={styles.metadataSection}>
+              <span className={styles.label}>Event Details</span>
+              <div className={styles.metadataGrid}>
+                {Object.entries(details)
+                  .filter(
+                    ([key]) =>
+                      ![
+                        'trace_id',
+                        'request_id',
+                        'client_ip',
+                        'node',
+                        'customer',
+                        'customer_segment',
+                        'waiting_room',
+                        'message',
+                        'timestamp',
+                        'years_with_us',
+                      ].includes(key),
+                  )
+                  .map(([key, value]) => (
+                    <div key={key} className={styles.metadataItem}>
+                      <span className={styles.metadataLabel}>
+                        {key.replace(/_/g, ' ')}
+                      </span>
+                      <span className={styles.metadataValue}>
+                        {String(value)}
+                      </span>
+                    </div>
+                  ))}
+              </div>
+            </div>
+          )}
+        </div>
+
         <div className={styles.messageSection}>
-          <span className={styles.label}>Event Signature</span>
+          <span className={styles.label}>Event Signature & Stack Trace</span>
           <div className={styles.messageBox}>
-            {details.message || 'NO_SIGNATURE_DETECTED'}
+            <div className={styles.messageHeader}>
+              <div className={styles.messageText}>
+                {details.message || 'NO_SIGNATURE_DETECTED'}
+              </div>
+              {details.error_code && (
+                <span className={styles.errorCode}>{details.error_code}</span>
+              )}
+              {details.warn_code && (
+                <span className={styles.warnCode}>{details.warn_code}</span>
+              )}
+            </div>
+            {details.stack_trace && (
+              <div className={styles.stackTrace}>{details.stack_trace}</div>
+            )}
           </div>
         </div>
       </div>

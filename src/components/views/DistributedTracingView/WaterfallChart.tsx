@@ -81,6 +81,7 @@ export const WaterfallChart: React.FC<WaterfallChartProps> = ({
   const { spans, totalDuration, loading, error } = useTraceDetails(traceId);
   const [hoveredSpanId, setHoveredSpanId] = useState<string | null>(null);
   const [tooltipPos, setTooltipPos] = useState({ x: 0, y: 0 });
+  const hideTimeoutRef = React.useRef<NodeJS.Timeout | null>(null);
 
   const hoveredSpan = useMemo(() => {
     if (hoveredSpanId === null) return null;
@@ -123,8 +124,29 @@ export const WaterfallChart: React.FC<WaterfallChartProps> = ({
   }
 
   const handleMouseEnter = (e: React.MouseEvent, id: string) => {
+    if (hideTimeoutRef.current) {
+      clearTimeout(hideTimeoutRef.current);
+      hideTimeoutRef.current = null;
+    }
     setTooltipPos({ x: e.clientX, y: e.clientY });
     setHoveredSpanId(id);
+  };
+
+  const handleMouseLeave = () => {
+    hideTimeoutRef.current = setTimeout(() => {
+      setHoveredSpanId(null);
+    }, 200);
+  };
+
+  const handleTooltipEnter = () => {
+    if (hideTimeoutRef.current) {
+      clearTimeout(hideTimeoutRef.current);
+      hideTimeoutRef.current = null;
+    }
+  };
+
+  const handleTooltipLeave = () => {
+    setHoveredSpanId(null);
   };
 
   return (
@@ -168,13 +190,18 @@ export const WaterfallChart: React.FC<WaterfallChartProps> = ({
                 totalDuration={totalDuration}
                 isHovered={hoveredSpanId === span.id}
                 onMouseEnter={(e) => handleMouseEnter(e, span.id)}
-                onMouseLeave={() => setHoveredSpanId(null)}
+                onMouseLeave={handleMouseLeave}
               />
             ))}
           </div>
         </div>
 
-        <SpanTooltip span={hoveredSpan} position={tooltipPos} />
+        <SpanTooltip
+          span={hoveredSpan}
+          position={tooltipPos}
+          onMouseEnter={handleTooltipEnter}
+          onMouseLeave={handleTooltipLeave}
+        />
       </div>
     </div>
   );
