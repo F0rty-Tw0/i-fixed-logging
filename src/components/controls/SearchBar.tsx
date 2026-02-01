@@ -35,6 +35,13 @@ export const SearchBar: React.FC = () => {
     return () => clearTimeout(timer);
   }, [localSearch]);
 
+  // Clear search on unmount
+  useEffect(() => {
+    return () => {
+      logStore.setSearchQuery('');
+    };
+  }, []);
+
   return (
     <div className={styles['search-group']}>
       <div className={styles['search-input-wrapper']}>

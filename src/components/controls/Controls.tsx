@@ -7,6 +7,7 @@ import { SimulationControls } from './SimulationControls';
 import { HUD } from './HUD';
 import { PageHeader } from './PageHeader';
 
+import { usePathname } from 'next/navigation';
 import { ThemeToggle } from './ThemeToggle';
 
 interface ControlsProps {
@@ -26,6 +27,8 @@ export const Controls: React.FC<ControlsProps> = ({
   onReset,
   onUsersChange,
 }) => {
+  const pathname = usePathname();
+
   return (
     <header className={styles['controls-container']}>
       <div className={styles['left-panel']}>
@@ -43,7 +46,7 @@ export const Controls: React.FC<ControlsProps> = ({
       </div>
 
       <div className={styles['right-panel']}>
-        <SearchBar />
+        {pathname === '/' && <SearchBar />}
         <HUD activeCount={activeCount} />
         <div className={styles.divider} />
         <ThemeToggle />
