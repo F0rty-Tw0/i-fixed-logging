@@ -12,8 +12,8 @@ interface VirtualLogRowProps {
   toggleExpand: (index: number) => void;
   gridTemplateColumns: string;
   columns: string[];
-  getItem: (column: string) => any;
-  getRowData?: () => Record<string, any>; // Optional full row data for expanded view
+  getItem: (column: string) => unknown;
+  getRowData?: () => Record<string, unknown>; // Optional full row data for expanded view
 }
 
 export const VirtualLogRow: React.FC<VirtualLogRowProps> = React.memo(

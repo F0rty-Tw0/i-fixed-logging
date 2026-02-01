@@ -5,7 +5,7 @@ import styles from './VirtualLogList.module.css';
 
 interface LogCellProps {
   col: string;
-  value: any;
+  value: unknown;
 }
 
 export const LogCell: React.FC<LogCellProps> = React.memo(({ col, value }) => {
@@ -39,11 +39,10 @@ export const LogCell: React.FC<LogCellProps> = React.memo(({ col, value }) => {
         timeStr = date.toLocaleTimeString('en-GB', {
           hour12: false,
           hour: '2-digit',
-          minute: '2-digit',
           second: '2-digit',
         });
         fullTime = date.toLocaleTimeString();
-      } catch (e) {
+      } catch {
         timeStr = String(value);
       }
     } else {
@@ -98,7 +97,7 @@ export const LogCell: React.FC<LogCellProps> = React.memo(({ col, value }) => {
       <span
         className={isSlow ? styles['latency-slow'] : styles['latency-cell']}
       >
-        {typeof value === 'number' ? `${value.toFixed(0)}ms` : value}
+        {typeof value === 'number' ? `${value.toFixed(0)}ms` : String(value)}
       </span>
     );
   }
