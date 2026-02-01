@@ -169,7 +169,8 @@
 }
 
 .severity-ERROR,
-.severity-CRIT {
+.severity-CRIT,
+.severity-BLOCK {
   color: #fff;
   background: var(--error);
   box-shadow: 0 0 10px var(--error-bg);

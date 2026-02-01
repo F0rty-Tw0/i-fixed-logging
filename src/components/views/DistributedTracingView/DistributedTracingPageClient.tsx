@@ -16,7 +16,7 @@ export function DistributedTracingPageClient() {
   };
 
   const clearSelection = () => {
-    router.push('/distributed-tracing');
+    router.back();
   };
 
   if (selectedTraceId !== null) {

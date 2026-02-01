@@ -228,7 +228,8 @@
 }
 
 .severity_ERROR,
-.severity_CRITICAL {
+.severity_CRITICAL,
+.severity_BLOCK {
   background: linear-gradient(90deg, var(--error), var(--error-secondary));
   box-shadow: 0 0 20px var(--error-bg);
 }

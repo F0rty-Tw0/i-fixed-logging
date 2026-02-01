@@ -66,11 +66,11 @@ export const LogCell: React.FC<LogCellProps> = React.memo(({ col, value }) => {
     // Map standard numeric severities if passed as numbers
     // 0=INFO, 1=WARN, 2=ERROR, 3=CRITICAL/BLOCK
     if (typeof value === 'number') {
-      const map = ['INFO', 'WARN', 'ERROR', 'CRIT'];
+      const map = ['INFO', 'WARN', 'ERROR', 'BLOCK'];
       severity = map[value] || 'INFO';
     }
     // Handle string inputs that might be full words
-    if (severity === 'CRITICAL') severity = 'CRIT';
+    if (severity === 'CRITICAL' || severity === 'CRIT') severity = 'BLOCK';
 
     return (
       <span

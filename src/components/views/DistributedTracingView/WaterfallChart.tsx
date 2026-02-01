@@ -45,7 +45,7 @@ const WaterfallRow: React.FC<{
   const left = (span.relativeStart / totalDuration) * 100;
   const width = Math.max((span.duration / totalDuration) * 100, 0.5); // Min width for visibility
 
-  const severityClass = `severity_${span.severity || 'INFO'}`;
+  const severityClass = `severity_${(span.severity || 'INFO').toUpperCase()}`;
 
   return (
     <div className={`${styles.row} ${isHovered ? styles.selected : ''}`}>

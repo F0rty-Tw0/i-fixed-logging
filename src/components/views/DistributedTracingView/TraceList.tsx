@@ -19,7 +19,7 @@ export const TraceList: React.FC<{ onSelectTrace?: (id: number) => void }> = ({
   const traces = useTraceAggregation();
   const parentRef = useRef<HTMLDivElement>(null);
   const [filter, setFilter] = useState('');
-  const [sortField, setSortField] = useState<SortField>('startTime');
+  const [sortField, setSortField] = useState<SortField>('duration');
   const [sortDirection, setSortDirection] = useState<SortDirection>('desc');
 
   const handleSort = (field: SortField) => {
