@@ -13,31 +13,16 @@
   position: relative;
 }
 
-.previewPanel::after {
-  content: '';
-  position: absolute;
-  inset: 0;
-  background: repeating-linear-gradient(
-    0deg,
-    rgba(255, 255, 255, 0.02) 0px,
-    rgba(255, 255, 255, 0.02) 1px,
-    transparent 1px,
-    transparent 2px
-  );
-  pointer-events: none;
-  z-index: 5;
-  opacity: 0.5;
-}
-
 .panelHeader {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding: var(--space-4) var(--space-6);
-  border-bottom: 1px solid var(--border-default);
-  background: linear-gradient(to bottom, var(--bg-hover), var(--bg-raised));
-  position: relative;
-  z-index: 10;
+  padding: var(--space-3) var(--space-4);
+  background-color: var(--bg-raised);
+  border-bottom: 2px solid var(--border-default);
+  position: sticky;
+  top: 0;
+  z-index: 20;
 }
 
 .panelTitle {

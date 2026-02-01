@@ -139,17 +139,34 @@ export const WideEventView: React.FC = () => {
   return (
     <div className={styles.container}>
       <div className={styles.header}>
-        <div className={styles.headerLeft}>
-          <h1 className={styles.title}>
-            <span className={styles.icon}>🔍</span>
-            Wide Event Builder
-          </h1>
-          <p className={styles.subtitle}>
-            Connect the clues to reveal the full story
-          </p>
+        <div className={styles.titleSection}>
+          <svg
+            width='24'
+            height='24'
+            viewBox='0 0 24 24'
+            fill='none'
+            stroke='currentColor'
+            strokeWidth='2.5'
+            strokeLinecap='round'
+            strokeLinejoin='round'
+            style={{
+              color: 'var(--accent-500)',
+              filter: 'drop-shadow(0 0 10px var(--accent-glow))',
+            }}
+          >
+            <circle cx='11' cy='11' r='8'></circle>
+            <line x1='21' y1='21' x2='16.65' y2='16.65'></line>
+            <polyline points='11 8 11 11 14 11'></polyline>
+          </svg>
+          <div className={styles.titleText}>
+            <h1>Wide Event Builder</h1>
+            <p className={styles.subtitle}>
+              Connect the clues to reveal the full story
+            </p>
+          </div>
         </div>
 
-        <div>
+        <div className={styles.statsWrapper}>
           <InvestigationProgress
             cluesFound={cluesFound}
             totalClues={totalClues}

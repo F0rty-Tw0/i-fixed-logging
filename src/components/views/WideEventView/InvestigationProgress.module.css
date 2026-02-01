@@ -1,24 +1,23 @@
 /* Obsidian Investigation Progress Styling */
 
 .progressSection {
-  flex: 1;
-  background: linear-gradient(135deg, var(--bg-hover), var(--bg-raised));
-  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  gap: var(--space-10);
+  background: var(--bg-raised);
+  padding: var(--space-3) var(--space-6);
+  border-radius: 8px;
   border: 1px solid var(--border-default);
-  padding: var(--space-4) var(--space-8);
-  max-width: 700px;
+  box-shadow: var(--shadow-sm);
   position: relative;
-  box-shadow:
-    var(--shadow-sm),
-    inset 0 0 20px rgba(0, 0, 0, 0.4);
-  overflow: visible;
 }
 
 .progressHeader {
   display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-bottom: var(--space-4);
+  flex-direction: column;
+  justify-content: center;
+  align-items: flex-start;
+  gap: 2px;
 }
 
 .progressTitle {

@@ -31,7 +31,7 @@ export const SpanTooltip: React.FC<SpanTooltipProps> = ({
 
   // Calculate smart position
   let x = position.x;
-  let y = position.y - 15; // Shift up slightly to avoid cursor overlap
+  let y = position.y - 335; // Shift up slightly to avoid cursor overlap
 
   // Flip left if too close to right edge
   const windowWidth = typeof window !== 'undefined' ? window.innerWidth : 1200;
