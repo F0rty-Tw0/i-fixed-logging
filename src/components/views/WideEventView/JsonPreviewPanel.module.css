@@ -103,6 +103,11 @@
   background: rgba(255, 255, 255, 0.03);
 }
 
+.jsonLineHighlight {
+  background: rgba(255, 255, 255, 0.08);
+  box-shadow: inset 3px 0 0 var(--accent-500);
+}
+
 .jsonLineIndent1 {
   padding-left: 28px;
 }

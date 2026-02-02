@@ -6,6 +6,7 @@ import styles from './JourneyTimeline.module.css';
 import { JourneyEvent, EVENT_NAMES } from '../../../core/types/domain';
 import { STEP_COLORS } from '../../../core/constants';
 import { JOURNEY_FIELDS } from './data';
+import { getClueForField } from './clues';
 
 interface JourneyTimelineProps {
   expandedStep: JourneyEvent | null;
@@ -15,6 +16,8 @@ interface JourneyTimelineProps {
   showClues: boolean;
   setShowClues: React.Dispatch<React.SetStateAction<boolean>>;
   activeHighlightCategory: string | null;
+  onFieldInspected: (stepId: JourneyEvent, fieldName: string) => void;
+  foundClues: Record<string, boolean>;
 }
 
 export const JourneyTimeline: React.FC<JourneyTimelineProps> = ({
@@ -25,6 +28,8 @@ export const JourneyTimeline: React.FC<JourneyTimelineProps> = ({
   showClues,
   setShowClues,
   activeHighlightCategory,
+  onFieldInspected,
+  foundClues,
 }) => {
   return (
     <div className={styles.journeyPanel}>
@@ -148,6 +153,8 @@ export const JourneyTimeline: React.FC<JourneyTimelineProps> = ({
                     {fields.map((field) => {
                       const key = `${stepId}-${field.name}`;
                       const isSelected = selectedFields[key];
+                      const clue = getClueForField(stepId, field.name);
+                      const isDiscovered = clue ? foundClues[clue.id] : false;
                       const isClueHighlighted = showClues && field.isClue;
                       const isCategoryHighlighted =
                         activeHighlightCategory === field.gapCategory;
@@ -173,12 +180,15 @@ export const JourneyTimeline: React.FC<JourneyTimelineProps> = ({
                             <input
                               type='checkbox'
                               checked={isSelected || false}
-                              onChange={() => toggleField(stepId, field.name)}
+                              onChange={() => {
+                                toggleField(stepId, field.name);
+                                onFieldInspected(stepId, field.name);
+                              }}
                               className={styles.checkbox}
                             />
                           </div>
                           <span className={styles.fieldName}>{field.name}</span>
-                          {field.isClue && showClues && (
+                          {isDiscovered && (
                             <span className={styles.clueIndicator}>
                               <svg
                                 width='10'

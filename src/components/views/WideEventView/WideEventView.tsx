@@ -6,7 +6,9 @@ import styles from './WideEventView.module.css';
 import { JourneyTimeline } from './JourneyTimeline';
 import { JsonPreviewPanel } from './JsonPreviewPanel';
 import { InvestigationProgress } from './InvestigationProgress';
+import { EvidenceBoard } from './EvidenceBoard';
 import { JOURNEY_FIELDS } from './data';
+import { CLUES, getClueForField, ClueDef } from './clues';
 
 // ─────────────────────────────────────────────────────────────────────────────
 // COMPONENT
@@ -24,6 +26,9 @@ export const WideEventView: React.FC = () => {
     string | null
   >(null);
   const [showProblemTooltip, setShowProblemTooltip] = useState(false);
+  const [foundClues, setFoundClues] = useState<Record<string, boolean>>({});
+  const [clueOrder, setClueOrder] = useState<ClueDef[]>([]);
+  const [usedBulkSelect, setUsedBulkSelect] = useState(false);
 
   // Auto-dismiss tooltip after 5s
   useEffect(() => {
@@ -48,6 +53,21 @@ export const WideEventView: React.FC = () => {
       });
     });
     setSelectedFields(allFields);
+    setUsedBulkSelect(true);
+    setFoundClues(
+      CLUES.reduce<Record<string, boolean>>((acc, clue) => {
+        acc[clue.id] = true;
+        return acc;
+      }, {}),
+    );
+    setClueOrder(CLUES);
+  };
+
+  const onFieldInspected = (stepId: JourneyEvent, fieldName: string) => {
+    const clue = getClueForField(stepId, fieldName);
+    if (!clue || foundClues[clue.id]) return;
+    setFoundClues((prev) => ({ ...prev, [clue.id]: true }));
+    setClueOrder((prev) => [...prev, clue]);
   };
 
   // Calculate gap coverage
@@ -79,30 +99,10 @@ export const WideEventView: React.FC = () => {
     return coverage;
   }, [selectedFields]);
 
-  // Count clues found
-  const cluesFound = useMemo(() => {
-    let count = 0;
-    Object.entries(JOURNEY_FIELDS).forEach(([stepId, fields]) => {
-      fields.forEach((field) => {
-        if (field.isClue && selectedFields[`${stepId}-${field.name}`]) {
-          count++;
-        }
-      });
-    });
-    return count;
-  }, [selectedFields]);
-
-  const totalClues = useMemo(() => {
-    let count = 0;
-    Object.values(JOURNEY_FIELDS).forEach((fields) => {
-      fields.forEach((field) => {
-        if (field.isClue) count++;
-      });
-    });
-    return count;
-  }, []);
-
-  const rootCauseUnlocked = cluesFound >= totalClues;
+  const cluesFound = clueOrder.length;
+  const totalClues = CLUES.length;
+  const allFound = cluesFound === totalClues;
+  const rootCauseUnlocked = allFound;
 
   // Build the JSON preview object
   const jsonPreview = useMemo(() => {
@@ -179,7 +179,17 @@ export const WideEventView: React.FC = () => {
         </div>
       </div>
 
-      <div className={styles.mainContent}>
+      <div className={styles.caseStatus}>
+        <span className={styles.statusLabel}>Case Status</span>
+        <span className={styles.statusCount}>
+          {clueOrder.length}/{CLUES.length} clues
+        </span>
+        {clueOrder.length === 0 && (
+          <span className={styles.freshBadge}>Fresh Case</span>
+        )}
+      </div>
+
+      <div className={styles.mainContentThreeCol}>
         <div style={{ display: 'flex', minHeight: 0 }}>
           <JourneyTimeline
             expandedStep={expandedStep}
@@ -189,6 +199,17 @@ export const WideEventView: React.FC = () => {
             showClues={showClues}
             setShowClues={setShowClues}
             activeHighlightCategory={activeHighlightCategory}
+            onFieldInspected={onFieldInspected}
+            foundClues={foundClues}
+          />
+        </div>
+
+        <div style={{ display: 'flex', minHeight: 0 }}>
+          <EvidenceBoard
+            foundClues={clueOrder}
+            totalClues={CLUES.length}
+            allFound={allFound}
+            usedBulkSelect={usedBulkSelect}
           />
         </div>
 
@@ -197,6 +218,7 @@ export const WideEventView: React.FC = () => {
             jsonPreview={jsonPreview}
             showProblemTooltip={showProblemTooltip}
             setShowProblemTooltip={setShowProblemTooltip}
+            highlightTags={clueOrder.map((clue) => clue.evidenceTag)}
           />
         </div>
       </div>

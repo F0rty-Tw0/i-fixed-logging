@@ -7,11 +7,19 @@ import { JOURNEY_FIELDS } from './data';
 // Helper to render colorized JSON
 export function renderColorizedJson(
   obj: Record<string, unknown>,
+  highlightTags: Set<string> = new Set(),
 ): React.ReactNode {
   const lines: React.ReactNode[] = [];
   let lineNum = 0;
 
-  const addLine = (content: React.ReactNode, indent: number = 0) => {
+  const shouldHighlight = (value: unknown) =>
+    typeof value === 'string' && highlightTags.has(value);
+
+  const addLine = (
+    content: React.ReactNode,
+    indent: number = 0,
+    highlight: boolean = false,
+  ) => {
     const indentClass =
       indent === 1
         ? styles.jsonLineIndent1
@@ -19,7 +27,12 @@ export function renderColorizedJson(
           ? styles.jsonLineIndent2
           : '';
     lines.push(
-      <div key={lineNum++} className={`${styles.jsonLine} ${indentClass}`}>
+      <div
+        key={lineNum++}
+        className={`${styles.jsonLine} ${indentClass} ${
+          highlight ? styles.jsonLineHighlight : ''
+        }`}
+      >
         {content}
       </div>,
     );
@@ -117,6 +130,7 @@ export function renderColorizedJson(
           {isClue && <span className={styles.jsonClueAnnotation}>← CLUE!</span>}
         </>,
         2,
+        shouldHighlight(val),
       );
     });
 

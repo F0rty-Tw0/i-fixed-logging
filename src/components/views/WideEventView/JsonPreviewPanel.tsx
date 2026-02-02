@@ -7,12 +7,14 @@ interface JsonPreviewPanelProps {
   jsonPreview: Record<string, unknown>;
   showProblemTooltip: boolean;
   setShowProblemTooltip: (show: boolean) => void;
+  highlightTags: string[];
 }
 
 export const JsonPreviewPanel: React.FC<JsonPreviewPanelProps> = ({
   jsonPreview,
   showProblemTooltip,
   setShowProblemTooltip,
+  highlightTags,
 }) => {
   return (
     <div className={styles.previewPanel}>
@@ -74,7 +76,9 @@ export const JsonPreviewPanel: React.FC<JsonPreviewPanelProps> = ({
         </div>
       </div>
       <div className={styles.jsonContainer}>
-        <pre className={styles.jsonPre}>{renderColorizedJson(jsonPreview)}</pre>
+        <pre className={styles.jsonPre}>
+          {renderColorizedJson(jsonPreview, new Set(highlightTags))}
+        </pre>
       </div>
     </div>
   );

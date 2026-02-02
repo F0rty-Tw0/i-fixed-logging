@@ -63,8 +63,59 @@
   overflow: hidden;
 }
 
+.caseStatus {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  padding: var(--space-2) var(--space-4);
+  background: var(--bg-raised);
+  border: 1px solid var(--border-subtle);
+  border-radius: 999px;
+  width: fit-content;
+  font-family: var(--font-sans);
+  font-size: 0.75rem;
+  color: var(--text-muted);
+}
+
+.statusLabel {
+  text-transform: uppercase;
+  letter-spacing: 0.2em;
+  font-weight: 600;
+  color: var(--text-secondary);
+}
+
+.statusCount {
+  font-family: var(--font-mono);
+  color: var(--text-primary);
+}
+
+.freshBadge {
+  background: var(--accent-500);
+  color: #0b0b0e;
+  padding: 2px 8px;
+  border-radius: 999px;
+  font-size: 0.65rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.12em;
+}
+
+.mainContentThreeCol {
+  display: grid;
+  grid-template-columns: 1fr 1.1fr 1fr;
+  gap: var(--space-8);
+  flex: 1;
+  min-height: 0;
+  overflow: hidden;
+}
+
 @media (max-width: 1200px) {
   .mainContent {
+    grid-template-columns: 1fr;
+    overflow-y: auto;
+  }
+
+  .mainContentThreeCol {
     grid-template-columns: 1fr;
     overflow-y: auto;
   }
