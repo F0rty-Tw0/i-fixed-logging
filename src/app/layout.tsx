@@ -18,8 +18,46 @@ const jetbrainsMono = JetBrains_Mono({
 });
 
 export const metadata: Metadata = {
-  title: 'Obsidian Command Center',
+  title: 'I FIxed Logging',
   description: 'Next-gen observability platform demo',
+  metadataBase: new URL('https://i-fixed-logging.vercel.app/'),
+  alternates: {
+    canonical: '/',
+  },
+  robots: {
+    index: true,
+    follow: true,
+  },
+  keywords: [
+    'observability',
+    'logging',
+    'distributed tracing',
+    'telemetry',
+    'incident response',
+    'operations',
+  ],
+  openGraph: {
+    title: 'I FIxed Logging',
+    description: 'Next-gen observability platform demo',
+    url: '/',
+    siteName: 'I FIxed Logging',
+    images: [
+      {
+        url: '/og.png',
+        width: 1200,
+        height: 630,
+        alt: 'I FIxed Logging preview',
+      },
+    ],
+    locale: 'en_US',
+    type: 'website',
+  },
+  twitter: {
+    card: 'summary_large_image',
+    title: 'I FIxed Logging',
+    description: 'Next-gen observability platform demo',
+    images: ['/og.png'],
+  },
 };
 
 export default function RootLayout({
