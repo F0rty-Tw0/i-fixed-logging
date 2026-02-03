@@ -43,15 +43,16 @@ export const EvidenceBoard: React.FC<EvidenceBoardProps> = ({
                 <span className={styles.caseTag}>Evidence</span>
                 <span
                   className={styles.stepChip}
-                  style={{
-                    '--step-color':
-                      STEP_COLORS[clue.step as JourneyEvent] ||
-                      'var(--text-muted)',
-                  } as React.CSSProperties}
+                  style={
+                    {
+                      '--step-color':
+                        STEP_COLORS[clue.step as JourneyEvent] ||
+                        'var(--text-muted)',
+                    } as React.CSSProperties
+                  }
                 />
               </div>
               <p className={styles.cardText}>{clue.narrativeBeat}</p>
-              <span className={styles.checkedStamp}>Checked</span>
             </motion.article>
           ))}
         </AnimatePresence>
@@ -64,8 +65,8 @@ export const EvidenceBoard: React.FC<EvidenceBoardProps> = ({
           <div className={styles.summaryCard}>
             <div className={styles.summaryHeader}>Case Summary</div>
             <p className={styles.summaryText}>
-              TLS 1.0 + sanctioned origin + elevated bot risk broke ES256 key
-              derivation.
+              TLS 1.0 handshake blocked ES256 signing (requires TLS 1.2+), and
+              the request originated from a sanctioned region (IR).
             </p>
           </div>
         )}

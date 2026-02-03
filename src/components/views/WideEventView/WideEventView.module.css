@@ -48,51 +48,21 @@
   align-items: center;
 }
 
-.caseStatus {
-  display: inline-flex;
-  align-items: center;
-  gap: var(--space-3);
-  padding: var(--space-2) var(--space-4);
-  background: var(--bg-raised);
-  border: 1px solid var(--border-subtle);
-  border-radius: 999px;
-  width: fit-content;
-  font-family: var(--font-sans);
-  font-size: 0.75rem;
-  color: var(--text-secondary);
-}
-
-.statusLabel {
-  text-transform: uppercase;
-  letter-spacing: 0.18em;
-  font-weight: 600;
-  color: var(--text-muted);
-}
-
-.statusCount {
-  font-family: var(--font-mono);
-  color: var(--text-primary);
-}
-
-.freshBadge {
-  background: var(--bg-void);
-  color: var(--text-secondary);
-  padding: 2px 8px;
-  border-radius: 999px;
-  font-size: 0.65rem;
-  font-weight: 700;
-  text-transform: uppercase;
-  letter-spacing: 0.12em;
-  border: 1px solid var(--border-default);
-}
-
 .mainContentThreeCol {
-  display: grid;
-  grid-template-columns: 1fr 1fr 1fr;
+  display: flex;
   gap: var(--space-6);
   flex: 1;
   min-height: 0;
   overflow: hidden;
+}
+
+.contentColumn {
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  flex: 1;
+  min-height: 0;
+  min-width: 0;
 }
 
 @media (max-width: 1200px) {
@@ -101,7 +71,7 @@
   }
 
   .mainContentThreeCol {
-    grid-template-columns: 1fr;
+    flex-direction: column;
     overflow-y: auto;
   }
 }

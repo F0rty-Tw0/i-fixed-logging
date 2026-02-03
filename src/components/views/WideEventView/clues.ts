@@ -23,7 +23,7 @@ export const CLUES: ClueDef[] = [
     step: JourneyEvent.TLS_HANDSHAKE,
     fieldName: 'tls_version',
     narrativeBeat:
-      'The handshake left an archaic fingerprint: TLS 1.0 slipped through the gate.',
+      'Handshake negotiated TLS 1.0; ES256 signing policy requires TLS 1.2+.',
     evidenceTag: 'TLS 1.0',
   },
   {
@@ -31,7 +31,7 @@ export const CLUES: ClueDef[] = [
     step: JourneyEvent.TLS_HANDSHAKE,
     fieldName: 'cipher',
     narrativeBeat:
-      'A weak cipher whispers in the dark. RC4-SHA is a relic, not a safeguard.',
+      'Legacy cipher suite selected under TLS 1.0; modern signing policy rejects it.',
     evidenceTag: 'RC4-SHA',
   },
   {
@@ -39,7 +39,7 @@ export const CLUES: ClueDef[] = [
     step: JourneyEvent.GEO_CHECK,
     fieldName: 'country',
     narrativeBeat:
-      'The trail leads east. The origin resolves to IR, not the storefront\'s usual map.',
+      'Geo lookup resolves the origin to IR (Iran).',
     evidenceTag: 'IR',
   },
   {
@@ -47,7 +47,7 @@ export const CLUES: ClueDef[] = [
     step: JourneyEvent.GEO_CHECK,
     fieldName: 'is_sanctioned',
     narrativeBeat:
-      'Sanctions are not subtle. This route is blacklisted before it reaches the vault.',
+      'Origin is in a sanctioned region; compliance policy blocks token issuance.',
     evidenceTag: 'true',
   },
   {
@@ -55,7 +55,7 @@ export const CLUES: ClueDef[] = [
     step: JourneyEvent.BOT_CHECK_START,
     fieldName: 'bot_score',
     narrativeBeat:
-      'The fingerprints don\'t match a human. Bot score spikes beyond the safe line.',
+      'Risk engine flagged elevated automation, but compliance + TLS policy is decisive.',
     evidenceTag: '0.89',
   },
   {
@@ -63,7 +63,7 @@ export const CLUES: ClueDef[] = [
     step: JourneyEvent.TOKEN_GRANT,
     fieldName: 'signing_algorithm',
     narrativeBeat:
-      'The vault expects ES256. Old locks won\'t turn for modern keys.',
+      'Token signing enforces ES256, which requires TLS 1.2+ during the handshake.',
     evidenceTag: 'ES256',
   },
   {
@@ -71,7 +71,7 @@ export const CLUES: ClueDef[] = [
     step: JourneyEvent.TOKEN_GRANT,
     fieldName: 'signing_node',
     narrativeBeat:
-      'A single node is implicated. Token-svc-03 is always near the fracture line.',
+      'Signer logged policy rejection: tls_version < 1.2 with ES256 required.',
     evidenceTag: 'token-svc-03',
   },
 ];

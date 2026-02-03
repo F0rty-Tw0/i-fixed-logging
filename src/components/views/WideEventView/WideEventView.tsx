@@ -161,18 +161,8 @@ export const WideEventView: React.FC = () => {
         </div>
       </div>
 
-      <div className={styles.caseStatus}>
-        <span className={styles.statusLabel}>Case Status</span>
-        <span className={styles.statusCount}>
-          {clueOrder.length}/{CLUES.length} clues
-        </span>
-        {clueOrder.length === 0 && (
-          <span className={styles.freshBadge}>Fresh Case</span>
-        )}
-      </div>
-
       <div className={styles.mainContentThreeCol}>
-        <div style={{ display: 'flex', minHeight: 0 }}>
+        <div className={styles.contentColumn}>
           <JourneyTimeline
             expandedStep={expandedStep}
             setExpandedStep={setExpandedStep}
@@ -186,7 +176,7 @@ export const WideEventView: React.FC = () => {
           />
         </div>
 
-        <div style={{ display: 'flex', minHeight: 0 }}>
+        <div className={styles.contentColumn}>
           <EvidenceBoard
             foundClues={clueOrder}
             totalClues={CLUES.length}
@@ -195,7 +185,7 @@ export const WideEventView: React.FC = () => {
           />
         </div>
 
-        <div style={{ display: 'flex', minHeight: 0 }}>
+        <div className={styles.contentColumn}>
           <JsonPreviewPanel
             jsonPreview={jsonPreview}
             showProblemTooltip={showProblemTooltip}

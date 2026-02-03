@@ -29,54 +29,6 @@ export const InvestigationProgress: React.FC<InvestigationProgressProps> = ({
 }) => {
   return (
     <div className={styles.progressSection}>
-      <div className={styles.progressHeader}>
-        <h3 className={styles.progressTitle}>Investigation Progress</h3>
-        <div className={styles.clueCounter}>
-          <span>
-            Clues Found: {cluesFound}/{totalClues}
-          </span>
-          {rootCauseUnlocked && (
-            <button className={styles.selectAllButton} onClick={selectAll}>
-              Select All
-            </button>
-          )}
-        </div>
-      </div>
-
-      <div className={styles.gapIndicators}>
-        {Object.entries(gapCoverage).map(([gap, data]) => {
-          const percentage =
-            data.total > 0 ? (data.selected / data.total) * 100 : 0;
-          let status: 'empty' | 'partial' | 'complete' = 'empty';
-          if (percentage >= 50) status = 'complete';
-          else if (percentage > 0) status = 'partial';
-
-          return (
-            <div
-              key={gap}
-              className={`${styles.gapItem} ${activeHighlightCategory === gap ? styles.gapActive : ''}`}
-              onClick={() =>
-                setActiveHighlightCategory((prev) =>
-                  prev === gap ? null : gap,
-                )
-              }
-              title={`Highlight ${GAP_NAMES[gap as keyof typeof GAP_NAMES]} fields`}
-            >
-              <div className={`${styles.gapCircle} ${styles[status]}`}>
-                <span>
-                  {status === 'empty' && '○'}
-                  {status === 'partial' && '◐'}
-                  {status === 'complete' && '●'}
-                </span>
-              </div>
-              <span className={styles.gapName}>
-                {GAP_NAMES[gap as keyof typeof GAP_NAMES]}
-              </span>
-            </div>
-          );
-        })}
-      </div>
-
       <AnimatePresence>
         {rootCauseUnlocked && (
           <motion.div
@@ -96,6 +48,56 @@ export const InvestigationProgress: React.FC<InvestigationProgressProps> = ({
           </motion.div>
         )}
       </AnimatePresence>
+
+      <div className={styles.progressContent}>
+        <div className={styles.progressHeader}>
+          <h3 className={styles.progressTitle}>Investigation Progress</h3>
+          <div className={styles.clueCounter}>
+            <span>
+              Clues Found: {cluesFound}/{totalClues}
+            </span>
+            {rootCauseUnlocked && (
+              <button className={styles.selectAllButton} onClick={selectAll}>
+                Select All
+              </button>
+            )}
+          </div>
+        </div>
+
+        <div className={styles.gapIndicators}>
+          {Object.entries(gapCoverage).map(([gap, data]) => {
+            const percentage =
+              data.total > 0 ? (data.selected / data.total) * 100 : 0;
+            let status: 'empty' | 'partial' | 'complete' = 'empty';
+            if (percentage >= 50) status = 'complete';
+            else if (percentage > 0) status = 'partial';
+
+            return (
+              <div
+                key={gap}
+                className={`${styles.gapItem} ${activeHighlightCategory === gap ? styles.gapActive : ''}`}
+                onClick={() =>
+                  setActiveHighlightCategory((prev) =>
+                    prev === gap ? null : gap,
+                  )
+                }
+                title={`Highlight ${GAP_NAMES[gap as keyof typeof GAP_NAMES]} fields`}
+              >
+                <div className={`${styles.gapCircle} ${styles[status]}`}>
+                  <span>
+                    {status === 'empty' && '○'}
+                    {status === 'partial' && '◐'}
+                    {status === 'complete' && '●'}
+                  </span>
+                </div>
+                <span className={styles.gapName}>
+                  {GAP_NAMES[gap as keyof typeof GAP_NAMES]}
+                </span>
+              </div>
+            );
+          })}
+        </div>
+      </div>
     </div>
   );
 };

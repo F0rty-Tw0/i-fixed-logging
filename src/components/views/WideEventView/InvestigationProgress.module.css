@@ -1,6 +1,6 @@
 .progressSection {
   display: flex;
-  align-items: center;
+  align-items: stretch;
   gap: var(--space-6);
   background: var(--bg-void);
   padding: var(--space-3) var(--space-4);
@@ -8,6 +8,14 @@
   border: 1px solid var(--border-subtle);
   position: relative;
   flex-wrap: wrap;
+}
+
+.progressContent {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+  flex: 1;
+  min-width: 220px;
 }
 
 .progressHeader {
@@ -138,15 +146,21 @@
 
 .rootCause {
   position: absolute;
-  top: calc(100% + 12px);
-  left: 0;
-  right: 0;
-  z-index: 100;
+  top: 0;
+  right: calc(100% + var(--space-4));
+  width: clamp(240px, 34vw, 360px);
   background: var(--bg-elevated);
   border: 1px solid var(--success);
   border-radius: 10px;
   padding: var(--space-4);
   box-shadow: var(--shadow-lg);
+}
+
+@media (max-width: 1200px) {
+  .rootCause {
+    position: static;
+    width: 100%;
+  }
 }
 
 .rootCauseHeader {
