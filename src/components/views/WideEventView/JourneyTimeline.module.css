@@ -1,16 +1,11 @@
-/* Obsidian Journey Timeline Styling */
-
 .journeyPanel {
-  background-color: var(--bg-void);
-  border-radius: 12px;
+  background: var(--bg-void);
+  border-radius: 10px;
   border: 1px solid var(--border-default);
   display: flex;
   flex-direction: column;
+  min-height: 0;
   overflow: hidden;
-  box-shadow:
-    var(--shadow-lg),
-    inset 0 0 40px light-dark(rgba(0, 0, 0, 0.05), rgba(0, 0, 0, 0.5));
-  position: relative;
 }
 
 .panelHeader {
@@ -18,63 +13,53 @@
   justify-content: space-between;
   align-items: center;
   padding: var(--space-3) var(--space-4);
-  background-color: var(--bg-raised);
-  border-bottom: 2px solid var(--border-default);
-  position: sticky;
-  top: 0;
-  z-index: 20;
+  background: var(--bg-raised);
+  border-bottom: 1px solid var(--border-subtle);
 }
 
 .panelTitle {
   font-family: var(--font-display);
-  font-size: 0.8rem;
-  font-weight: 800;
-  color: var(--text-primary);
+  font-size: 0.75rem;
+  font-weight: 700;
+  color: var(--text-muted);
   text-transform: uppercase;
-  letter-spacing: 0.15em;
+  letter-spacing: 0.18em;
   margin: 0;
 }
 
 .hintButton {
-  background: var(--bg-elevated);
+  background: var(--bg-void);
   border: 1px solid var(--border-default);
-  color: var(--text-muted);
-  width: 32px;
-  height: 32px;
-  border-radius: 8px;
+  color: var(--text-secondary);
+  width: 30px;
+  height: 30px;
+  border-radius: 6px;
   cursor: pointer;
   display: flex;
   align-items: center;
   justify-content: center;
-  transition: all var(--transition-normal);
+  transition: all var(--transition-fast);
   padding: 0;
-  box-shadow: var(--shadow-sm);
 }
 
 .hintButton:hover {
   background: var(--bg-hover);
   color: var(--text-primary);
-  border-color: var(--text-muted);
-  transform: translateY(-1px);
 }
 
 .hintActive {
-  background: var(--bg-void);
+  background: var(--bg-elevated);
   color: var(--accent-400);
   border-color: var(--accent-500);
-  box-shadow:
-    0 0 15px var(--accent-glow),
-    inset 0 0 10px var(--accent-glow);
 }
 
 .timeline {
   flex: 1;
   overflow-y: auto;
-  padding: var(--space-6);
+  padding: var(--space-4);
   display: flex;
   flex-direction: column;
   gap: var(--space-2);
-  position: relative;
   scrollbar-gutter: stable;
 }
 
@@ -91,41 +76,21 @@
   position: relative;
 }
 
-/* Connection line between steps */
-.timelineStep:not(:last-child)::after {
-  content: '';
-  position: absolute;
-  top: 36px;
-  left: 23px; /* Offset to align with center of 10px dot (20px padding + 3px padding-left) */
-  bottom: -15px;
-  width: 2px;
-  background: linear-gradient(
-    to bottom,
-    var(--border-subtle),
-    var(--border-default),
-    var(--border-subtle)
-  );
-  z-index: 0;
-  opacity: 0.4;
-}
-
 .stepHeader {
   width: 100%;
   display: flex;
   align-items: center;
-  gap: var(--space-4);
-  padding: var(--space-3) var(--space-4);
+  gap: var(--space-3);
+  padding: var(--space-2) var(--space-3);
   background: transparent;
   border: 1px solid transparent;
   color: var(--text-secondary);
   font-family: var(--font-sans);
   font-size: 0.875rem;
   cursor: pointer;
-  transition: all var(--transition-normal);
+  transition: all var(--transition-fast);
   border-radius: 8px;
   text-align: left;
-  position: relative;
-  z-index: 1;
 }
 
 .stepHeader:hover {
@@ -134,35 +99,25 @@
   border-color: var(--border-subtle);
 }
 
-.stepHeader.expanded {
+.expanded {
   background: var(--bg-elevated);
   color: var(--text-primary);
   border-color: var(--border-default);
-  box-shadow: var(--shadow-sm);
 }
 
 .stepDot {
-  width: 10px;
-  height: 10px;
+  width: 8px;
+  height: 8px;
   border-radius: 2px;
   background-color: var(--step-color, var(--text-disabled));
-  box-shadow: 0 0 12px var(--step-color, transparent);
-  transition: all var(--transition-slow);
-  transform: rotate(45deg);
-}
-
-.expanded .stepDot {
-  transform: rotate(135deg) scale(1.2);
-  box-shadow: 0 0 20px var(--step-color, transparent);
 }
 
 .stepName {
   flex: 1;
-  font-weight: 700;
+  font-weight: 600;
   display: flex;
   align-items: center;
-  gap: var(--space-3);
-  font-family: var(--font-display);
+  gap: var(--space-2);
   letter-spacing: 0.02em;
 }
 
@@ -170,24 +125,12 @@
   color: var(--error);
   display: flex;
   align-items: center;
-  filter: drop-shadow(0 0 8px var(--error-bg));
 }
 
 .clueBadge {
   color: var(--accent-400);
   display: flex;
   align-items: center;
-  animation: float 2s infinite ease-in-out;
-}
-
-@keyframes float {
-  0%,
-  100% {
-    transform: translateY(0);
-  }
-  50% {
-    transform: translateY(-3px);
-  }
 }
 
 .stepCount {
@@ -202,14 +145,13 @@
 
 .chevron {
   color: var(--text-disabled);
-  transition: transform var(--transition-fast);
   display: flex;
   align-items: center;
 }
 
 .stepFields {
   overflow: hidden;
-  padding: var(--space-1) 0 var(--space-4) 42px;
+  padding: var(--space-2) 0 var(--space-3) var(--space-5);
   display: flex;
   flex-direction: column;
   gap: 4px;
@@ -219,34 +161,36 @@
   display: flex;
   align-items: center;
   gap: var(--space-3);
-  padding: var(--space-2) var(--space-4);
+  padding: var(--space-2) var(--space-3);
   font-size: 0.75rem;
   color: var(--text-secondary);
   cursor: pointer;
   border-radius: 6px;
   transition: all var(--transition-fast);
   border: 1px solid transparent;
-  background: light-dark(rgba(0, 0, 0, 0.01), rgba(255, 255, 255, 0.01));
+  background: transparent;
 }
 
 .fieldLabel:hover {
   background: var(--bg-hover);
   color: var(--text-primary);
   border-color: var(--border-subtle);
-  transform: translateX(4px);
+}
+
+.clueField {
+  color: var(--text-primary);
 }
 
 .fieldHintClue {
   background: var(--error-bg);
   border-color: var(--error);
-  color: #fff !important;
-  box-shadow: 0 0 15px var(--error-bg);
+  color: var(--text-primary) !important;
 }
 
 .fieldHintCategory {
-  background: var(--bg-hover) !important;
+  background: var(--bg-elevated) !important;
   border-color: var(--category-color, var(--border-default)) !important;
-  box-shadow: inset 4px 0 0 var(--category-color);
+  box-shadow: inset 3px 0 0 var(--category-color);
   color: var(--text-primary) !important;
 }
 
@@ -273,5 +217,4 @@
   color: var(--accent-400);
   display: flex;
   align-items: center;
-  filter: drop-shadow(0 0 5px var(--accent-glow));
 }

@@ -1,13 +1,11 @@
 .boardPanel {
   background: var(--bg-void);
   border: 1px solid var(--border-default);
-  border-radius: 12px;
+  border-radius: 10px;
   display: flex;
   flex-direction: column;
   overflow: hidden;
-  box-shadow:
-    var(--shadow-lg),
-    inset 0 0 40px light-dark(rgba(0, 0, 0, 0.05), rgba(0, 0, 0, 0.5));
+  min-height: 0;
 }
 
 .panelHeader {
@@ -15,17 +13,17 @@
   justify-content: space-between;
   align-items: center;
   padding: var(--space-3) var(--space-4);
-  background-color: var(--bg-raised);
-  border-bottom: 2px solid var(--border-default);
+  background: var(--bg-raised);
+  border-bottom: 1px solid var(--border-subtle);
 }
 
 .panelTitle {
   font-family: var(--font-display);
-  font-size: 0.8rem;
-  font-weight: 800;
-  color: var(--text-primary);
+  font-size: 0.75rem;
+  font-weight: 700;
+  color: var(--text-muted);
   text-transform: uppercase;
-  letter-spacing: 0.15em;
+  letter-spacing: 0.18em;
   margin: 0;
 }
 
@@ -41,55 +39,43 @@
 
 .boardArea {
   flex: 1;
-  padding: var(--space-6);
-  background: radial-gradient(
-    circle at top,
-    rgba(140, 104, 70, 0.35),
-    rgba(34, 26, 18, 0.9)
-  );
+  padding: var(--space-4);
+  background: var(--bg-void);
   position: relative;
   overflow-y: auto;
   display: flex;
   flex-direction: column;
-  gap: var(--space-4);
+  gap: var(--space-3);
 }
 
 .card {
-  background: #efe4d2;
-  color: #2b2117;
-  padding: var(--space-5);
-  border-radius: 10px;
-  box-shadow: 0 20px 35px rgba(0, 0, 0, 0.35);
+  background: var(--bg-elevated);
+  color: var(--text-primary);
+  padding: var(--space-4);
+  border-radius: 8px;
+  border: 1px solid var(--border-subtle);
+  box-shadow: var(--shadow-sm);
   position: relative;
   font-family: var(--font-sans);
 }
 
 .pin {
-  position: absolute;
-  top: -6px;
-  left: 20px;
-  width: 12px;
-  height: 12px;
-  border-radius: 50%;
-  background: #b72d2d;
-  box-shadow:
-    0 0 0 2px rgba(0, 0, 0, 0.2),
-    0 6px 12px rgba(0, 0, 0, 0.35);
+  display: none;
 }
 
 .cardMeta {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  margin-bottom: var(--space-3);
+  margin-bottom: var(--space-2);
 }
 
 .caseTag {
   font-family: var(--font-mono);
   font-size: 0.65rem;
   text-transform: uppercase;
-  letter-spacing: 0.2em;
-  color: #5b3d25;
+  letter-spacing: 0.18em;
+  color: var(--text-muted);
 }
 
 .stepChip {
@@ -97,29 +83,25 @@
   height: 10px;
   border-radius: 2px;
   background: var(--step-color, var(--text-muted));
-  box-shadow: 0 0 10px var(--step-color, transparent);
-  transform: rotate(45deg);
 }
 
 .cardText {
   margin: 0;
   font-size: 0.85rem;
   line-height: 1.5;
-  color: #2b2117;
+  color: var(--text-primary);
 }
 
 .checkedStamp {
-  position: absolute;
-  bottom: var(--space-4);
-  right: var(--space-4);
+  display: inline-block;
+  margin-top: var(--space-3);
   font-size: 0.6rem;
   letter-spacing: 0.2em;
   text-transform: uppercase;
-  color: rgba(120, 60, 40, 0.5);
-  border: 1px solid rgba(120, 60, 40, 0.35);
+  color: var(--text-muted);
+  border: 1px solid var(--border-subtle);
   padding: 2px 6px;
   border-radius: 4px;
-  transform: rotate(-8deg);
 }
 
 .bulkMarker {
@@ -128,28 +110,29 @@
   font-size: 0.7rem;
   text-transform: uppercase;
   letter-spacing: 0.18em;
-  color: #f4e9d6;
-  background: rgba(0, 0, 0, 0.3);
+  color: var(--text-secondary);
+  background: var(--bg-elevated);
   padding: var(--space-2) var(--space-4);
   border-radius: 999px;
-  border: 1px solid rgba(255, 255, 255, 0.15);
+  border: 1px solid var(--border-subtle);
 }
 
 .summaryCard {
-  background: rgba(10, 8, 6, 0.7);
-  color: #f8eee0;
-  padding: var(--space-5);
-  border-radius: 12px;
-  border: 1px solid rgba(255, 255, 255, 0.18);
-  box-shadow: 0 15px 30px rgba(0, 0, 0, 0.4);
+  background: var(--bg-raised);
+  color: var(--text-primary);
+  padding: var(--space-4);
+  border-radius: 10px;
+  border: 1px solid var(--border-default);
+  box-shadow: var(--shadow-sm);
 }
 
 .summaryHeader {
   font-family: var(--font-display);
-  font-size: 0.85rem;
+  font-size: 0.75rem;
   text-transform: uppercase;
-  letter-spacing: 0.2em;
-  margin-bottom: var(--space-3);
+  letter-spacing: 0.18em;
+  margin-bottom: var(--space-2);
+  color: var(--text-muted);
 }
 
 .summaryText {
