@@ -28,8 +28,8 @@ const TABS = [
     ),
   },
   {
-    id: ViewMode.TAIL_SAMPLING,
-    label: 'Traffic',
+    id: ViewMode.DISTRIBUTED_TRACING,
+    label: 'Traces',
     icon: (
       <svg
         width='20'
@@ -41,29 +41,10 @@ const TABS = [
         strokeLinecap='round'
         strokeLinejoin='round'
       >
-        <rect x='3' y='3' width='7' height='7'></rect>
-        <rect x='14' y='3' width='7' height='7'></rect>
-        <rect x='14' y='14' width='7' height='7'></rect>
-        <rect x='3' y='14' width='7' height='7'></rect>
-      </svg>
-    ),
-  },
-  {
-    id: ViewMode.WIDE_EVENT,
-    label: 'Journeys',
-    icon: (
-      <svg
-        width='20'
-        height='20'
-        viewBox='0 0 24 24'
-        fill='none'
-        stroke='currentColor'
-        strokeWidth='2'
-        strokeLinecap='round'
-        strokeLinejoin='round'
-      >
-        <path d='M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z'></path>
-        <path d='M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z'></path>
+        <path d='M6 3v12'></path>
+        <circle cx='18' cy='6' r='3'></circle>
+        <circle cx='6' cy='18' r='3'></circle>
+        <path d='M18 9a9 9 0 0 1-9 9'></path>
       </svg>
     ),
   },
@@ -89,8 +70,8 @@ const TABS = [
     ),
   },
   {
-    id: ViewMode.DISTRIBUTED_TRACING,
-    label: 'Traces',
+    id: ViewMode.WIDE_EVENT,
+    label: 'Journeys',
     icon: (
       <svg
         width='20'
@@ -102,10 +83,29 @@ const TABS = [
         strokeLinecap='round'
         strokeLinejoin='round'
       >
-        <path d='M6 3v12'></path>
-        <circle cx='18' cy='6' r='3'></circle>
-        <circle cx='6' cy='18' r='3'></circle>
-        <path d='M18 9a9 9 0 0 1-9 9'></path>
+        <path d='M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z'></path>
+        <path d='M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z'></path>
+      </svg>
+    ),
+  },
+  {
+    id: ViewMode.TAIL_SAMPLING,
+    label: 'Traffic',
+    icon: (
+      <svg
+        width='20'
+        height='20'
+        viewBox='0 0 24 24'
+        fill='none'
+        stroke='currentColor'
+        strokeWidth='2'
+        strokeLinecap='round'
+        strokeLinejoin='round'
+      >
+        <rect x='3' y='3' width='7' height='7'></rect>
+        <rect x='14' y='3' width='7' height='7'></rect>
+        <rect x='14' y='14' width='7' height='7'></rect>
+        <rect x='3' y='14' width='7' height='7'></rect>
       </svg>
     ),
   },
