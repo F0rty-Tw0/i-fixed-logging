@@ -122,7 +122,7 @@ export const JourneyTimeline: React.FC<JourneyTimelineProps> = ({
                   )}
                 </span>
                 <span className={styles.stepCount}>
-                  {selectedCount > 0 ? `${selectedCount}/${fields.length}` : ''}
+                  {selectedCount}/{fields.length}
                 </span>
                 <span className={styles.chevron}>
                   <svg

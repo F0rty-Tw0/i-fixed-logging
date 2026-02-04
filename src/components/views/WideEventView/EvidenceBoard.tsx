@@ -28,6 +28,14 @@ export const EvidenceBoard: React.FC<EvidenceBoardProps> = ({
       </div>
 
       <div className={styles.boardArea}>
+        <div className={styles.userIssueCard}>
+          <div className={styles.userIssueHeader}>User Reported Issue</div>
+          <p className={styles.userIssueText}>
+            &ldquo;I entered the queue, but the page crashed with a &apos;Secure
+            Connection&apos; error after the queue.&rdquo;
+          </p>
+        </div>
+
         <AnimatePresence>
           {foundClues.map((clue, index) => (
             <motion.article
@@ -74,3 +82,4 @@ export const EvidenceBoard: React.FC<EvidenceBoardProps> = ({
     </div>
   );
 };
+

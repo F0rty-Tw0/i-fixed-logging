@@ -15,9 +15,7 @@ import { CLUES, getClueForField, ClueDef } from './clues';
 // ─────────────────────────────────────────────────────────────────────────────
 
 export const WideEventView: React.FC = () => {
-  const [expandedStep, setExpandedStep] = useState<JourneyEvent | null>(
-    JourneyEvent.CONNECT,
-  );
+  const [expandedStep, setExpandedStep] = useState<JourneyEvent | null>(null);
   const [selectedFields, setSelectedFields] = useState<Record<string, boolean>>(
     {},
   );
