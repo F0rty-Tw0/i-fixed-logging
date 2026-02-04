@@ -14,7 +14,6 @@ export const JsonPreviewPanel: React.FC<JsonPreviewPanelProps> = ({
   jsonPreview,
   showProblemTooltip,
   setShowProblemTooltip,
-  highlightTags,
 }) => {
   return (
     <div className={styles.previewPanel}>
@@ -76,9 +75,7 @@ export const JsonPreviewPanel: React.FC<JsonPreviewPanelProps> = ({
         </div>
       </div>
       <div className={styles.jsonContainer}>
-        <pre className={styles.jsonPre}>
-          {renderColorizedJson(jsonPreview, new Set(highlightTags))}
-        </pre>
+        <pre className={styles.jsonPre}>{renderColorizedJson(jsonPreview)}</pre>
       </div>
     </div>
   );
