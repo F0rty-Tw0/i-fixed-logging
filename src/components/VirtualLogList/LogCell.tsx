@@ -147,9 +147,17 @@ export const LogCell: React.FC<LogCellProps> = React.memo(({ col, value }) => {
   }
 
   // Default
+  const isTechnicalNumber =
+    colLower.includes('_id') ||
+    colLower.includes('id') ||
+    colLower.includes('numeric') ||
+    colLower.includes('wr_id');
+
   return (
     <span title={String(value)} className={styles.defaultCell}>
-      {typeof value === 'number' ? value.toLocaleString() : String(value)}
+      {typeof value === 'number' && !isTechnicalNumber
+        ? value.toLocaleString()
+        : String(value)}
     </span>
   );
 });

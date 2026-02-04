@@ -279,13 +279,14 @@
   z-index: 20;
   border-bottom: 2px solid var(--border-default);
   /* Added 6px to right padding to account for scrollbar width */
-  padding: 0 var(--space-3);
-  min-width: max-content;
+  padding: 0 calc(var(--space-3) + 6px) 0 var(--space-3);
+  width: max-content;
+  min-width: 100%;
   box-shadow: 0 4px 15px rgba(0, 0, 0, 0.4);
 }
 
 .headerCell {
-  padding: var(--space-2) var(--space-2);
+  padding: var(--space-2) var(--space-3);
   color: var(--text-muted);
   font-weight: 800;
   font-family: var(--font-display);

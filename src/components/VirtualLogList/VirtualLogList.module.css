@@ -17,7 +17,7 @@
 
 .virtual-scroller {
   flex: 1;
-  overflow-y: auto;
+  overflow: auto;
   contain: strict;
   scrollbar-gutter: stable;
 }
@@ -35,10 +35,16 @@
 .log-row-wrapper {
   display: flex;
   flex-direction: column;
-  width: 100%;
   position: absolute;
   left: 0;
-  width: 100%;
+  width: max-content;
+  min-width: 100%;
+}
+
+.virtual-container {
+  position: relative;
+  width: max-content;
+  min-width: 100%;
 }
 
 /* Header & Row Layouts - Using Grid */
@@ -53,6 +59,8 @@
   padding: 0 calc(var(--space-3) + 6px) 0 var(--space-3);
   box-shadow: 0 4px 15px rgba(0, 0, 0, 0.4);
   align-items: center;
+  width: max-content;
+  min-width: 100%;
 }
 
 .log-row {
@@ -63,6 +71,8 @@
   border-bottom: 1px solid var(--border-subtle);
   cursor: pointer;
   transition: background-color var(--transition-fast);
+  width: max-content;
+  min-width: 100%;
 }
 
 .log-row:nth-child(even) {

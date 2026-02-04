@@ -27,11 +27,14 @@ const INITIAL_SEARCH_STATUS = {
 };
 const getServerSearchStatusSnapshot = () => INITIAL_SEARCH_STATUS;
 
-// derive columns from metadata
-const COLUMNS_KEYS = Object.keys(LOG_COLUMN_METADATA);
-const COLUMNS_CONFIG = Object.values(LOG_COLUMN_METADATA)
-  .map((m) => m.width)
-  .join(' ');
+// Filter columns for Simulation/Live view - exclude technical columns
+const EXCLUDED_COLUMNS = ['ip_numeric', 'event_id'];
+const COLUMNS_KEYS = Object.keys(LOG_COLUMN_METADATA).filter(
+  (key) => !EXCLUDED_COLUMNS.includes(key),
+);
+const COLUMNS_CONFIG = COLUMNS_KEYS.map(
+  (key) => LOG_COLUMN_METADATA[key].width,
+).join(' ');
 
 export const VirtualLogList = () => {
   const parentRef = useRef<HTMLDivElement>(null);
@@ -144,16 +147,6 @@ export const VirtualLogList = () => {
   return (
     <div className={styles['log-container']}>
       <div
-        className={styles['header-row']}
-        style={{ gridTemplateColumns: COLUMNS_CONFIG }}
-      >
-        {COLUMNS_KEYS.map((key) => (
-          <div key={key} className={styles['header-cell']}>
-            {LOG_COLUMN_METADATA[key].label}
-          </div>
-        ))}
-      </div>
-      <div
         ref={parentRef}
         className={styles['virtual-scroller']}
         onScroll={(e) => {
@@ -176,6 +169,16 @@ export const VirtualLogList = () => {
           lastScrollTopRef.current = currentScrollTop;
         }}
       >
+        <div
+          className={styles['header-row']}
+          style={{ gridTemplateColumns: COLUMNS_CONFIG }}
+        >
+          {COLUMNS_KEYS.map((key) => (
+            <div key={key} className={styles['header-cell']}>
+              {LOG_COLUMN_METADATA[key].label}
+            </div>
+          ))}
+        </div>
         <div
           className={styles['virtual-container']}
           style={{

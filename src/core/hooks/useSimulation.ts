@@ -83,6 +83,9 @@ export const useSimulation = (): SimulationControls => {
     const unsubscribeFinished = workerManager.subscribe('FINISHED', () => {
       setIsRunning(false);
       setIsFinished(true);
+      if (statsTimeoutRef.current) clearTimeout(statsTimeoutRef.current);
+      pendingActiveCountRef.current = 0;
+      setStats({ activeCount: 0 });
     });
 
     return () => {
@@ -112,6 +115,9 @@ export const useSimulation = (): SimulationControls => {
   const stop = useCallback(() => {
     workerManager.postMessage({ type: 'STOP' });
     setIsRunning(false);
+    if (statsTimeoutRef.current) clearTimeout(statsTimeoutRef.current);
+    pendingActiveCountRef.current = 0;
+    setStats({ activeCount: 0 });
   }, []);
 
   const setUsers = useCallback((count: number) => {
