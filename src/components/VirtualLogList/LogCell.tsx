@@ -10,7 +10,7 @@ interface LogCellProps {
 
 export const LogCell: React.FC<LogCellProps> = React.memo(({ col, value }) => {
   if (value === null || value === undefined) {
-    return <span style={{ opacity: 0.3 }}>-</span>;
+    return <span className={styles.nullValue}>-</span>;
   }
 
   const colLower = col.toLowerCase();

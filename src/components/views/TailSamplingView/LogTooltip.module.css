@@ -133,6 +133,10 @@
   padding-top: var(--space-2);
 }
 
+.idSectionNoPadding {
+  padding-top: 0;
+}
+
 .idValue {
   font-family: var(--font-mono);
   font-size: 0.75rem;

@@ -22,6 +22,11 @@
   gap: var(--space-4);
 }
 
+.accentIcon {
+  color: var(--accent-500);
+  filter: drop-shadow(0 0 8px var(--accent-glow));
+}
+
 .titleSection h1 {
   font-family: var(--font-display);
   font-size: 1.875rem;

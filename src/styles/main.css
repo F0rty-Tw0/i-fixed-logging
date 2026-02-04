@@ -301,3 +301,35 @@ a {
   overflow: hidden;
   text-overflow: ellipsis;
 }
+
+/* Step Color Mapping Classes (matches JourneyEvent enum) */
+.step-color-0,
+.step-color-1 {
+  --step-color: #00d4ff;
+  --category-color: #00d4ff;
+}
+.step-color-2,
+.step-color-3,
+.step-color-4,
+.step-color-5 {
+  --step-color: #ff6b35;
+  --category-color: #ff6b35;
+}
+.step-color-6,
+.step-color-7,
+.step-color-8 {
+  --step-color: #ffd700;
+  --category-color: #ffd700;
+}
+.step-color-9,
+.step-color-10,
+.step-color-11,
+.step-color-12 {
+  --step-color: #a855f7;
+  --category-color: #a855f7;
+}
+.step-color-13,
+.step-color-14 {
+  --step-color: #22c55e;
+  --category-color: #22c55e;
+}

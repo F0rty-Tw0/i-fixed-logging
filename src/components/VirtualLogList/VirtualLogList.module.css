@@ -203,6 +203,10 @@
   font-weight: 600;
 }
 
+.nullValue {
+  opacity: 0.3;
+}
+
 .message-text {
   color: var(--text-secondary);
   opacity: 0.9;

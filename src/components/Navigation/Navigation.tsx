@@ -132,7 +132,7 @@ export const Navigation: React.FC = () => {
         </div>
 
         <div className={styles['nav-list']}>
-          {TABS.map((tab, index) => {
+          {TABS.map((tab) => {
             const active = isActive(tab.id);
             const href =
               tab.id === ViewMode.QUEUE_SIMULATOR ? '/' : `/${tab.id}`;
@@ -146,7 +146,6 @@ export const Navigation: React.FC = () => {
                   active && styles['nav-item-active'],
                   isExpanded && styles['nav-item-expanded'],
                 )}
-                style={{ '--index': index } as React.CSSProperties}
               >
                 <span className={styles.icon}>{tab.icon}</span>
                 <span className={styles.label}>{tab.label}</span>

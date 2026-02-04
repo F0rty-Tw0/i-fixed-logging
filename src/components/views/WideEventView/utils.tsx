@@ -1,7 +1,6 @@
 import React from 'react';
 import styles from './JsonPreviewPanel.module.css';
 import { JourneyEvent, EVENT_NAMES } from '../../../core/types/domain';
-import { STEP_COLORS } from '../../../core/constants';
 import { JOURNEY_FIELDS } from './data';
 
 // Helper to render colorized JSON
@@ -67,14 +66,10 @@ export function renderColorizedJson(
     const stepId = Object.entries(EVENT_NAMES).find(
       ([, name]) => name === stepName,
     )?.[0];
-    const color = stepId ? STEP_COLORS[Number(stepId) as JourneyEvent] : '#888';
 
     addLine(
       <>
-        <span
-          className={styles.jsonColorStepName}
-          style={{ '--step-color': color } as React.CSSProperties}
-        >
+        <span className={`${styles.jsonColorStepName} step-color-${stepId}`}>
           &quot;{stepName}&quot;
         </span>
         <span className={styles.jsonColorWhite}>: {'{'}</span>

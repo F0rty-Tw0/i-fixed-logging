@@ -94,10 +94,7 @@ export const TraceList: React.FC<{ onSelectTrace?: (id: number) => void }> = ({
             strokeWidth='3'
             strokeLinecap='round'
             strokeLinejoin='round'
-            style={{
-              color: 'var(--accent-500)',
-              filter: 'drop-shadow(0 0 8px var(--accent-glow))',
-            }}
+            className={styles.accentIcon}
           >
             <polyline points='22 12 18 12 15 21 9 3 6 12 2 12'></polyline>
           </svg>

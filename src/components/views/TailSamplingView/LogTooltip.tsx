@@ -151,7 +151,7 @@ export const LogTooltip: React.FC<LogTooltipProps> = ({
         </div>
 
         <div className={styles.column}>
-          <div className={styles.idSection} style={{ paddingTop: 0 }}>
+          <div className={clsx(styles.idSection, styles.idSectionNoPadding)}>
             <span className={styles.label}>Request ID</span>
             <span className={styles.idValue}>{details.request_id}</span>
           </div>

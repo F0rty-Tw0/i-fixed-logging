@@ -1,9 +1,8 @@
 import React from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
+import clsx from 'clsx';
 import styles from './EvidenceBoard.module.css';
 import { ClueDef } from './clues';
-import { STEP_COLORS } from '../../../core/constants';
-import { JourneyEvent } from '../../../core/types/domain';
 
 interface EvidenceBoardProps {
   foundClues: ClueDef[];
@@ -50,14 +49,7 @@ export const EvidenceBoard: React.FC<EvidenceBoardProps> = ({
               <div className={styles.cardMeta}>
                 <span className={styles.caseTag}>Evidence</span>
                 <span
-                  className={styles.stepChip}
-                  style={
-                    {
-                      '--step-color':
-                        STEP_COLORS[clue.step as JourneyEvent] ||
-                        'var(--text-muted)',
-                    } as React.CSSProperties
-                  }
+                  className={clsx(styles.stepChip, `step-color-${clue.step}`)}
                 />
               </div>
               <p className={styles.cardText}>{clue.narrativeBeat}</p>

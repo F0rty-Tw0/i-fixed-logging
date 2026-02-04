@@ -4,7 +4,6 @@ import clsx from 'clsx';
 import styles from './JourneyTimeline.module.css';
 
 import { JourneyEvent, EVENT_NAMES } from '../../../core/types/domain';
-import { STEP_COLORS } from '../../../core/constants';
 import { JOURNEY_FIELDS } from './data';
 import { getClueForField } from './clues';
 
@@ -61,7 +60,6 @@ export const JourneyTimeline: React.FC<JourneyTimelineProps> = ({
           const stepId = Number(stepIdStr) as JourneyEvent;
           const fields = JOURNEY_FIELDS[stepId];
           const isExpanded = expandedStep === stepId;
-          const stepColor = STEP_COLORS[stepId];
           const isErrorStep = stepId === JourneyEvent.TOKEN_GRANT;
           const hasClue = fields.some((f) => f.isClue);
 
@@ -79,9 +77,12 @@ export const JourneyTimeline: React.FC<JourneyTimelineProps> = ({
               transition={{ delay: index * 0.05, duration: 0.3 }}
             >
               <button
-                className={`${styles.stepHeader} ${isExpanded ? styles.expanded : ''}`}
+                className={clsx(
+                  styles.stepHeader,
+                  isExpanded && styles.expanded,
+                  `step-color-${stepId}`,
+                )}
                 onClick={() => setExpandedStep(isExpanded ? null : stepId)}
-                style={{ '--step-color': stepColor } as React.CSSProperties}
               >
                 <span className={styles.stepDot} />
                 <span className={styles.stepName}>
@@ -124,7 +125,12 @@ export const JourneyTimeline: React.FC<JourneyTimelineProps> = ({
                 <span className={styles.stepCount}>
                   {selectedCount}/{fields.length}
                 </span>
-                <span className={styles.chevron}>
+                <span
+                  className={clsx(
+                    styles.chevron,
+                    isExpanded && styles.chevronExpanded,
+                  )}
+                >
                   <svg
                     width='10'
                     height='10'
@@ -134,7 +140,6 @@ export const JourneyTimeline: React.FC<JourneyTimelineProps> = ({
                     strokeWidth='2'
                     strokeLinecap='round'
                     strokeLinejoin='round'
-                    style={{ transform: isExpanded ? 'rotate(90deg)' : 'none' }}
                   >
                     <polyline points='9 18 15 12 9 6'></polyline>
                   </svg>
@@ -167,14 +172,8 @@ export const JourneyTimeline: React.FC<JourneyTimelineProps> = ({
                             field.isClue && showClues && styles.clueField,
                             isClueHighlighted && styles.fieldHintClue,
                             isCategoryHighlighted && styles.fieldHintCategory,
+                            isCategoryHighlighted && `step-color-${stepId}`,
                           )}
-                          style={
-                            isCategoryHighlighted
-                              ? ({
-                                  '--category-color': STEP_COLORS[stepId],
-                                } as React.CSSProperties)
-                              : {}
-                          }
                         >
                           <div className={styles.checkboxWrapper}>
                             <input
