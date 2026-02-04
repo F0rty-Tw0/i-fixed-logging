@@ -30,6 +30,7 @@ export function renderColorizedJson(
   // Base fields
   const baseFields = [
     'timestamp',
+    'trace_id',
     'severity',
     'event',
     'message',

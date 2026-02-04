@@ -14,6 +14,24 @@ import { CLUES, getClueForField, ClueDef } from './clues';
 // COMPONENT
 // ─────────────────────────────────────────────────────────────────────────────
 
+const SPAN_IDS: Record<number, string> = {
+  [JourneyEvent.CONNECT]: 'sp-bf41',
+  [JourneyEvent.TLS_HANDSHAKE]: 'sp-71e2',
+  [JourneyEvent.WAF_CHECK]: 'sp-a92c',
+  [JourneyEvent.GEO_CHECK]: 'sp-3f01',
+  [JourneyEvent.BOT_CHECK_START]: 'sp-d82b',
+  [JourneyEvent.JS_CHALLENGE]: 'sp-1c5f',
+  [JourneyEvent.CAPTCHA_PRESENTED]: 'sp-6a0e',
+  [JourneyEvent.CAPTCHA_SOLVED]: 'sp-2b9d',
+  [JourneyEvent.INTEGRITY_PASSED]: 'sp-f483',
+  [JourneyEvent.QUEUE_ENTER]: 'sp-0e1a',
+  [JourneyEvent.QUEUE_POLL_1]: 'sp-9c3b',
+  [JourneyEvent.QUEUE_POLL_2]: 'sp-5d71',
+  [JourneyEvent.QUEUE_NEXT]: 'sp-8b4e',
+  [JourneyEvent.TOKEN_GRANT]: 'sp-e2f7',
+  [JourneyEvent.ADMITTED]: 'sp-13ac',
+};
+
 export const WideEventView: React.FC = () => {
   const [expandedStep, setExpandedStep] = useState<JourneyEvent | null>(null);
   const [selectedFields, setSelectedFields] = useState<Record<string, boolean>>(
@@ -81,7 +99,8 @@ export const WideEventView: React.FC = () => {
       infra: { selected: 0, total: 0, hasClue: false },
     };
 
-    Object.entries(JOURNEY_FIELDS).forEach(([stepId, fields]) => {
+    Object.entries(JOURNEY_FIELDS).forEach(([stepIdStr, fields]) => {
+      const stepId = Number(stepIdStr) as JourneyEvent;
       fields.forEach((field) => {
         const key = `${stepId}-${field.name}`;
         coverage[field.gapCategory].total++;
@@ -106,6 +125,7 @@ export const WideEventView: React.FC = () => {
   const jsonPreview = useMemo(() => {
     const base: Record<string, unknown> = {
       timestamp: '2026-01-26T00:02:12.456Z',
+      trace_id: 'tr-7f8a3c2b1d0e9f',
       severity: 'ERROR',
       event: 'token_grant',
       message: 'Token signing failed: EC_KEY_DERIVE_ERROR',
@@ -126,13 +146,19 @@ export const WideEventView: React.FC = () => {
         }
       });
 
-      if (Object.keys(stepFields).length > 0) {
-        enriched[EVENT_NAMES[stepId]] = stepFields;
+      const isStepSelected = Object.keys(stepFields).length > 0;
+      const isStepExpanded = expandedStep === stepId;
+
+      if (isStepSelected || isStepExpanded) {
+        enriched[EVENT_NAMES[stepId]] = {
+          span_id: SPAN_IDS[stepId],
+          ...stepFields,
+        };
       }
     });
 
     return { ...base, ...enriched };
-  }, [selectedFields]);
+  }, [selectedFields, expandedStep]);
 
   return (
     <div className={styles.container}>
@@ -150,7 +176,7 @@ export const WideEventView: React.FC = () => {
           <InvestigationProgress
             cluesFound={cluesFound}
             totalClues={totalClues}
-            rootCauseUnlocked={rootCauseUnlocked}
+            rootCauseUnlocked={rootCauseUnlocked && !usedBulkSelect}
             selectAll={selectAll}
             gapCoverage={gapCoverage}
             activeHighlightCategory={activeHighlightCategory}
