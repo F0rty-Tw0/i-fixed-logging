@@ -70,12 +70,6 @@ export function renderColorizedJson(
     const color = stepId ? STEP_COLORS[Number(stepId) as JourneyEvent] : '#888';
 
     addLine(
-      <span className={styles.jsonColorComment}>
-        {`// ═══ ${stepName.toUpperCase()} ═══`}
-      </span>,
-      1,
-    );
-    addLine(
       <>
         <span
           className={styles.jsonColorStepName}
