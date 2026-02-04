@@ -85,7 +85,7 @@ export const VirtualLogList = () => {
 
         // If count decreased (RESET) or we're catastrophically behind, catch up immediately
         const diff = target - prev;
-        if (diff < 0 || diff > 50000) {
+        if (diff < 0 || diff > 10000) {
           return target;
         }
 
@@ -125,11 +125,9 @@ export const VirtualLogList = () => {
       dampedCount > 0 &&
       parentRef.current
     ) {
-      // Throttle auto-scroll to requestAnimationFrame to avoid layout thrashing
-      requestAnimationFrame(() => {
-        virtualizer.scrollToIndex(dampedCount - 1, {
-          align: 'end',
-        });
+      // Direct call to scrollToIndex, alignment is handled by virtualizer
+      virtualizer.scrollToIndex(dampedCount - 1, {
+        align: 'end',
       });
     }
   }, [dampedCount, isAutoScroll, expandedIndex, virtualizer]);

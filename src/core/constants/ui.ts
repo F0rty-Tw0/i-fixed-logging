@@ -68,7 +68,7 @@ export const LOG_COLUMN_METADATA: Record<
   region: { width: '85px', label: 'REGION' },
   ip: { width: '140px', label: 'IP' },
   event: { width: '165px', label: 'EVENT' },
-  message: { width: 'minmax(370px, 1fr)', label: 'MESSAGE' },
+  message: { width: 'minmax(300px, 1fr)', label: 'MESSAGE' },
   latency: { width: '90px', label: 'LATENCY' },
   ip_numeric: { width: '140px', label: 'IP NUMERIC' },
   event_id: { width: '80px', label: 'EVENT ID' },
